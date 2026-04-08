@@ -218,7 +218,6 @@ window.submitQuote = async () => {
 
         const docRef = await addDoc(collection(db, "quotes"), {
             customerKorName: "(고객 입력 대기)",
-            contact: "-",
             items: items,
             totalPrice: totalPrice,
             status: '견적발송',

@@ -107,11 +107,6 @@
             <span class="material-icons input-icon">language</span>
             <input type="text" id="cust-name-eng" placeholder="예: HONG GILDONG">
         </div>
-        <div class="input-group">
-            <label>구매처<span>*</span></label>
-            <span class="material-icons input-icon">shopping_cart</span>
-            <input type="text" id="cust-contact" placeholder="예: 스마트스토어, 인스타그램 등">
-        </div>
     </div>
 
     <!-- 3. 투어별 세부 정보 -->
@@ -252,9 +247,8 @@
     window.submitReservation = async () => {
         const nameKor = document.getElementById('cust-name-kor').value.trim();
         const nameEng = document.getElementById('cust-name-eng').value.trim();
-        const contact = document.getElementById('cust-contact').value.trim();
 
-        if (!nameKor || !nameEng || !contact) {
+        if (!nameKor || !nameEng) {
             alert('예약자 기본 정보를 모두 입력해 주세요.');
             return;
         }
@@ -283,7 +277,6 @@
             await updateDoc(docRef, {
                 customerKorName: nameKor,
                 customerEngName: nameEng,
-                contact: contact,
                 items: updatedItems,
                 status: '예약신청완료',
                 updatedAt: new Date()
