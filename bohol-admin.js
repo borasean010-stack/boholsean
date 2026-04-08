@@ -758,41 +758,43 @@ document.addEventListener('DOMContentLoaded', () => {
         let isExNumeric = true;
 
         rows.forEach((row, index) => {
-            if (row.length < 16) {
-                console.log(`Row ${index} skipped: length ${row.length} is less than 16`);
+            if (row.length < 15) {
+                console.log(`Row ${index} skipped: length ${row.length} is less than 15`);
                 return;
             }
             console.log(`Processing row ${index}...`);
-            const p10 = (row[10] || '').trim();
-            const p15 = (row[15] || '').trim().replace(/\n/g, ', ');
-            const isP10Korean = /[가-힣]/.test(p10);
-            let korName = p15; let engName = p10;
-            if (isP10Korean && !p10.includes(' ')) { korName = p10; engName = p15.toUpperCase(); }
-            else if (p15.includes('맘') || p15.includes('아빠') || p15.includes('네') || p15.length > 5) { if (isP10Korean) { korName = p10; engName = p15.toUpperCase(); } }
-            else { engName = p10.toUpperCase(); korName = p15; }
+            const engNameRaw = (row[9] || '').trim();
+            const korNameRaw = (row[14] || '').trim().replace(/\n/g, ', ');
+            const isP10Korean = /[가-힣]/.test(engNameRaw);
+            let korName = korNameRaw; let engName = engNameRaw;
+            if (isP10Korean && !engNameRaw.includes(' ')) { korName = engNameRaw; engName = korNameRaw.toUpperCase(); }
+            else if (korNameRaw.includes('맘') || korNameRaw.includes('아빠') || korNameRaw.includes('네') || korNameRaw.length > 5) { if (isP10Korean) { korName = engNameRaw; engName = korNameRaw.toUpperCase(); } }
+            else { engName = engNameRaw.toUpperCase(); korName = korNameRaw; }
             combinedKorNames.push(engName ? `${engName} (${korName || ''})`.replace(' ()', '') : (korName || '고객'));
 
             if (!firstPickupFlight) firstPickupFlight = (row[2] || '').trim().toUpperCase();
             if (!firstSendingFlight) firstSendingFlight = (row[3] || '').trim().toUpperCase();
 
-            totalAdults += (parseInt(row[11]) || 0);
-            totalChildren += (parseInt(row[12]) || 0);
-            totalInfants += (parseInt(row[13]) || 0);
+            totalAdults += (parseInt(row[10]) || 0);
+            totalChildren += (parseInt(row[11]) || 0);
+            totalInfants += (parseInt(row[12]) || 0);
 
-            if (!firstContact) firstContact = (row[14] || '').trim();
-            const resortRaw = (row[9] || '').trim();
+            // Contact info might be in 13 or somewhere else. We'll grab 13, but if it says '스마트' it's a source. We just take whatever is there.
+            if (!firstContact) firstContact = (row[13] || '').trim();
+            const resortRaw = (row[8] || '').trim();
             const pResort = translateResort(resortRaw.split('/')[0].trim());
             const sResort = translateResort(resortRaw.split('/')[1]?.trim() || pResort);
             if (!firstResort) { firstResort = pResort; secondResort = sResort; }
 
-            let exVal = (row[5] || '').trim();
+            // Balance is at row[18]
+            let exVal = (row[18] || row[5] || '').trim();
             if (exVal && !exVal.includes('/') && !exVal.includes('▲') && exVal !== '0') {
                 const numericEx = parseInt(exVal.replace(/[^0-9]/g, ''));
                 if (!isNaN(numericEx)) totalExAmount += numericEx; else isExNumeric = false;
             } else if (exVal === '0' || !exVal) { } else { isExNumeric = false; }
             if (!firstExVal) firstExVal = exVal;
 
-            const totalPax = (parseInt(row[11]) || 0) + (parseInt(row[12]) || 0) + (parseInt(row[13]) || 0);
+            const totalPax = (parseInt(row[10]) || 0) + (parseInt(row[11]) || 0) + (parseInt(row[12]) || 0);
             const formatDate = (raw) => { if (!raw || !raw.includes('/')) return null; const [m, d] = raw.split('/').map(v => v.trim().padStart(2,'0')); return `${currentYear}-${m}-${d}`; };
             
             if (row[2] && row[2].match(/[A-Z]{2}\d+/)) { allItems.push({ name: `✈️ 공항 픽업 (${row[2].toUpperCase()})`, date: formatDate(row[0]), time: "14:00", count: totalPax }); }
@@ -804,7 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 allItems.push({ name: `✈️ 공항 샌딩 (${fl})`, date: formatDate(row[1]), time: sTime, count: totalPax }); 
             }
 
-            const remarkRaw = (row[16] || '').trim();
+            const remarkRaw = (row[15] || row[16] || '').trim();
             remarkRaw.split('\n').forEach(line => {
                 const dm = line.trim().match(/^(\d{1,2})\/(\d{1,2})/);
                 if (dm) {
