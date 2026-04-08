@@ -1,1 +1,1234 @@
-/* Add styles here */
+/* style.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Pretendard', sans-serif;
+}
+
+body {
+    background: #fdfdfd; 
+    overflow-x: hidden;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 🟠 상단 바: 유리 질감(Glassmorphism) 극대화 */
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 79px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 clamp(18px, 5vw, 54px);
+    background: rgba(0, 180, 138, 0.95) !important; 
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 10000 !important;
+    box-shadow: 0 4px 27px rgba(0,0,0,0.15);
+}
+
+.header-left { display: flex; align-items: center; gap: 18px; }
+.logo a { 
+    display: flex; 
+    align-items: center; 
+    color: white !important; 
+    text-decoration: none !important; 
+    font-weight: 900; 
+    font-size: 23px; 
+    letter-spacing: -1px; 
+    gap: 11px;
+}
+.logo-text {
+    font-size: 23px;
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+.logo-img {
+    height: 40px; 
+    width: auto;
+    object-fit: contain;
+    margin-right: 0;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+}
+
+.menu { display: flex; align-items: center; gap: clamp(18px, 4vw, 54px); }
+.menu a { 
+    color: rgba(255, 255, 255, 0.9); 
+    text-decoration: none; 
+    font-weight: 800; 
+    font-size: 17px; 
+    letter-spacing: -0.5px;
+    transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    position: relative;
+    padding: 11px 4px;
+}
+.menu a:hover { color: white; transform: translateY(-2px); }
+.menu a.active { color: white; font-weight: 900; }
+.menu a.active::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 4px; 
+    background: white;
+    border-radius: 9px;
+}
+
+.header-right { display: flex; align-items: center; gap: 7px; }
+
+/* PC/모바일 표시 제어 */
+.mobile-only { display: none !important; }
+.pc-only { display: flex !important; }
+.mobile-bottom-bar { display: none; }
+
+.mypage-btn { background: rgba(255, 255, 255, 0.2); color: white; padding: 9px 20px; border-radius: 27px; text-decoration: none; font-weight: 700; font-size: 12px; border: 1px solid rgba(255, 255, 255, 0.4); transition: 0.3s; line-height: 1; display: inline-flex; align-items: center; justify-content: center; height: 34px; }
+.mypage-btn:hover { background: white; color: #00b48a; }
+.naver-btn { background: #03c75a; color: white; padding: 9px 20px; border-radius: 27px; text-decoration: none; font-weight: 700; font-size: 12px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; height: 34px; }
+.kakao-btn { 
+    background: #fee500; 
+    color: #3c1e1e; 
+    padding: 9px 20px; 
+    border-radius: 27px; 
+    text-decoration: none; 
+    font-weight: 800; 
+    font-size: 12px; 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 5px;
+    transition: 0.3s;
+    line-height: 1;
+    height: 34px;
+}
+.kakao-btn:hover { background: #fada00; transform: translateY(-2px); }
+.kakao-icon { width: 16px; height: 16px; }
+
+/* 🔥 공통 투어 카드 스타일 (필수투어, 액티비티, 마사지 공용) */
+.tour-grid, .products {
+    max-width: 1200px;
+    margin: 0 auto 90px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 27px;
+    padding: 0 18px;
+}
+
+.tour-card, .product {
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 9px 27px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.02);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    position: relative;
+}
+
+.tour-card:hover, .product:hover {
+    transform: translateY(-11px);
+    box-shadow: 0 22px 45px rgba(0,180,138,0.12);
+    border-color: rgba(0,180,138,0.2);
+}
+
+.card-img-wrap, .img-container {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    position: relative;
+    background: #f0f0f0;
+}
+
+.card-img-wrap img, .img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tour-card:hover .card-img-wrap img, .product:hover .img-container img {
+    transform: scale(1.08);
+}
+
+.card-body {
+    padding: 14px 14px 18px;
+    text-align: center;
+}
+
+.card-body h3, .product h3 {
+    font-size: 15px;
+    font-weight: 800;
+    margin-bottom: 0;
+    color: #111;
+    letter-spacing: -0.5px;
+    line-height: 1.3;
+    min-height: 2.6em; /* 2줄 기준 높이 고정 유지 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-body p {
+    font-size: 12px;
+    color: #777;
+    line-height: 1.4;
+    font-weight: 500;
+    margin-top: 7px;
+    word-break: keep-all;
+}
+
+.price-tag {
+    display: inline-block;
+    margin-top: 14px;
+    color: #00b48a;
+    font-weight: 900;
+    font-size: 15px;
+}
+
+/* 🔥 상단 카테고리 탭 (카드 형태) */
+.category-nav {
+    max-width: 1200px;
+    margin: 126px auto 54px; 
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    padding: 0 18px;
+}
+
+.cat-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 27px;
+    background: white;
+    border-radius: 25px;
+    text-decoration: none;
+    color: #111;
+    font-weight: 900;
+    font-size: 18px;
+    box-shadow: 0 9px 27px rgba(0,0,0,0.04);
+    border: 2px solid transparent;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cat-tab:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 18px 36px rgba(0,180,138,0.12);
+    border-color: rgba(0,180,138,0.2);
+    color: #00b48a;
+}
+
+.cat-tab.active {
+    background: #00b48a;
+    color: white;
+    box-shadow: 0 18px 36px rgba(0,180,138,0.3);
+}
+
+/* 👤 마이페이지 전용 스타일 */
+.mypage-container { max-width: 810px; margin: 126px auto 90px; padding: 0 18px; }
+.mypage-header { margin-bottom: 45px; text-align: center; }
+.mypage-header h2 { font-size: 31px; font-weight: 900; letter-spacing: -1px; margin-bottom: 11px; color: #111; }
+.mypage-header p { color: #666; font-size: 14px; font-weight: 500; }
+
+.booking-card { background: white; border-radius: 25px; padding: 36px; box-shadow: 0 18px 45px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.02); margin-bottom: 27px; }
+.booking-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 27px; display: flex; align-items: center; gap: 9px; border-bottom: 2px solid #f9f9f9; padding-bottom: 14px; }
+.booking-card h3 span { color: #00b48a; }
+
+.info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; margin-bottom: 36px; }
+.info-item label { display: block; font-size: 12px; color: #999; margin-bottom: 5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.info-item span { font-size: 16px; font-weight: 700; color: #222; }
+
+.reserved-item { background: #fafafa; padding: 22px; border-radius: 18px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f0f0f0; transition: 0.3s; }
+.reserved-item:hover { background: #fff; box-shadow: 0 9px 18px rgba(0,0,0,0.03); border-color: #eee; }
+.reserved-item .item-title { font-weight: 800; font-size: 16px; margin-bottom: 7px; color: #111; }
+.reserved-item .item-meta { font-size: 13px; color: #777; font-weight: 500; }
+.reserved-item .item-price { font-weight: 900; color: #00b48a; font-size: 18px; }
+
+/* 모바일 메뉴 토글 */
+.menu-toggle { display: none; flex-direction: column; gap: 4px; cursor: pointer; z-index: 10002; padding: 9px; }
+.menu-toggle span { width: 22px; height: 3px; background: white; border-radius: 2px; }
+
+/* 모바일 사이드 메뉴 */
+.side-menu { position: fixed; top: 0; left: 0; width: 270px; height: 100vh; background: rgba(255,255,255,0.98); backdrop-filter: blur(18px); z-index: 10010; padding: 72px 27px; transform: translateX(-100%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 18px 0 45px rgba(0,0,0,0.1); }
+.side-menu.active { transform: translateX(0); }
+.side-menu a { display: block; font-size: 16px; font-weight: 800; color: #222; text-decoration: none; padding: 18px 0; border-bottom: 1px solid #eee; transition: 0.2s; }
+.side-menu a:hover { color: #00b48a; padding-left: 9px; }
+.side-menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10005; display: none; backdrop-filter: blur(3px); }
+.side-menu-overlay.active { display: block; }
+
+/* 🔥 Hero 섹션 */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #007bb5; /* 비디오 로딩 전 배경색 */
+}
+.video-background { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    z-index: 1;
+}
+.video-background video { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    opacity: 0.85; /* 바로 보이도록 설정 */
+}
+.hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5)); z-index: 2; }
+.hero-content { position: relative; z-index: 3; text-align: center; color: white; }
+.hero-content h1 { font-size: clamp(45px, 12vw, 90px); font-weight: 900; line-height: 1; margin-bottom: 18px; letter-spacing: -3px; text-shadow: 0 18px 36px rgba(0,0,0,0.5); }
+.hero-content p { font-size: clamp(14px, 3vw, 20px); font-weight: 500; opacity: 0.95; letter-spacing: -0.5px; text-shadow: 0 4px 9px rgba(0,0,0,0.5); }
+
+/* 🔥 마우스 지시계 */
+.scroll-indicator { position: absolute; bottom: 45px; left: 50%; transform: translateX(-50%); z-index: 4; opacity: 0; transition: opacity 1s ease; }
+.scroll-indicator.visible { opacity: 1; }
+.scroll-indicator.fade-out { opacity: 0; pointer-events: none; }
+.mouse { width: 31px; height: 49px; border: 3px solid rgba(255,255,255,0.7); border-radius: 18px; position: relative; }
+.mouse::before { content: ''; width: 5px; height: 11px; background: white; position: absolute; left: 50%; top: 7px; transform: translateX(-50%); border-radius: 3px; animation: scroll 2s infinite; }
+@keyframes scroll { 0% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, 18px); } }
+
+/* 🔥 공통 섹션 타이틀 스타일 */
+.section-header { text-align: center; margin-bottom: clamp(36px, 8vw, 54px); }
+.section-header p { color: #00b48a; font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 11px; }
+.section-header h2 { font-size: clamp(25px, 5vw, 36px); font-weight: 900; letter-spacing: -1px; color: #111; line-height: 1.3; }
+
+/* 🔥 이벤트 섹션 */
+.event-section-title {
+    background: transparent;
+    padding: clamp(54px, 10vw, 90px) 18px 27px;
+    text-align: center;
+    font-size: clamp(29px, 6vw, 36px);
+    font-weight: 900;
+    letter-spacing: -1px;
+    color: #00b48a;
+}
+
+/* 🔥 메인 배너 슬라이더 */
+.banner-slider {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 0 18px clamp(36px, 8vw, 72px); 
+}
+.banner-wrapper {
+    display: flex;
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 100%;
+}
+.banner-slide {
+    width: 100%;
+    flex: 0 0 100%;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+.banner-slide img {
+    width: 100%;
+    max-width: 1200px; 
+    height: auto;
+    object-fit: contain;
+    border-radius: 22px;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.08);
+    transition: transform 0.4s ease;
+}
+.banner-slide:hover img { transform: translateY(-4px); box-shadow: 0 27px 54px rgba(0,0,0,0.12); }
+
+/* ◀️▶️ 슬라이더 화살표 */
+.slider-arrow {
+    position: absolute;
+    top: calc(50% - 18px);
+    transform: translateY(-50%);
+    width: 49px;
+    height: 49px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 9px 27px rgba(0,0,0,0.1);
+    border-radius: 50%;
+    color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 20;
+    transition: 0.3s;
+    font-size: 18px;
+}
+.slider-arrow:hover { background: #00b48a; color: white; transform: translateY(-50%) scale(1.1); }
+.arrow-left { left: clamp(9px, 5vw, 54px); }
+.arrow-right { right: clamp(9px, 5vw, 54px); }
+
+/* 슬라이더 컨트롤 (점) */
+.slider-dots {
+    position: absolute;
+    bottom: clamp(9px, 4vw, 27px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 7px;
+    z-index: 20;
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: #ddd; cursor: pointer; transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.dot.active { background: #00b48a; width: 29px; border-radius: 9px; }
+
+/* 🔥 왜 '보라카이션'인가? 섹션 */
+.why-choose-us {
+    padding: clamp(54px, 10vw, 108px) 18px;
+    text-align: center;
+}
+.feature-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px;
+    align-items: stretch;
+}
+.feature-card {
+    background: white;
+    padding: 36px 22px;
+    border-radius: 25px;
+    box-shadow: 0 14px 32px rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.03);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+}
+.feature-card:hover {
+    transform: translateY(-9px);
+    box-shadow: 0 27px 54px rgba(0,180,138,0.08);
+    border-color: rgba(0,180,138,0.2);
+}
+.f-icon {
+    margin-bottom: 22px;
+    width: 77px;
+    height: 77px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #fffcf9 0%, #fff0e3 100%);
+    position: relative;
+    transition: 0.4s;
+}
+.f-icon span { font-size: 36px; filter: drop-shadow(0 7px 14px rgba(0,180,138,0.15)); transition: 0.4s; }
+.feature-card:hover .f-icon { background: #00b48a; transform: scale(1.05) rotate(-5deg); }
+.feature-card:hover .f-icon span { filter: brightness(0) invert(1); transform: rotate(5deg); }
+.feature-card h3 { font-size: 17px; font-weight: 800; margin-bottom: 11px; color: #111; word-break: keep-all; }
+.feature-card p { font-size: 14px; color: #666; line-height: 1.6; font-weight: 500; word-break: keep-all; margin-top: auto; }
+
+.view-details-btn {
+    display: inline-block;
+    padding: 18px 40px;
+    background: #111;
+    color: white;
+    border-radius: 45px;
+    font-weight: 800;
+    font-size: 14px;
+    transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 14px 27px rgba(0,0,0,0.1);
+}
+.view-details-btn:hover { background: #00b48a; transform: translateY(-4px); box-shadow: 0 18px 36px rgba(0,180,138,0.3); color: white; }
+
+/* 🖼️ 모달(Popup) 디자인 고급화 */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    z-index: 30000; display: none; align-items: center; justify-content: center; padding: 18px;
+}
+.modal-content {
+    background: white; width: 100%; max-width: 720px; max-height: 85vh; border-radius: 32px;
+    position: relative; overflow-y: auto; padding: 54px 45px; box-shadow: 0 36px 72px rgba(0,0,0,0.4);
+    animation: modal-up 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modal-up { from { opacity: 0; transform: translateY(45px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-close {
+    position: absolute; top: 27px; right: 27px; width: 40px; height: 40px; background: #f0f0f0;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; transition: 0.3s;
+}
+.modal-close:hover { background: #111; color: white; transform: rotate(90deg); }
+.modal-body h2 { font-size: 29px; font-weight: 900; margin-bottom: 36px; letter-spacing: -1px; color: #111; }
+.modal-item { margin-bottom: 32px; border-bottom: 1px solid #f5f5f5; padding-bottom: 27px; }
+.modal-item:last-child { border-bottom: none; }
+.modal-item h3 { font-size: 18px; font-weight: 800; margin-bottom: 14px; color: #00b48a; display: flex; align-items: center; gap: 11px; }
+.modal-item h3 span { font-size: 12px; background: #fff1e6; color: #00b48a; padding: 4px 9px; border-radius: 7px; font-weight: 900; }
+.modal-item p { font-size: 14px; color: #444; line-height: 1.8; word-break: keep-all; font-weight: 500; }
+
+/* 🔥 여행 매거진 (비디오 매거진) */
+.magazine-section { padding: clamp(54px, 10vw, 108px) 18px; }
+.video-container {
+    max-width: 810px;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 25px;
+    box-shadow: 0 22px 54px rgba(0,0,0,0.15);
+    background: #111;
+}
+.video-container iframe { width: 100%; height: 100%; border: none; display: block; }
+
+/* 🟠 푸터 */
+.footer { background: #00b48a; color: #fff; padding: 72px clamp(18px, 5vw, 54px); display: flex; justify-content: space-between; align-items: flex-end; gap: 36px; flex-wrap: wrap; }
+.footer-left b.important { font-size: 20px; display: inline-block; margin-bottom: 11px; letter-spacing: -0.5px; }
+.footer-left { line-height: 1.8; font-size: 14px; opacity: 0.9; }
+.footer-right { display: flex; flex-direction: column; gap: 9px; min-width: 288px; }
+.kakao-banner, .naver-banner { padding: 20px 27px; border-radius: 18px; text-decoration: none; display: flex; align-items: center; gap: 14px; box-shadow: 0 14px 27px rgba(0,0,0,0.15); transition: 0.3s; }
+.kakao-banner { background: #fee500; color: #3c1e1e; }
+.naver-banner { background: #03c75a; color: white; }
+.kakao-banner:hover, .naver-banner:hover { transform: translateY(-3px); box-shadow: 0 18px 36px rgba(0,0,0,0.25); }
+
+/* 📱 모바일 전용 최적화 (691px 이하) - 대폭 강화 */
+@media (max-width: 768px) {
+    /* 1. 상단 바 고정 및 높이 조정 */
+    .top-bar { 
+        height: 64px !important; 
+        padding: 0 10px !important; 
+        background: rgba(0, 180, 138, 0.98) !important; 
+        justify-content: space-between !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    
+    .pc-only { display: none !important; }
+    .mobile-only { display: flex !important; }
+    
+    .header-left { 
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important; 
+        flex: initial !important;
+        justify-content: flex-start !important;
+    }
+    
+    /* 햄버거 메뉴 모바일에서 표시 */
+    .menu-toggle { display: flex !important; flex-direction: column; gap: 5px; cursor: pointer; z-index: 10002; padding: 5px !important; }
+    .menu-toggle span { width: 22px; height: 3px; background: white; border-radius: 2px; }
+    
+    /* 로고 왼쪽 배치 */
+    .logo { 
+        position: static !important; 
+        transform: none !important; 
+        display: flex !important;
+        align-items: center !important;
+        z-index: 10;
+        margin-left: 0 !important;
+    }
+    .logo a { font-size: 14px !important; letter-spacing: -0.5px; display: flex !important; align-items: center !important; gap: 5px !important; }
+    .logo-text { font-size: 14px !important; display: inline-block !important; font-weight: 900 !important; }
+    .logo-img { height: 26px !important; width: auto !important; margin-right: 0 !important; }
+    
+    .header-right { 
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important; 
+        flex: initial !important;
+        justify-content: flex-end !important;
+    }
+    
+    /* 버튼 스타일 조정 (모바일에서 더 작게) */
+    .kakao-btn, .naver-btn {
+        height: 32px !important;
+        padding: 0 10px !important;
+        font-size: 10px !important;
+        border-radius: 10px !important;
+        white-space: nowrap !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    .mypage-btn { display: none !important; }
+    .kakao-icon { width: 14px !important; height: 14px !important; }
+
+    /* 2. 메인 히어로 섹션 */
+    .hero { 
+        height: 50vh !important; 
+        min-height: 350px !important;
+        margin-top: 0; 
+    }
+    .hero-content h1 { 
+        font-size: 42px !important; 
+        letter-spacing: -2px; 
+        margin-bottom: 10px;
+    }
+    .hero-content p { font-size: 14px !important; word-break: keep-all; padding: 0 20px; }
+
+    /* 3. 섹션 헤더 가독성 */
+    .section-header { margin-bottom: 20px !important; padding: 0 20px; }
+    .section-header h2 { font-size: 24px !important; line-height: 1.2; }
+    .section-header p { font-size: 12px !important; margin-bottom: 6px !important; }
+
+    /* 4. 이벤트 배너 슬라이더 */
+    .event-section-title { padding: 40px 20px 15px !important; font-size: 28px !important; }
+    .banner-slider { height: auto !important; padding: 0 10px 20px !important; }
+    .banner-slide img { border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+    .slider-arrow { width: 32px !important; height: 32px !important; font-size: 12px !important; background: rgba(255,255,255,0.8); }
+
+    /* 5. 왜 보라카이션인가? (2열 그리드) */
+    .why-choose-us { padding: 40px 20px !important; }
+    .feature-grid { 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 12px; 
+        padding: 0 16px;
+    }
+    .feature-card { padding: 20px 12px !important; border-radius: 16px !important; }
+    .f-icon { width: 48px !important; height: 48px !important; margin-bottom: 10px !important; }
+    .f-icon span { font-size: 24px !important; }
+    .feature-card h3 { font-size: 14px !important; margin-bottom: 4px !important; }
+    .feature-card p { font-size: 11px !important; line-height: 1.3 !important; }
+
+    /* 6. BEST TOUR 상품 리스트 (2열 카드형 그리드) */
+    .products { 
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 12px !important; 
+        padding: 0 12px 40px !important;
+    }
+    .product { border-radius: 20px !important; box-shadow: 0 8px 16px rgba(0,0,0,0.04) !important; }
+    .img-container { aspect-ratio: 1 / 1 !important; }
+    .product h3 {
+        padding: 8px 10px !important;
+        font-size: 14px !important;
+        font-weight: 800;
+        text-align: center !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        line-height: 1.3 !important;
+        min-height: 3.2em !important; /* 모바일에서 2줄 높이 확보 */
+    }
+    .product h3::after { display: none !important; }
+    .product .card-body p {
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2; /* 1줄에서 2줄로 변경 */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: 11px !important;
+        margin-top: 5px !important;
+        color: #888 !important;
+        line-height: 1.4 !important;
+        min-height: 2.8em; /* 2줄 높이 고정 */
+    }    
+    .price-btn { padding: 5px 10px !important; margin: 4px auto 0 !important; border-radius: 10px !important; display: inline-flex !important; justify-content: center !important; align-items: center !important; }
+    .price-btn .price-val { font-size: 12px !important; }
+    .price-btn .price-from { font-size: 9px !important; }
+
+    /* 7. 투어 상세 페이지용 그리드 (액티비티, 마사지 등) */
+    .tour-grid { 
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 10px !important; 
+        padding: 0 10px 60px !important; 
+    }
+    .tour-card { border-radius: 16px !important; }
+    .card-img-wrap { aspect-ratio: 1 / 1 !important; }
+    .card-body { padding: 12px 10px !important; text-align: center !important; }
+    .card-body h3 { font-size: 14px !important; margin-bottom: 2px !important; text-align: center !important; display: flex !important; justify-content: center !important; }
+    .card-body p { 
+        display: -webkit-box !important;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: 11px !important;
+        margin-top: 4px !important;
+        color: #888 !important;
+        line-height: 1.4 !important;
+    } 
+    .price-tag { font-size: 13px !important; margin: 4px auto 0 !important; display: block !important; text-align: center !important; }
+
+    /* 8. 상세 페이지 내부 디자인 */
+    .tour-content { padding: 20px !important; border-radius: 0; border: none; }
+    .tour-content h1 { font-size: 24px; margin-bottom: 20px; line-height: 1.3; }
+    .section-title { font-size: 18px; margin: 35px 0 15px; }
+    .itinerary-img { margin-bottom: 15px; }
+    
+    /* 9. 하단 구매 바 (App-like) */
+    .mobile-bottom-bar { 
+        display: flex; 
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); 
+        gap: 10px; 
+        background: rgba(255,255,255,0.95); 
+        backdrop-filter: blur(10px);
+        border-top: 1px solid #eee;
+        z-index: 10000;
+    }
+    .m-btn-cart { flex: 1; height: 52px; background: white; color: #00b48a; border: 2px solid #00b48a; border-radius: 14px; font-size: 14px; font-weight: 800; cursor: pointer; }
+    .m-btn-buy { flex: 2; height: 52px; background: #00b48a; color: white; border: none; border-radius: 14px; font-size: 15px; font-weight: 800; cursor: pointer; }
+
+    /* 🔥 모바일 예약 드로어 (Bottom Sheet) */
+    .reservation-box.mobile-drawer {
+        display: block !important; /* Force show */
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        max-height: 85vh;
+        overflow-y: auto;
+        background: white;
+        z-index: 10002;
+        border-radius: 32px 32px 0 0;
+        padding: 30px 20px 20px; /* Reduced from 40px 20px 30px */
+        box-shadow: 0 -15px 50px rgba(0,0,0,0.2);
+        transform: translateY(100%);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        margin-top: 0; /* Reset PC margin */
+        border: none;
+    }
+    .reservation-box.mobile-drawer.active {
+        transform: translateY(0);
+    }
+
+    .option-sheet-overlay { 
+        display: none; 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%; 
+        background: rgba(0,0,0,0.5); 
+        z-index: 10001; 
+        backdrop-filter: blur(3px);
+    }
+    .option-sheet-overlay.active { display: block; }
+
+    .option-sheet { 
+        position: fixed; 
+        bottom: 0; 
+        left: 0; 
+        width: 100%; 
+        background: white; 
+        border-radius: 32px 32px 0 0; 
+        z-index: 10002; 
+        padding: 30px 20px 20px; /* Reduced from 40px 20px 30px */
+        transform: translateY(100%); 
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+        max-height: 85vh; 
+        overflow-y: auto;
+        box-shadow: 0 -15px 50px rgba(0,0,0,0.2);
+    }
+    .option-sheet.active { transform: translateY(0); }
+    
+    .drawer-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(3px);
+        z-index: 10001;
+        transition: opacity 0.4s;
+        opacity: 0;
+    }
+    .drawer-overlay.active { display: block; opacity: 1; }
+    
+    .drawer-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 36px;
+        height: 36px;
+        background: #f0f0f0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: #333;
+        cursor: pointer;
+        z-index: 10;
+        transition: 0.2s;
+    }
+    .drawer-close:hover { background: #e0e0e0; }
+
+    @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+
+    /* 10. 카테고리 네비게이션 */
+    .category-nav { 
+        grid-template-columns: repeat(3, 1fr); 
+        margin: 80px auto 30px; 
+        padding: 0 16px; 
+        gap: 8px; 
+    }
+    .cat-tab { padding: 12px 5px; font-size: 14px; border-radius: 14px; border-width: 1px; }
+
+    /* 11. 모달 팝업 최적화 */
+    .modal-content { padding: 30px 20px; border-radius: 24px 24px 0 0; position: fixed; bottom: 0; max-height: 90vh; }
+    .modal-body h2 { font-size: 22px; margin-bottom: 25px; }
+    .modal-item h3 { font-size: 16px; }
+    .modal-item p { font-size: 14px; line-height: 1.6; }
+
+    /* 12. 푸터 축소 */
+    .footer { padding: 40px 20px 80px !important; gap: 30px; }
+    .footer-left { font-size: 13px; }
+    .footer-right { min-width: 100%; }
+    .kakao-banner, .naver-banner { padding: 16px 20px; }
+    
+    /* 장바구니/마이페이지 카드 */
+    .booking-card { padding: 25px 20px; border-radius: 20px; }
+    .info-grid { grid-template-columns: 1fr; gap: 15px; }
+    .reserved-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .reserved-item .item-price { align-self: flex-end; }
+
+    /* 13. 리조트 견적 페이지 최적화 */
+    .search-filter-bar { top: 72px !important; }
+    #resort-list { grid-template-columns: 1fr !important; gap: 20px !important; padding: 0 16px; }
+    .resort-horizontal-card { 
+        grid-template-columns: 1fr !important; 
+        height: auto !important;
+        border-radius: 24px;
+    }
+    .card-img-area { height: 200px !important; min-height: 200px !important; }
+    .card-info-area { padding: 25px !important; }
+    .resort-title { font-size: 22px !important; margin-bottom: 10px !important; }
+    .card-action-area { 
+        padding: 15px 25px 25px !important; 
+        border-left: none !important; 
+        border-top: 1px solid #f5f5f5; 
+        background: #fff !important; 
+    }
+    .view-detail-btn { height: 54px; display: flex; align-items: center; justify-content: center; border-radius: 14px; width: 100%; }
+
+    /* 15. 리조트 상세 룸 목록 - 네이버 쇼핑 스타일 (2열 그리드) */
+    .room-grid { 
+    grid-template-columns: repeat(2, 1fr) !important; 
+    gap: 10px !important; 
+    padding: 0 !important;
+    }
+    .room-card { 
+    border-radius: 16px !important; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    transform: none !important;
+    }
+    .room-card:hover { transform: translateY(-5px) !important; }
+    .slider-container { 
+    aspect-ratio: 1 / 1 !important; /* 정사각형 썸네일 */
+    }
+    .room-info { 
+    padding: 12px !important; 
+    }
+    .room-info h3 { 
+    font-size: 14px !important; 
+    margin-bottom: 10px !important; 
+    border-left-width: 3px !important;
+    padding-left: 8px !important;
+    min-height: 2.8em !important;
+    line-height: 1.3 !important;
+    }
+    .room-spec-item { 
+    font-size: 11px !important; 
+    padding-bottom: 6px !important; 
+    margin-bottom: 6px !important;
+    }
+    .room-spec-item b { 
+    font-size: 12px !important; 
+    }
+    .btn-quote-submit { 
+    padding: 10px !important; 
+    font-size: 12px !important; 
+    border-radius: 10px !important;
+    margin-top: 8px !important;
+    }
+    }/* 🔢 수량 조절 (Counter) & 선택 탭 (Selection Tabs) 고급화 */
+.counter { 
+    display: flex; 
+    align-items: center; 
+    background: #f8f9fa; 
+    border-radius: 5px; 
+    padding: 1px; 
+    border: 1px solid #eee;
+}
+.count-btn { 
+    width: 20px; 
+    height: 20px; 
+    border: none; 
+    background: white; 
+    color: #111; 
+    border-radius: 4px; 
+    font-size: 10px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.count-btn:hover { background: #00b48a; color: white; transform: translateY(-1px); }
+.count-btn:active { transform: translateY(0); }
+#pc-count, #m-count, .qty-display { 
+    width: 20px; 
+    text-align: center; 
+    font-size: 11px; 
+    font-weight: 800; 
+    color: #111; 
+}
+
+.selection-container {
+    margin-bottom: 7px; 
+}
+.selection-label {
+    display: block;
+    font-size: 10px; 
+    font-weight: 800;
+    color: #333;
+    margin-bottom: 3px; 
+    padding-left: 2px;
+}
+.selection-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+}
+.selection-tab {
+    padding: 5px 2px; 
+    text-align: center;
+    font-size: 9px; 
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 7px;
+    background: #f8f9fa;
+    color: #888;
+    border: 1px solid #eee;
+    transition: 0.2s;
+}
+.selection-tab:hover {
+    background: #fff5eb;
+    border-color: #ffeadb;
+    color: #00b48a;
+}
+.selection-tab.active {
+    background: #00b48a;
+    color: white;
+    border-color: #00b48a;
+    box-shadow: 0 4px 11px rgba(0,180,138,0.2);
+}
+
+.day.disabled { color: #ccc !important; cursor: not-allowed; pointer-events: none; text-decoration: line-through; opacity: 0.5; }
+
+/* 상품 배지 (HOT, NEW 등) */
+.product-badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: rgba(0, 180, 138, 0.85); /* Default fallback */
+    color: white;
+    padding: 4px 11px;
+    border-radius: 45px; /* Pill shape */
+    font-size: 10px;
+    font-weight: 800;
+    z-index: 10;
+    box-shadow: 0 4px 11px rgba(0,0,0,0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(7px); /* Glassmorphism */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge-container {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    display: flex;
+    gap: 5px;
+    z-index: 10;
+}
+
+.badge-container .product-badge {
+    position: static; /* 컨테이너 내에서 자동 배치 */
+}
+
+.badge-hot {
+    background: linear-gradient(135deg, #FF4B2B, #FF416C) !important; /* Vibrant Red Gradient */
+    animation: badge-pulse 2.5s infinite ease-in-out;
+}
+
+.badge-new {
+    background: linear-gradient(135deg, #00d2ff, #3a7bd5) !important; /* Fresh Blue Gradient */
+}
+
+.badge-md {
+    background: linear-gradient(135deg, #FDC830, #F37335) !important; /* Premium Gold/Orange Gradient */
+    color: white !important; /* Better contrast on gradient */
+}
+
+@keyframes badge-pulse {
+    0% { transform: scale(1); box-shadow: 0 4px 11px rgba(255,75,43,0.3); }
+    50% { transform: scale(1.05); box-shadow: 0 4px 16px rgba(255,75,43,0.5); }
+    100% { transform: scale(1); box-shadow: 0 4px 11px rgba(255,75,43,0.3); }
+}
+
+/* 💰 Sophisticated Price Button */
+.price-btn {
+    margin-top: 13px; /* 여백 축소 */
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    background: #111;
+    color: white;
+    padding: 7px 18px; /* 버튼 크기 살짝 축소 */
+    border-radius: 45px;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 9px 18px rgba(0,0,0,0.1);
+}
+
+.price-btn .price-from {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.7;
+    letter-spacing: 0.5px;
+}
+
+.price-btn .price-val {
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.product:hover .price-btn {
+    background: #00b48a;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 14px 27px rgba(0,180,138,0.3);
+}
+
+/* 📢 알립니다! (서비스 바로가기) 섹션 추가 */
+.service-section {
+    padding: clamp(54px, 10vw, 90px) 18px;
+}
+
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(11px, 2vw, 18px);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.service-card {
+    background: white;
+    border-radius: 22px;
+    padding: clamp(18px, 3vw, 32px) 14px;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 9px 22px rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.02);
+    height: 100%;
+}
+
+.service-card:hover {
+    transform: translateY(-9px);
+    box-shadow: 0 18px 36px rgba(0,180,138,0.12);
+    border-color: rgba(0,180,138,0.2);
+}
+
+.s-icon {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 18px;
+    filter: drop-shadow(0 7px 14px rgba(0,0,0,0.12));
+    transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 1px solid #f0f0f0;
+    flex-shrink: 0;
+}
+
+.s-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (max-width: 1100px) {
+    .service-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .service-section { padding: 50px 16px; }
+    .service-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .service-card { padding: 25px 12px; border-radius: 20px; }
+    .s-icon { margin-bottom: 15px; }
+    .service-card h3 { font-size: 15px; margin-bottom: 4px; }
+    .service-card p { font-size: 11.5px; opacity: 0.8; }
+}
+
+@media (max-width: 360px) {
+    .service-grid { gap: 8px; }
+    .service-card { padding: 20px 8px; }
+    .s-icon { width: 55px; height: 55px; }
+    .service-card h3 { font-size: 13px; }
+    .service-card p { font-size: 10px; }
+}
+
+@media (max-width: 768px) {
+    .price-btn {
+        padding: 8px 18px;
+        margin-top: 12px;
+    }
+    .price-btn .price-val {
+        font-size: 15px;
+    }
+}
+
+/* 🖼️ 메인 팝업 스타일 */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 50000;
+    display: none; /* JS에서 flex로 변경 */
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+}
+
+.popup-content {
+    background: white;
+    width: 100%;
+    max-width: 405px;
+    border-radius: 22px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 27px 54px rgba(0,0,0,0.3);
+    animation: popup-fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popup-fade-in {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.popup-slider-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Popup Navigation Arrows */
+.popup-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    border-radius: 50%;
+    color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 30;
+    transition: 0.3s;
+    font-size: 14px;
+    user-select: none;
+}
+.popup-arrow:hover { background: #00b48a; color: white; transform: translateY(-50%) scale(1.1); }
+.popup-arrow-left { left: 9px; }
+.popup-arrow-right { right: 9px; }
+
+@media (max-width: 768px) {
+    .popup-arrow { width: 32px; height: 32px; font-size: 14px; }
+}
+
+.popup-slider {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 100%;
+}
+
+.popup-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    cursor: pointer;
+    line-height: 0;
+}
+
+.popup-slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.popup-controls {
+    position: absolute;
+    bottom: 54px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.popup-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: 0.3s;
+    pointer-events: auto;
+}
+
+.popup-dot.active {
+    background: #00b48a;
+    width: 22px;
+    border-radius: 9px;
+}
+
+.popup-footer {
+    display: flex;
+    justify-content: space-between;
+    background: #111;
+    padding: 14px 18px;
+    position: relative;
+    z-index: 20;
+}
+
+.popup-footer button {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.popup-footer button:hover {
+    color: white;
+}
