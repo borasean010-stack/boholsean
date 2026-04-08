@@ -25,6 +25,10 @@
         "destination": "/admin-quote-maker.html"
       },
       {
+        "source": "/bohol-voucher",
+        "destination": "/bohol-voucher.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

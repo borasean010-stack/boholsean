@@ -1007,15 +1007,18 @@ document.addEventListener('DOMContentLoaded', () => {
             sendingFlight: firstSendingFlight,
             createdAt: new Date() 
         };
-        console.log("Data ready to preview:", resData);
+        console.log("Data ready to save:", resData);
         try {
-            sessionStorage.setItem('voucherPreviewData', JSON.stringify(resData));
-            window.open('bohol-voucher.html', '_blank');
+            const docRef = await addDoc(collection(db, "quick_vouchers"), resData);
+            const url = `${window.location.origin}/bohol-voucher.html?id=${docRef.id}`;
+            await navigator.clipboard.writeText(url);
+            alert('바우처가 생성되어 링크가 복사되었습니다!\n핸드폰으로 링크를 보내 확인하실 수 있습니다.');
+            window.open(url, '_blank');
             document.getElementById('quick-voucher-input').value = ''; 
             window.hideInputArea();
         } catch (error) {
-            console.error("Preview Error:", error);
-            alert("바우처 미리보기를 생성하는 데 실패했습니다. 엑셀 데이터를 다시 확인해주세요.");
+            console.error("Save Error:", error);
+            alert("바우처 생성 및 저장에 실패했습니다.");
         }
     };
 
