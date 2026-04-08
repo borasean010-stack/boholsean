@@ -24,21 +24,38 @@
         .tool-box.small-box h4 { font-size: 11px; }
         .tool-box.small-box .date-val { font-size: 12px; margin-top: 4px; }
 
-        .timeline-section { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .timeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .timeline-title { font-size: 16px; font-weight: 900; color: #111; display: flex; align-items: center; gap: 8px; }
+        .timeline-section { background: #fff; border-radius: 12px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .timeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #f8faf9; padding-bottom: 15px; }
+        .timeline-title { font-size: 18px; font-weight: 900; color: #111; display: flex; align-items: center; gap: 8px; }
         .timeline-title span { color: #00b48a; }
-        .filter-bar { display: flex; gap: 10px; overflow-x: auto; }
-        .filter-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: #fff; font-size: 13px; font-weight: 700; color: #666; cursor: pointer; white-space: nowrap; }
-        .filter-btn.active { background: #00b48a; color: #fff; border-color: #00b48a; }
-
-        .timeline-content { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0; min-height: 100px; }
         
-        .status-cards-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; cursor: pointer; border-bottom: 4px solid #eee; }
-        .stat-card.active { border-bottom-color: #00b48a; background: #fffaf5; }
-        .stat-card .label { font-size: 13px; font-weight: 700; color: #888; }
-        .stat-card .count { font-size: 24px; font-weight: 800; color: #333; margin-top: 5px; }
+        /* 🚀 일정 보기 개선: 그리드 레이아웃 */
+        .timeline-content { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 10px 0; }
+        
+        .schedule-group-card { background: #fff; border-radius: 16px; border: 1px solid #eee; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.03); transition: 0.2s; height: fit-content; }
+        .schedule-group-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .sg-header { padding: 15px; background: #fdfdfd; border-bottom: 1px solid #f5f5f5; position: relative; }
+        .sg-time { font-size: 13px; font-weight: 800; color: #00b48a; margin-bottom: 5px; }
+        .sg-title-row { display: flex; align-items: center; gap: 8px; }
+        .sg-title { font-size: 15px; font-weight: 800; color: #111; }
+        .sc-category-tag { position: absolute; top: 15px; right: 15px; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; }
+        
+        .sg-body { padding: 5px 0; }
+        .sc-detail-row { padding: 10px 15px; border-bottom: 1px solid #f9f9f9; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+        .sc-detail-row:hover { background: #f0f7ff; }
+        .sc-detail-row:last-child { border-bottom: none; }
+        .sc-detail-name { font-size: 14px; font-weight: 700; color: #333; }
+        .sc-detail-pax { font-size: 12px; font-weight: 800; color: #00b48a; background: #e6f7f3; padding: 2px 8px; border-radius: 6px; }
+        .sc-detail-resort { font-size: 12px; color: #888; font-weight: 600; margin-top: 2px; display: block; }
+
+        .cat-pickup { background: #e8f4ff; color: #007aff; }
+        .cat-hopping { background: #e6f7f3; color: #00b48a; }
+        .cat-malum { background: #fff0f6; color: #d63384; }
+        .cat-activity { background: #f3f3f3; color: #666; }
+
+        .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; }
+        .filter-btn { padding: 6px 14px; border-radius: 30px; border: 1px solid #eee; background: #fff; font-size: 12px; font-weight: 700; color: #888; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .filter-btn.active { background: #111; color: #fff; border-color: #111; }
 
         /* 입력창 영역 (직사각형 스타일로 수정) */
         .input-area-card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 25px; border: 2px solid #00b48a; display: none; }
@@ -171,22 +188,6 @@
                     </div>
                     <div id="active-timeline" class="timeline-content">
                         <div class="sc-empty">데이터 로딩 중...</div>
-                    </div>
-                </div>
-
-                <!-- 하단 상태 카드 -->
-                <div class="status-cards-row">
-                    <div class="stat-card active" id="stat-new" onclick="switchAdminTab('new')">
-                        <div class="label">신규 예약</div><div class="count" id="count-new">0</div>
-                    </div>
-                    <div class="stat-card" id="stat-confirmed" onclick="switchAdminTab('confirmed')">
-                        <div class="label">예약 확정</div><div class="count" id="count-confirmed">0</div>
-                    </div>
-                    <div class="stat-card" id="stat-resorts" onclick="switchAdminTab('resorts')">
-                        <div class="label">리조트 견적</div><div class="count" id="count-resorts">0</div>
-                    </div>
-                    <div class="stat-card" id="stat-resort-confirmed" onclick="switchAdminTab('resort-confirmed')">
-                        <div class="label">리조트 확정</div><div class="count" id="count-resort-confirmed">0</div>
                     </div>
                 </div>
 

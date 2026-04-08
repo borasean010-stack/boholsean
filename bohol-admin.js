@@ -285,37 +285,31 @@ document.addEventListener('DOMContentLoaded', () => {
             let headerTitle = `${group.title} (${group.totalCount}명)`;
 
             let bodyHtml = "";
+            const detailTemplate = (it) => `
+                <div class="sc-detail-row" onclick="showDetail('${it.id}', '${it.source}')">
+                    <div>
+                        <span class="sc-detail-name">${it.customer}</span>
+                        <span class="sc-detail-resort">${it.flight !== '-' ? `[${it.flight}] ` : ''}${it.resort}</span>
+                    </div>
+                    <span class="sc-detail-pax">${it.count}인</span>
+                </div>
+            `;
+
             if (group.category === '호핑투어') {
                 const withJumbo = group.items.filter(it => it.details.includes('점보') || it.details.toLowerCase().includes('(j)'));
                 const withoutJumbo = group.items.filter(it => !it.details.includes('점보') && !it.details.toLowerCase().includes('(j)'));
                 if (withJumbo.length > 0) {
                     const count = withJumbo.reduce((acc, i) => acc + i.count, 0);
-                    bodyHtml += `<div style="padding:8px 12px; background:#fff5eb; font-weight:bold; font-size:12px; color:#e67e22;">- 점보크랩 런치 포함 (${count}명)</div>`;
-                    bodyHtml += withJumbo.map(it => `<div class="sc-detail-row" onclick="showDetail('${it.id}', '${it.source}')"><span class="sc-detail-name">${it.customer}</span><span class="sc-detail-pax">${it.count}인</span></div>`).join('');
+                    bodyHtml += `<div style="padding:8px 15px; background:#fff5eb; font-weight:bold; font-size:12px; color:#e67e22; border-bottom:1px solid #eee;">🍽️ 점보크랩 포함 (${count}명)</div>`;
+                    bodyHtml += withJumbo.map(detailTemplate).join('');
                 }
                 if (withoutJumbo.length > 0) {
                     const count = withoutJumbo.reduce((acc, i) => acc + i.count, 0);
-                    bodyHtml += `<div style="padding:8px 12px; background:#f8f9fa; font-weight:bold; font-size:12px; color:#666;">- 점보크랩 런치 불포함 (${count}명)</div>`;
-                    bodyHtml += withoutJumbo.map(it => `<div class="sc-detail-row" onclick="showDetail('${it.id}', '${it.source}')"><span class="sc-detail-name">${it.customer}</span><span class="sc-detail-pax">${it.count}인</span></div>`).join('');
+                    bodyHtml += `<div style="padding:8px 15px; background:#f8f9fa; font-weight:bold; font-size:12px; color:#666; border-bottom:1px solid #eee;">🥗 점보크랩 불포함 (${count}명)</div>`;
+                    bodyHtml += withoutJumbo.map(detailTemplate).join('');
                 }
-            } else if (isSpa) {
-                bodyHtml += group.items.map(it => {
-                    return `<div class="sc-detail-row" onclick="showDetail('${it.id}', '${it.source}')"><span class="sc-detail-name">${it.customer}</span><span class="sc-detail-pax">${it.count}인</span><span class="sc-detail-resort">${it.resort}</span></div>`;
-                }).join('');
-            } else if (group.category === '픽업/샌딩') {
-                bodyHtml = group.items.map(it => {
-                    const flightInfo = (it.flight && it.flight !== '-') ? `[${it.flight}] ` : "";
-                    return `<div class="sc-detail-row" onclick="showDetail('${it.id}', '${it.source}')"><span class="sc-detail-name">${it.customer}</span><span class="sc-detail-pax">${it.count}인</span><span class="sc-detail-resort">${flightInfo}${it.resort}</span></div>`;
-                }).join('');
-            } else if (group.category === '액티비티' || group.category === '랜드투어') {
-                bodyHtml = group.items.map(it => {
-                    const prefix = group.category === '액티비티' ? `[${it.name}] ` : "";
-                    return `<div class="sc-detail-row" onclick="showDetail('${it.id}', '${it.source}')"><span class="sc-detail-name">${it.customer}</span><span class="sc-detail-pax">${it.count}인</span><span class="sc-detail-resort">${prefix}${it.resort}</span></div>`;
-                }).join('');
             } else {
-                bodyHtml = group.items.map(it => {
-                    return `<div class="sc-detail-row" onclick="showDetail('${it.id}', '${it.source}')"><span class="sc-detail-name">${it.customer}</span><span class="sc-detail-pax">${it.count}인</span></div>`;
-                }).join('');
+                bodyHtml = group.items.map(detailTemplate).join('');
             }
 
             return `<div class="schedule-group-card">
@@ -339,16 +333,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('breadcrumb-active').innerText = '메인 페이지';
         activeTab = 'new'; 
         document.getElementById('system-setup-section').style.display = 'none';
-        document.getElementById('data-view-section').style.display = 'block';
-        renderTable();
+        document.getElementById('data-view-section').style.display = 'none'; // 메인에서는 테이블 숨김
+        renderSchedule();
     };
 
     window.switchAdminTab = (tab) => {
         activeTab = tab;
         document.querySelectorAll('.ss-nav-item').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.stat-card').forEach(el => el.classList.remove('active'));
-        const statCard = document.getElementById(`stat-${tab}`);
-        if (statCard) statCard.classList.add('active');
+        // stat-card 관련 로직 제거 (HTML에서 삭제됨)
         const bActive = document.getElementById('breadcrumb-active');
         const toolGrid = document.querySelector('.main-tool-grid');
         const timelineSec = document.querySelector('.timeline-section');
