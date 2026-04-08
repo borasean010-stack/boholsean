@@ -832,11 +832,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     else if (lowerLine.includes('maris') || lowerLine.includes('마리스')) itemName = '마리스 스파';
                     else if (lowerLine.includes('helios') || lowerLine.includes('헬리오스')) itemName = '헬리오스 스파';
                     else if (lowerLine.includes('land') || lowerLine.includes('랜드')) { itemName = '보라카이 랜드투어'; if(!actualTimeMatch) itemTime = "10:30"; }
-                    else if (lowerLine.includes('p.hopping') || lowerLine.includes('프라이빗 호핑')) { itemName = '프라이빗 호핑투어'; }
-                    else if (lowerLine.includes('hopping') || lowerLine.includes('호핑')) { itemName = '샤인 호핑투어'; }
+                    else if (lowerLine.includes('bohol show') || lowerLine.includes('보홀쇼')) { itemName = '보홀쇼'; }
+                    else if (lowerLine.includes('surin') || lowerLine.includes('수린')) { itemName = '수린스파'; }
+                    else if (lowerLine.includes('hilot') || lowerLine.includes('힐롯')) { itemName = '힐롯스파'; }
+                    else if (lowerLine.includes('napaling + clamshell') || lowerLine.includes('대왕조개')) { itemName = '나팔링+대왕조개 투어'; }
                     else if (lowerLine.includes('napaling') || lowerLine.includes('나팔링')) { itemName = '나팔링투어'; }
                     else if (lowerLine.includes('daytour(d)')) { itemName = '데이투어 D코스'; }
                     else if (lowerLine.includes('daytour(c)')) { itemName = '데이투어 C코스'; }
+                    else if (lowerLine.includes('p.hopping') || lowerLine.includes('프라이빗 호핑')) { itemName = '프라이빗 호핑투어'; }
+                    else if (lowerLine.includes('hopping') || lowerLine.includes('호핑')) { itemName = '샤인 호핑투어'; }
                     else if (lowerLine.includes('malum') || lowerLine.includes('말룸')) { itemName = '시크릿가든 말룸파티'; if(!actualTimeMatch) itemTime = "09:40"; }
                     else if (lowerLine.includes('jetski') || lowerLine.includes('zetski') || lowerLine.includes('제트스키')) itemName = '제트스키';
                     else if (lowerLine.includes('helmet') || lowerLine.includes('헬멧')) itemName = '헬멧다이빙';
