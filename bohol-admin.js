@@ -1,4 +1,4 @@
-// bohol-admin.js - Final Full Luxury Admin (STRICT KOREAN & FIXES)
+// bohol-admin.js - Final Full Luxury Admin (ROBUST PARSING & STRICT KOREAN)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs, addDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -69,22 +69,28 @@ function init() {
         return name; 
     }
 
+    const parseRobustTSV = (text) => {
+        const rows = []; let currentRow = []; let currentField = ""; let inQuotes = false;
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            if (char === '"') inQuotes = !inQuotes;
+            else if (char === '\t' && !inQuotes) { currentRow.push(currentField); currentField = ""; }
+            else if (char === '\n' && !inQuotes) { currentRow.push(currentField); rows.push(currentRow); currentRow = []; currentField = ""; }
+            else currentField += char;
+        }
+        if (currentField || currentRow.length > 0) { currentRow.push(currentField); rows.push(currentRow); }
+        return rows;
+    };
+
     window.showInputArea = (type) => {
         window.hideInputArea();
         const el = document.getElementById(`input-area-${type}`);
-        if (el) {
-            el.style.display = 'block';
-            el.scrollIntoView({ behavior: 'smooth' });
-        } else if (type === 'quote') {
-            window.open('admin-quote-maker.html', '_blank');
-        }
+        if (el) { el.style.display = 'block'; el.scrollIntoView({ behavior: 'smooth' }); }
+        else if (type === 'quote') { window.open('admin-quote-maker.html', '_blank'); }
     };
 
     window.hideInputArea = () => {
-        ['quick', 'reg', 'quote'].forEach(id => {
-            const el = document.getElementById(`input-area-${id}`);
-            if(el) el.style.display = 'none';
-        });
+        ['quick', 'reg', 'quote'].forEach(id => { const el = document.getElementById(`input-area-${id}`); if(el) el.style.display = 'none'; });
     };
 
     function showAdminPanel() {
@@ -138,8 +144,7 @@ function init() {
             resortConfirmed: allReservations.filter(r => r.status === '리조트확정').length
         };
         ['count-new', 'count-confirmed', 'count-resorts', 'count-resort-confirmed'].forEach((id, i) => {
-            const el = document.getElementById(id);
-            if(el) el.innerText = Object.values(counts)[i];
+            const el = document.getElementById(id); if(el) el.innerText = Object.values(counts)[i];
         });
     }
 
@@ -208,13 +213,8 @@ function init() {
     window.switchAdminTab = (tab) => {
         activeTab = tab;
         document.querySelectorAll('.ss-nav-item').forEach(el => el.classList.remove('active'));
-        if (tab === 'system') {
-            document.getElementById('system-setup-section').style.display = 'block';
-            renderTable();
-        } else {
-            document.getElementById('system-setup-section').style.display = 'none';
-            renderTable();
-        }
+        if (tab === 'system') document.getElementById('system-setup-section').style.display = 'block';
+        else { document.getElementById('system-setup-section').style.display = 'none'; renderTable(); }
     };
 
     function renderTable() {
@@ -236,17 +236,24 @@ function init() {
 
     window.registerBulkSchedule = async () => {
         const input = document.getElementById('schedule-reg-input').value.trim(); if (!input) return;
-        const rows = input.split('\n').map(r => r.split('\t'));
+        const rows = parseRobustTSV(input);
         const batch = writeBatch(db); let count = 0;
         for (const row of rows) {
             if (row.length < 11) continue;
-            const customerName = (row[9] || '').trim().toUpperCase() + " (" + (row[14] || '').trim() + ")";
+            const customerName = (row[9] || '').trim().toUpperCase() + " (" + (row[14] || '').trim().replace(/\n/g, ', ') + ")";
+            const resortRaw = (row[8] || '').trim();
+            const totalPax = (parseInt(row[10]) || 0) + (parseInt(row[11]) || 0) + (parseInt(row[12]) || 0) || 1;
             const remarks = (row[15] || row[16] || '').trim();
             if (remarks) {
                 remarks.split('\n').forEach(line => {
                     const dm = line.match(/(\d{1,2})\/(\d{1,2})/); if (!dm) return;
-                    const itName = translateTourName(line.replace(dm[0], '').trim());
-                    batch.set(doc(collection(db, "schedules")), { date: `2026-${dm[1].padStart(2,'0')}-${dm[2].padStart(2,'0')}`, time: "09:00", name: itName, customerName, count: 1, resort: translateResort(row[8]), createdAt: new Date() }); count++;
+                    const tm = line.match(/(\d{1,2}):(\d{2})/);
+                    let itemTime = tm ? `${tm[1].padStart(2,'0')}:${tm[2]}` : "09:00";
+                    let itemResort = resortRaw;
+                    const resortOverride = line.match(/-\s*([A-Z\d\.\s]{2,})$/i);
+                    if (resortOverride && !line.toLowerCase().includes('get')) itemResort = resortOverride[1].trim();
+                    const itName = translateTourName(line.replace(dm[0], '').replace(tm?.[0] || '', '').replace(resortOverride?.[0] || '', '').trim());
+                    batch.set(doc(collection(db, "schedules")), { date: `2026-${dm[1].padStart(2,'0')}-${dm[2].padStart(2,'0')}`, time: itemTime, name: itName, customerName, count: totalPax, resort: translateResort(itemResort), details: line.trim(), createdAt: new Date() }); count++;
                 });
             }
         }
@@ -255,24 +262,32 @@ function init() {
 
     window.makeQuickVoucher = async () => {
         const inputVal = document.getElementById('quick-voucher-input').value.trim(); if (!inputVal) return;
-        const rows = inputVal.split('\n').map(r => r.split('\t'));
-        let combinedKorNames = [], allItems = [], firstContact = '', firstResort = '', firstEx = '';
+        const rows = parseRobustTSV(inputVal);
+        let combinedKorNames = [], allItems = [], firstContact = '', firstResort = '', firstEx = '', totalAdults = 0, totalChildren = 0, totalInfants = 0;
         rows.forEach(row => {
             if (row.length < 15) return;
-            combinedKorNames.push(`${row[9].toUpperCase()} (${row[14]})`);
+            combinedKorNames.push(`${row[9].toUpperCase()} (${row[14].replace(/\n/g, ', ')})`);
+            totalAdults += (parseInt(row[10]) || 0); totalChildren += (parseInt(row[11]) || 0); totalInfants += (parseInt(row[12]) || 0);
             if (!firstContact) firstContact = row[13];
             if (!firstResort) firstResort = translateResort(row[8]);
             const remarkRaw = (row[15] || row[16] || '').trim();
             if (remarkRaw) {
                 remarkRaw.split('\n').forEach(line => {
                     const dm = line.match(/(\d{1,2})\/(\d{1,2})/); if (!dm) return;
+                    const tm = line.match(/(\d{1,2}):(\d{2})/);
+                    let itemTime = tm ? `${tm[1].padStart(2,'0')}:${tm[2]}` : "09:00";
+                    let itemResort = null;
+                    const resortOverride = line.match(/-\s*([A-Z\d\.\s]{2,})$/i);
+                    if (resortOverride && !line.toLowerCase().includes('get')) itemResort = translateResort(resortOverride[1].trim());
                     const getMatch = line.match(/get:\s*(\d+[a-z]*)/i);
-                    if (getMatch) firstEx = `₱ ${getMatch[1].toUpperCase()}`;
-                    allItems.push({ name: translateTourName(line.replace(dm[0], '').trim()), date: `2026-${dm[1].padStart(2,'0')}-${dm[2].padStart(2,'0')}`, time: "09:00", count: 1 });
+                    if (getMatch) { firstEx = `₱ ${getMatch[1].toUpperCase()}`; }
+                    let itName = translateTourName(line.replace(dm[0], '').replace(tm?.[0] || '', '').replace(resortOverride?.[0] || '', '').trim());
+                    if (getMatch) itName += ` (현지불: ${getMatch[1].toUpperCase()})`;
+                    allItems.push({ name: itName, date: `2026-${dm[1].padStart(2,'0')}-${dm[2].padStart(2,'0')}`, time: itemTime, count: (parseInt(row[10]) || 0) + (parseInt(row[11]) || 0), meetingPlace: itemResort });
                 });
             }
         });
-        const resData = { customerKorName: combinedKorNames.join(', '), contact: firstContact, items: allItems, status: '예약확정', exchangeAmount: firstEx || '전액 결제 완료', pickupResort: firstResort, createdAt: new Date() };
+        const resData = { customerKorName: combinedKorNames.join(', '), contact: firstContact, items: allItems, status: '예약확정', exchangeAmount: firstEx || '전액 결제 완료', paxInfo: `성인 ${totalAdults}, 아동 ${totalChildren}, 유아 ${totalInfants}`.replace(/, 아동 0, 유아 0/, '').replace(/, 유아 0/, ''), pickupResort: firstResort, createdAt: new Date() };
         const docRef = await addDoc(collection(db, "quick_vouchers"), resData);
         window.open(`bohol-voucher.html?id=${docRef.id}`, '_blank');
     };
