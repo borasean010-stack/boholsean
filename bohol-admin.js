@@ -879,25 +879,15 @@ document.addEventListener('DOMContentLoaded', () => {
             sendingFlight: firstSendingFlight,
             createdAt: new Date() 
         };
-        console.log("Data ready to save to Firebase:", resData);
+        console.log("Data ready to preview:", resData);
         try {
-            console.log("Calling addDoc...");
-            const docRef = await addDoc(collection(db, "quick_vouchers"), resData);
-            console.log("Saved successfully! Doc ID:", docRef.id);
-            const copyUrl = `${window.location.origin}/reservation-schedule.html?id=${docRef.id}&type=quick`;
-            console.log("Attempting to copy URL:", copyUrl);
-            navigator.clipboard.writeText(copyUrl).then(() => {
-                console.log("Copy success!");
-                alert('통합 바우처 생성 완료! 링크가 복사되었습니다.\n생성된 링크: ' + copyUrl);
-                document.getElementById('quick-voucher-input').value = ''; 
-                window.hideInputArea();
-            }).catch(err => {
-                console.error("Clipboard copy failed:", err);
-                alert(`바우처가 생성되었지만 클립보드 복사에 실패했습니다.\n아래 링크를 직접 복사해주세요:\n\n${copyUrl}`);
-            });
+            sessionStorage.setItem('voucherPreviewData', JSON.stringify(resData));
+            window.open('bohol-voucher.html', '_blank');
+            document.getElementById('quick-voucher-input').value = ''; 
+            window.hideInputArea();
         } catch (error) {
-            console.error("Firebase DB Error:", error);
-            alert("바우처 저장에 실패했습니다. 파이어베이스 권한(Firestore Rules)이 열려있는지 확인해주세요.\n에러 내용: " + error.message);
+            console.error("Preview Error:", error);
+            alert("바우처 미리보기를 생성하는 데 실패했습니다. 엑셀 데이터를 다시 확인해주세요.");
         }
     };
 
