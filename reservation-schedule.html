@@ -25,8 +25,10 @@
         .info-row label { color: #888; font-weight: 600; }
         .info-row span { font-weight: 700; color: #111; }
 
-        .schedule-item { display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid #f0f0f0; }
-        .schedule-item:last-child { border-bottom: none; }
+        .schedule-item-wrapper { border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; margin-bottom: 20px; }
+        .schedule-item-wrapper:last-child { border-bottom: none; }
+        
+        .schedule-item { display: flex; align-items: center; gap: 15px; padding: 10px 0; }
         .date-box { text-align: center; min-width: 50px; }
         .date-box .month { display: block; font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; }
         .date-box .day { display: block; font-size: 18px; font-weight: 800; color: #111; line-height: 1; }
@@ -35,14 +37,8 @@
         .item-info .time { display: block; font-size: 12px; color: #666; font-weight: 600; }
         .item-pax { font-size: 13px; font-weight: 700; color: var(--primary); background: #e6f7f3; padding: 4px 10px; border-radius: 10px; }
 
-        .guide-card { background: #fff; border-radius: 20px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .guide-header { background: #f8faf9; padding: 15px 25px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 10px; }
-        .guide-header .material-icons { color: var(--primary); }
-        .guide-header span { font-weight: 800; font-size: 15px; }
-        .guide-body { padding: 25px; font-size: 14px; color: #555; white-space: pre-wrap; line-height: 1.8; }
-        .guide-body b { color: #111; }
-        
-        .map-btn { display: inline-flex; align-items: center; gap: 5px; margin-top: 15px; padding: 10px 20px; background: var(--primary); color: #fff; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 13px; }
+        .guide-box { background: #f8faf9; border-radius: 15px; padding: 15px; margin-top: 10px; font-size: 13px; color: #555; white-space: pre-wrap; line-height: 1.7; }
+        .guide-box b { color: #111; display: block; margin-bottom: 5px; font-size: 14px; }
         
         .notice-box { background: #fff8e6; border-radius: 20px; padding: 20px; border: 1px solid #ffeeba; margin-top: 20px; font-size: 13px; color: #856404; }
         .notice-box b { display: block; margin-bottom: 5px; }
@@ -73,16 +69,13 @@
         <div class="info-row"><label>환전 및 잔금</label><span id="v-exchange">-</span></div>
     </div>
 
-    <!-- 전체 스케줄 요약 -->
+    <!-- 투어 및 스케줄 (가이드 통합) -->
     <div class="card">
         <div class="section-title"><span class="material-icons">event_note</span>투어 및 스케줄</div>
         <div id="schedule-list">
             <div id="loading" style="text-align:center; padding:20px; color:#999; font-size:13px;">데이터를 불러오는 중...</div>
         </div>
     </div>
-
-    <!-- 상세 안내문 섹션 -->
-    <div id="guide-section"></div>
 
     <div class="notice-box">
         <b>안내 및 유의사항</b>
@@ -126,14 +119,15 @@
         'danbi': '단비 리조트',
         'jollibee': '졸리비',
         'mayfair': '메이페어 가든',
-        'bellanapoli': '벨라 나폴리'
+        'bellanapoli': '벨라 나폴리',
+        'bs': 'BS리조트'
     };
 
     function translateResort(name) {
         if (!name || name === '-') return '-';
         let n = name.toLowerCase().replace(/\s/g, '').replace(/\./g, '').replace(/,/g, '').replace(/drop/g, '');
         for (const [eng, kor] of Object.entries(resortMap)) {
-            if (n.includes(eng)) return kor;
+            if (n === eng || n.includes(eng)) return kor;
         }
         return name;
     }
@@ -141,71 +135,71 @@
     const TOUR_TEMPLATES = {
         pamilacan: {
             title: "파밀라칸 호핑투어 안내",
-            content: "대표자 성함 : [NAME]\n인원 : [PAX]\n투어 미팅 시간 : [TIME]\n투어 미팅장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★★ 주의 사항 및 준비물 ★★\n - 젖어도 되는 복장\n - 쪼리등 슬리퍼 비추천, 긴옷 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         oslob: {
             title: "오슬롭 고래상어 투어 안내",
-            content: "대표자 성함 : [NAME]\n인원 : [PAX]\n투어 미팅 시간 : [TIME]\n투어 미팅장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★★ 주의 사항 및 준비물 ★★\n - 젖어도 되는 복장\n - 쪼리등 슬리퍼 비추천, 긴옷 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)\n - 고래상어 와칭 시 선크림 등 화장품 사용 금지"
+            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 고래상어 와칭 시 선크림 등 화장품 사용 금지"
         },
         fishing: {
             title: "선셋 낚시 투어 안내",
-            content: "대표자 성함 : [NAME]\n인원 : [PAX]\n투어 미팅 시간 : [TIME]\n투어 미팅장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★★ 주의 사항 및 준비물 ★★\n - 젖어도 되는 복장\n - 쪼리등 슬리퍼 비추천, 긴옷 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         landD: {
             title: "보홀션 육상투어D 안내",
-            content: "대표자 성함 : [NAME]\n인원 : [PAX]\n투어 미팅 시간 : [TIME]\n투어 미팅장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★★ 주의 사항 및 준비물 ★★\n- 편한 복장\n- 쪼리등 슬리퍼 비추천, 긴옷 추천 (바클라욘 입장 제한)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천 (바클라욘 입장 제한)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         landC: {
             title: "보홀션 육상투어C 안내",
-            content: "대표자 성함 : [NAME]\n인원 : [PAX]\n투어 미팅 시간 : [TIME]\n투어 미팅장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★★ 주의 사항 및 준비물 ★★\n- 편한 복장\n- 쪼리등 슬리퍼 비추천, 긴옷 추천 (바클라욘 입장 제한)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천 (바클라욘 입장 제한)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         secret: {
             title: "시크릿 플레이스 안내",
-            content: "대표자 성함 : [NAME]\n인원 : [PAX]\n투어 미팅 시간 : [TIME]\n투어 미팅장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★★ 주의 사항 및 준비물 ★★\n - 편한 물놀이 복장 (예쁜 사진용 옷 추천)\n - 쪼리등 슬리퍼 비추천, 긴옷 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)\n - 나팔링 포인트 추가 선택시 1인 400페소"
+            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장 (예쁜 사진용 옷 추천)\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 나팔링 포인트 추가 선택 시 1인 400페소"
         },
         shineHopping: {
             title: "보홀션 샤인 호핑투어 안내",
-            content: "대표자 성함 : [NAME]\n인원 : [PAX]\n투어 미팅 시간 : [TIME]\n투어 미팅장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★★ 주의 사항 및 준비물 ★★\n - 편한 물놀이 복장, 개인 타월\n - 쪼리등 슬리퍼 비추천, 긴옷 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)\n - 해파리 대비 긴팔/긴바지 래쉬가드 추천"
+            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 개인 타월\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 해파리 대비 긴팔/긴바지 래쉬가드 추천"
         },
         privateHopping: {
             title: "단독 호핑투어 안내",
-            content: "대표자 성함 : [NAME]\n인원 : [PAX]\n투어 미팅 시간 : [TIME]\n투어 미팅장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★★ 주의 사항 및 준비물 ★★\n - 편한 물놀이 복장, 개인 타월\n - 쪼리등 슬리퍼 비추천, 긴옷 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 개인 타월\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         napaling: {
             title: "나팔링 투어 안내",
-            content: "대표자 성함 : [NAME]\n인원 : [PAX]\n투어 미팅 시간 : [TIME]\n투어 미팅장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★★ 주의 사항 및 준비물 ★★\n - 편한 물놀이 복장, 개인 타월\n - 쪼리등 슬리퍼 비추천, 긴옷 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 개인 타월\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         hilot: {
             title: "힐롯스파 안내",
-            content: "대표자 성함 : [NAME]\n인원 : [PAX]\n투어 미팅 시간 : [TIME]\n투어 미팅장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★★ 주의 사항 및 준비물 ★★\n - 간편한 복장 (소지품 주의)\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : 육상투어 후 또는 개별이동\n\n★ 주의 사항 및 준비물\n- 간편한 복장 (소지품 주의)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         firefly: {
             title: "반딧불 투어 안내",
-            content: "대표자 성함 : [NAME]\n인원 : [PAX]\n투어 미팅 시간 : [TIME]\n투어 미팅장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★★ 주의 사항 및 준비물 ★★\n - 편한 복장\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         sunsetPack: {
             title: "선반팩 안내",
-            content: "대표자 성함 : [NAME]\n인원 : [PAX]\n투어 미팅 시간 : [TIME]\n투어 미팅장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★★ 주의 사항 및 준비물 ★★\n - 편한 복장\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         boholShow: {
             title: "보홀쇼 안내",
-            content: "대표자 성함 : [NAME]\n인원 : [PAX]\n투어 미팅 시간 : [TIME]\n투어 미팅장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★★ 주의 사항 및 준비물 ★★\n - 간편한 복장 (소지품 주의)\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 간편한 복장 (소지품 주의)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         pickup: {
             title: "공항 픽업 안내",
-            content: "대표자 성함 : [NAME]\n미팅 시간 : [TIME]\n미팅 장소 : 보홀 공항 밖 피켓 대기\n\n★★ 안내 사항 ★★\n - 항공기 연착이나 지연도 미리 대기합니다^^\n - 이트래블 큐알 캡처 꼭 부탁드립니다.\n - 문제가 있을 경우 채널 비상연락망으로 연락주세요."
+            content: "미팅 장소 : 보홀 공항 ➜ [DROP]\n\n★ 안내 사항\n- 항공기 연착이나 지연 시에도 미리 대기합니다.\n- 이트래블 QR 캡처 꼭 부탁드립니다.\n- 문제가 있을 경우 비상연락망으로 연락 바랍니다."
         },
         round: {
             title: "공항 왕복 픽업샌딩 안내",
-            content: "대표자 성함 : [NAME]\n미팅 시간 : [TIME]\n\n★★ 안내 사항 ★★\n - 항공기 연착이나 지연도 미리 대기합니다^^\n - 문제가 있을 경우 채널 비상연락망으로 연락주세요.\n\n나가시는 날: 체크아웃 후 대기 부탁드립니다."
+            content: "미팅 장소 : 보홀 공항 ➜ [DROP] / [MEETING] ➜ 보홀 공항\n\n★ 안내 사항\n- 항공기 연착이나 지연 시에도 미리 대기합니다.\n- 문제가 있을 경우 비상연락망으로 연락 바랍니다.\n\n나가시는 날: 체크아웃 후 대기 부탁드립니다."
         },
         drop: {
             title: "공항 드랍 안내",
-            content: "대표자 성함 : [NAME]\n미팅 시간 : [TIME]\n\n★★ 안내 사항 ★★\n - 문제가 있을 경우 채널 비상연락망으로 연락주세요.\n\n나가시는 날: 체크아웃 후 대기 부탁드립니다."
+            content: "미팅 장소 : [MEETING] ➜ 보홀 공항\n\n★ 안내 사항\n- 문제가 있을 경우 비상연락망으로 연락 바랍니다.\n\n나가시는 날: 체크아웃 후 대기 부탁드립니다."
         },
         port: {
             title: "항구 픽업 안내",
-            content: "대표자 성함 : [NAME]\n미팅 시간 : [TIME]\n미팅 장소 : 탁빌라란 항구\n\n★★ 주의 사항 ★★\n - 항구 내 티켓 발권/환경세는 직접 지불하셔야 합니다.\n - 티켓 교환이 필요할 경우 외부 사무실로 가야 하니 입구에서 내리셔야 합니다."
+            content: "미팅 장소 : 탁빌라란 항구 ➜ [DROP]\n\n★ 주의 사항\n- 항구 내 티켓 발권/환경세는 직접 지불하셔야 합니다.\n- 티켓 교환이 필요할 경우 외부 사무실로 가야 하니 입구에서 내리셔야 합니다."
         }
     };
 
@@ -217,7 +211,7 @@
         if (n.includes('육상') && n.includes('d')) return 'landD';
         if (n.includes('육상') && n.includes('c')) return 'landC';
         if (n.includes('시크릿')) return 'secret';
-        if (n.includes('프리미엄 샤인') || (n.includes('샤인') && n.includes('호핑'))) return 'shineHopping';
+        if (n.includes('샤인') && n.includes('호핑')) return 'shineHopping';
         if (n.includes('단독') || n.includes('프라이빗')) return 'privateHopping';
         if (n.includes('나팔링')) return 'napaling';
         if (n.includes('힐롯')) return 'hilot';
@@ -258,54 +252,51 @@
                 const items = resData.items || [];
                 items.sort((a, b) => (a.date || "").localeCompare(b.date || "") || (a.time || "00:00").localeCompare(b.time || "00:00"));
 
-                // 스케줄 리스트 렌더링
                 const scheduleList = document.getElementById('schedule-list');
-                scheduleList.innerHTML = items.map(item => {
+                let html = '';
+
+                items.forEach(item => {
                     const month = item.date ? item.date.split('-')[1] : '--';
                     const day = item.date ? item.date.split('-')[2] : '--';
-                    return `
-                        <div class="schedule-item">
-                            <div class="date-box">
-                                <span class="month">${month}월</span>
-                                <span class="day">${day}</span>
-                            </div>
-                            <div class="item-info">
-                                <span class="name">${item.name}</span>
-                                <span class="time">${item.time || '전날 재인폼'}</span>
-                            </div>
-                            <div class="item-pax">${item.count}명</div>
-                        </div>
-                    `;
-                }).join('');
-
-                // 상세 가이드 렌더링
-                const guideSection = document.getElementById('guide-section');
-                const renderedKeys = new Set();
-                
-                guideSection.innerHTML = items.map((item, idx) => {
+                    
+                    // 가이드 내용 생성
                     const key = getTemplateKey(item.name);
-                    if (!key || renderedKeys.has(key)) return '';
-                    renderedKeys.add(key);
-
-                    const template = TOUR_TEMPLATES[key];
-                    let content = template.content
-                        .replace('[NAME]', resData.customerKorName)
-                        .replace('[PAX]', item.count + '명')
-                        .replace('[TIME]', item.time || '전날 재인폼')
-                        .replace('[MEETING]', translateResort(resData.pickupResort || '헤난 알로나 로비'))
-                        .replace('[DROP]', translateResort(resData.sendingResort || '헤난 알로나 로비'));
-
-                    return `
-                        <div class="guide-card">
-                            <div class="guide-header">
-                                <span class="material-icons">info</span>
-                                <span>${template.title}</span>
+                    let guideHtml = '';
+                    if (key) {
+                        const template = TOUR_TEMPLATES[key];
+                        const guideContent = template.content
+                            .replace('[NAME]', resData.customerKorName)
+                            .replace('[PAX]', item.count + '명')
+                            .replace('[TIME]', item.time || '전날 재인폼')
+                            .replace('[MEETING]', translateResort(resData.pickupResort || '헤난 알로나 로비'))
+                            .replace('[DROP]', translateResort(resData.sendingResort || resData.pickupResort || '헤난 알로나 로비'));
+                        
+                        guideHtml = `
+                            <div class="guide-box">
+                                <b>${item.name} 안내</b>${guideContent}
                             </div>
-                            <div class="guide-body">${content}</div>
+                        `;
+                    }
+
+                    html += `
+                        <div class="schedule-item-wrapper">
+                            <div class="schedule-item">
+                                <div class="date-box">
+                                    <span class="month">${month}월</span>
+                                    <span class="day">${day}</span>
+                                </div>
+                                <div class="item-info">
+                                    <span class="name">${item.name}</span>
+                                    <span class="time">${item.time || '전날 재인폼'}</span>
+                                </div>
+                                <div class="item-pax">${item.count}명</div>
+                            </div>
+                            ${guideHtml}
                         </div>
                     `;
-                }).join('');
+                });
 
+                scheduleList.innerHTML = html;
                 document.getElementById('loading').style.display = 'none';
             }
         } catch (e) { console.error(e); }
