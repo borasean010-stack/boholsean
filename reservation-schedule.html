@@ -270,7 +270,7 @@
                             .replace('[NAME]', resData.customerKorName)
                             .replace('[PAX]', item.count + '명')
                             .replace('[TIME]', item.time || '전날 재인폼')
-                            .replace('[MEETING]', translateResort(resData.pickupResort || '헤난 알로나 로비'))
+                            .replace('[MEETING]', translateResort(item.meetingPlace || resData.pickupResort || '헤난 알로나 로비'))
                             .replace('[DROP]', translateResort(resData.sendingResort || resData.pickupResort || '헤난 알로나 로비'));
                     }
 

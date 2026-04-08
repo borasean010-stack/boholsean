@@ -770,11 +770,19 @@ function init() {
                         const mCount = line.match(/\d+(?=명|인|태반|성장|스톤|오일|포쉘|진주)/g);
                         if (mCount) itemPax = mCount.reduce((a, b) => a + parseInt(b), 0);
 
+                        // 💎 개별 리조트 오버라이드 체크 (- H.PMR 등)
+                        let itemResort = resortRaw;
+                        const resortOverrideMatch = line.match(/-\s*([A-Z\.\s]+)$/i);
+                        if (resortOverrideMatch) {
+                            itemResort = resortOverrideMatch[1].trim();
+                            itemName = itemName.replace(resortOverrideMatch[0], '').trim();
+                        }
+
                         const docRef = doc(collection(db, "schedules"));
                         batch.set(docRef, {
                             date: itemDate, time: itemTime, name: itemName,
                             customerName: customerName, count: itemPax,
-                            resort: translateResort(resortRaw), details: line.trim(),
+                            resort: translateResort(itemResort), details: line.trim(),
                             createdAt: new Date()
                         });
                         count++;
@@ -834,7 +842,7 @@ function init() {
         const scrollArea = document.getElementById('modal-scroll-area'); const editBtn = document.getElementById('edit-btn');
         if (editBtn.innerText === '수정하기') {
             editBtn.innerText = '저장하기';
-            scrollArea.innerHTML = `<div style="background:#f8f9fa; padding:15px; border-radius:12px;"><label style="font-size:11px; color:#999;">한글명</label><input type="text" id="edit-name" value="${res.customerKorName}" style="width:100%; padding:8px; margin-bottom:10px;"><label style="font-size:11px; color:#999;">연락처</label><input type="text" id="edit-contact" value="${res.contact}" style="width:100%; padding:8px; margin-bottom:10px;"><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"><div><label style="font-size:11px; color:#999;">픽업일</label><input type="text" id="edit-p-date" value="${res.pickupDate || ''}" style="width:100%; padding:8px;"></div><div><label style="font-size:11px; color:#999;">픽업리조트</label><input type="text" id="edit-p-resort" value="${res.pickupResort || ''}" style="width:100%; padding:8px;"></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;"><div><label style="font-size:11px; color:#999;">샌딩일</label><input type="text" id="edit-s-date" value="${res.sendingDate || ''}" style="width:100%; padding:8px;"></div><div><label style="font-size:11px; color:#999;">샌딩리조트</label><input type="text" id="edit-s-resort" value="${res.sendingResort || ''}" style="width:100%; padding:8px;"></div></div><label style="font-size:11px; color:#999; margin-top:10px; display:block;">총 금액</label><input type="number" id="edit-price" value="${res.totalPrice}" style="width:100%; padding:8px; margin-bottom:10px;"><label style="font-size:11px; color:#999;">요청사항</label><textarea id="edit-requests" style="width:100%; height:80px; padding:8px;">${res.requests || ''}</textarea></div>`;
+            scrollArea.innerHTML = `<div style="background:#f8f9fa; padding:15px; border-radius:12px;"><label style="font-size:11px; color:#999;">한글명</label><input type="text" id="edit-name" value="${res.customerKorName}" style="width:100%; padding:8px; margin-bottom:10px;"><label style="font-size:11px; color:#999;">구매처</label><input type="text" id="edit-contact" value="${res.contact}" style="width:100%; padding:8px; margin-bottom:10px;"><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"><div><label style="font-size:11px; color:#999;">픽업일</label><input type="text" id="edit-p-date" value="${res.pickupDate || ''}" style="width:100%; padding:8px;"></div><div><label style="font-size:11px; color:#999;">픽업리조트</label><input type="text" id="edit-p-resort" value="${res.pickupResort || ''}" style="width:100%; padding:8px;"></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;"><div><label style="font-size:11px; color:#999;">샌딩일</label><input type="text" id="edit-s-date" value="${res.sendingDate || ''}" style="width:100%; padding:8px;"></div><div><label style="font-size:11px; color:#999;">샌딩리조트</label><input type="text" id="edit-s-resort" value="${res.sendingResort || ''}" style="width:100%; padding:8px;"></div></div><label style="font-size:11px; color:#999; margin-top:10px; display:block;">총 금액</label><input type="number" id="edit-price" value="${res.totalPrice}" style="width:100%; padding:8px; margin-bottom:10px;"><label style="font-size:11px; color:#999;">요청사항</label><textarea id="edit-requests" style="width:100%; height:80px; padding:8px;">${res.requests || ''}</textarea></div>`;
         } else {
             const newData = { customerKorName: document.getElementById('edit-name').value, contact: document.getElementById('edit-contact').value, pickupDate: document.getElementById('edit-p-date').value, pickupResort: document.getElementById('edit-p-resort').value, sendingDate: document.getElementById('edit-s-date').value, sendingResort: document.getElementById('edit-s-resort').value, totalPrice: parseInt(document.getElementById('edit-price').value) || 0, requests: document.getElementById('edit-requests').value };
             updateDoc(doc(db, "reservations", id), newData).then(() => { alert("저장 완료!"); closeModal(); });
@@ -899,14 +907,12 @@ function init() {
             totalChildren += (parseInt(row[11]) || 0);
             totalInfants += (parseInt(row[12]) || 0);
 
-            // Contact info might be in 13 or somewhere else. We'll grab 13, but if it says '스마트' it's a source. We just take whatever is there.
             if (!firstContact) firstContact = (row[13] || '').trim();
             const resortRaw = (row[8] || '').trim();
             const pResort = translateResort(resortRaw.split('/')[0].trim());
             const sResort = translateResort(resortRaw.split('/')[1]?.trim() || pResort);
             if (!firstResort) { firstResort = pResort; secondResort = sResort; }
 
-            // Balance is at row[18]
             let exVal = (row[18] || row[5] || '').trim();
             if (exVal && !exVal.includes('/') && !exVal.includes('▲') && exVal !== '0') {
                 const numericEx = parseInt(exVal.replace(/[^0-9]/g, ''));
@@ -917,7 +923,6 @@ function init() {
             const totalPax = (parseInt(row[10]) || 0) + (parseInt(row[11]) || 0) + (parseInt(row[12]) || 0);
             const formatDate = (raw) => { if (!raw || !raw.includes('/')) return null; const [m, d] = raw.split('/').map(v => v.trim().padStart(2,'0')); return `${currentYear}-${m}-${d}`; };
             
-            // 항공사 코드 (숫자 포함 가능하도록 수정: 7C, 5J 등)
             const flightRegex = /[A-Z0-9]{2}\d+/i;
             if (row[2] && flightRegex.test(row[2])) { allItems.push({ name: `✈️ 공항 픽업 (${row[2].toUpperCase().trim()})`, date: formatDate(row[0]), time: "14:00", count: totalPax }); }
             if (row[3] && flightRegex.test(row[3])) { 
@@ -948,6 +953,20 @@ function init() {
                         }
                         const actualTimeMatch = line.match(/(\d{1,2}):(\d{2})/); if (actualTimeMatch) itemTime = `${actualTimeMatch[1].padStart(2,'0')}:${actualTimeMatch[2]}`;
                         const lowerLine = line.toLowerCase();
+                        
+                        // 💎 개별 리조트 오버라이드 추출 (- H.PMR 등)
+                        let itemMeetingPlace = null;
+                        const resortOverrideMatch = line.match(/-\s*([A-Z\.\s]+)$/i);
+                        if (resortOverrideMatch && !lowerLine.includes('get')) {
+                            itemMeetingPlace = translateResort(resortOverrideMatch[1].trim());
+                            itemName = itemName.replace(resortOverrideMatch[0], '').trim();
+                        }
+
+                        // 💎 현지불(GET:) 추출
+                        const getMatch = line.match(/get:\s*(\d+[a-z]*)/i);
+                        if (getMatch) {
+                            itemName += ` (현지불: ${getMatch[1].toUpperCase()})`;
+                        }
                         
                         if (lowerLine.includes('meeting') || lowerLine.includes('pickup') || lowerLine.includes('픽업')) itemName = '✈️ 공항 픽업';
                         else if (lowerLine.includes('sending') || lowerLine.includes('샌딩')) itemName = '✈️ 공항 샌딩';
@@ -982,7 +1001,7 @@ function init() {
                         
                         if (line.includes('afh') || line.includes('AFH')) itemTime = "18:00";
                         else if (line.includes('afm') || line.includes('AFM')) itemTime = "17:00";
-                        allItems.push({ name: itemName, date: tDate, time: itemTime, count: itemPax, details: line });
+                        allItems.push({ name: itemName, date: tDate, time: itemTime, count: itemPax, details: line, meetingPlace: itemMeetingPlace });
                     }
                 });
             }
@@ -990,7 +1009,7 @@ function init() {
 
         if (combinedKorNames.length === 0) {
             console.log("No valid rows found to process (combinedKorNames is empty)");
-            alert("처리할 수 있는 올바른 형식의 데이터가 없습니다. (최소 15개 이상의 열이 필요하며, 이름/연락처/내용이 포함되어야 합니다.)");
+            alert("처리할 수 있는 올바른 형식의 데이터가 없습니다. (최소 15개 이상의 열이 필요하며, 이름/구매처/내용이 포함되어야 합니다.)");
             return;
         }
         
@@ -1004,8 +1023,9 @@ function init() {
         
         // 잔금(Balance) 조건: "get" 이라는 단어가 포함된 경우에만 표시, 아니면 전액 결제
         let displayBalance = '전액 결제 완료';
+        const finalExAmount = (isExNumeric && totalExAmount > 0) ? totalExAmount.toLocaleString() : firstExVal;
         if (firstExVal.toLowerCase().includes('get')) {
-             displayBalance = finalExAmount || firstExVal; // 숫자 추출된 값이 있으면 쓰고, 아니면 원본 표기
+             displayBalance = finalExAmount; 
         }
         
         const resData = { 
