@@ -1,4 +1,4 @@
-// bohol-admin.js - Final Full Luxury Admin (PERFECT PARSING & CLEANUP)
+// bohol-admin.js - Final Full Luxury Admin (CLEAR FIX & ROBUST PARSING)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs, addDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -258,6 +258,20 @@ function init() {
             tableBody.appendChild(tr);
         });
     }
+
+    // 🚀 모든 스케줄 삭제 (클리어 버튼 기능)
+    window.handleClearSchedules = async () => {
+        if (!confirm("정말로 모든 스케줄을 삭제하시겠습니까? (복구 불가능)")) return;
+        try {
+            const q = query(collection(db, "schedules"));
+            const snap = await getDocs(q);
+            const batch = writeBatch(db);
+            snap.docs.forEach(d => batch.delete(d.ref));
+            await batch.commit();
+            alert("모든 스케줄이 삭제되었습니다.");
+            renderSchedule();
+        } catch (e) { console.error(e); alert("삭제 중 오류 발생"); }
+    };
 
     window.registerBulkSchedule = async () => {
         const inputArea = document.getElementById('schedule-reg-input');
