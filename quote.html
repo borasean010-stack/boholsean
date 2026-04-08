@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         :root { --primary: #00b48a; --bg: #f4f7f6; }
         body { background: var(--bg); font-family: 'Pretendard', sans-serif; padding: 20px; color: #333; line-height: 1.6; }
@@ -17,16 +19,17 @@
         .header h1 { margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -1px; }
         .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; font-weight: 600; }
 
-        .section { padding: 30px; border-bottom: 1px solid #f0f0f0; }
+        .section { padding: 25px; border-bottom: 1px solid #f0f0f0; }
         .section-title { font-size: 17px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; color: #111; }
         .section-title .material-icons { color: var(--primary); font-size: 22px; }
 
         /* 입력 폼 스타일 */
-        .input-group { margin-bottom: 15px; }
+        .input-group { margin-bottom: 15px; position: relative; }
         .input-group label { display: block; font-size: 13px; font-weight: 700; color: #666; margin-bottom: 6px; }
         .input-group label span { color: #ff4b4b; margin-left: 2px; }
-        .input-group input { width: 100%; padding: 14px; border: 1.5px solid #eee; border-radius: 12px; font-size: 15px; box-sizing: border-box; transition: 0.2s; }
+        .input-group input { width: 100%; padding: 14px 14px 14px 45px; border: 1.5px solid #eee; border-radius: 12px; font-size: 15px; box-sizing: border-box; transition: 0.2s; background: #fff; }
         .input-group input:focus { border-color: var(--primary); outline: none; background: #f0fbf8; }
+        .input-group .input-icon { position: absolute; left: 15px; top: 36px; color: #bbb; font-size: 20px; z-index: 1; }
 
         .item-list { display: flex; flex-direction: column; gap: 12px; }
         .item { background: #f9fafb; padding: 18px; border-radius: 16px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
@@ -36,7 +39,7 @@
         .item-price { font-size: 15px; font-weight: 800; color: var(--primary); }
 
         /* 투어별 상세 설정 카드 */
-        .tour-setting-card { background: #fff; border: 1.5px solid #eee; border-radius: 18px; padding: 20px; margin-bottom: 15px; }
+        .tour-setting-card { background: #fff; border: 1.5px solid #eee; border-radius: 18px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
         .tour-setting-card .tour-name { font-size: 15px; font-weight: 800; color: var(--primary); margin-bottom: 15px; display: block; padding-bottom: 10px; border-bottom: 1px solid #f5f5f5; }
 
         .total-box { padding: 30px; background: #fdfdfd; text-align: center; }
@@ -57,6 +60,18 @@
         .footer-note { padding: 20px; font-size: 13px; color: #888; text-align: center; line-height: 1.6; }
 
         #loading { text-align: center; padding: 100px 20px; color: #999; }
+
+        /* Flatpickr Mobile Fix */
+        .flatpickr-calendar { font-family: 'Pretendard', sans-serif; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #eee; }
+        .flatpickr-day.selected { background: var(--primary) !important; border-color: var(--primary) !important; }
+
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .section { padding: 20px 15px; }
+            .tour-setting-card { padding: 15px; }
+            .input-group input { padding: 12px 12px 12px 40px; font-size: 14px; }
+            .input-group .input-icon { top: 34px; left: 12px; }
+        }
     </style>
 </head>
 <body>
@@ -68,7 +83,7 @@
         <p>고객님만을 위한 맞춤 견적서</p>
     </div>
 
-    <!-- 1. 견적 항목 (최상단) -->
+    <!-- 1. 견적 항목 -->
     <div class="section" style="background: #fafafa;">
         <div class="section-title"><span class="material-icons">receipt_long</span>선택하신 투어 및 상품</div>
         <div class="item-list" id="item-list"></div>
@@ -79,24 +94,27 @@
         </div>
     </div>
 
-    <!-- 2. 예약자 정보 입력 -->
+    <!-- 2. 예약자 정보 -->
     <div class="section">
         <div class="section-title"><span class="material-icons">person</span>예약자 기본 정보</div>
         <div class="input-group">
             <label>대표자 성함 (한글)<span>*</span></label>
+            <span class="material-icons input-icon">badge</span>
             <input type="text" id="cust-name-kor" placeholder="예: 홍길동">
         </div>
         <div class="input-group">
             <label>대표자 영문 이름 (여권 동일)<span>*</span></label>
+            <span class="material-icons input-icon">language</span>
             <input type="text" id="cust-name-eng" placeholder="예: HONG GILDONG">
         </div>
         <div class="input-group">
-            <label>카카오톡 ID 또는 연락처<span>*</span></label>
-            <input type="text" id="cust-contact" placeholder="ID 또는 휴대폰 번호">
+            <label>구매처<span>*</span></label>
+            <span class="material-icons input-icon">shopping_cart</span>
+            <input type="text" id="cust-contact" placeholder="예: 스마트스토어, 인스타그램 등">
         </div>
     </div>
 
-    <!-- 3. 투어별 세부 정보 (날짜/리조트) -->
+    <!-- 3. 투어별 세부 정보 -->
     <div class="section">
         <div class="section-title"><span class="material-icons">calendar_month</span>투어별 희망 날짜 및 장소 설정</div>
         <div id="tour-settings-container">
@@ -127,6 +145,10 @@
 </div>
 
 <div id="loading">데이터를 불러오는 중입니다...</div>
+
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -163,16 +185,13 @@
                 const data = docSnap.data();
                 tourItems = data.items || [];
 
-                // 1. 상단 상품 목록 렌더링
                 const listContainer = document.getElementById('item-list');
                 listContainer.innerHTML = '';
                 
-                // 2. 투어별 상세 설정 컨테이너 렌더링
                 const settingsContainer = document.getElementById('tour-settings-container');
                 settingsContainer.innerHTML = '';
 
                 tourItems.forEach((item, index) => {
-                    // 상품 목록
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'item';
                     itemDiv.innerHTML = `
@@ -184,21 +203,31 @@
                     `;
                     listContainer.appendChild(itemDiv);
 
-                    // 투어별 설정 카드 (날짜/리조트)
                     const settingCard = document.createElement('div');
                     settingCard.className = 'tour-setting-card';
                     settingCard.innerHTML = `
                         <span class="tour-name">${item.name}</span>
                         <div class="input-group">
                             <label>투어 희망 날짜<span>*</span></label>
-                            <input type="date" class="tour-date-input" data-index="${index}">
+                            <span class="material-icons input-icon">calendar_today</span>
+                            <input type="text" class="tour-date-input" data-index="${index}" placeholder="날짜를 선택해 주세요" readonly>
                         </div>
                         <div class="input-group">
                             <label>픽업 리조트 / 장소<span>*</span></label>
+                            <span class="material-icons input-icon">location_on</span>
                             <input type="text" class="tour-resort-input" data-index="${index}" placeholder="예: 헤난 알로나 로비">
                         </div>
                     `;
                     settingsContainer.appendChild(settingCard);
+                });
+
+                // Flatpickr 적용
+                flatpickr(".tour-date-input", {
+                    locale: "ko",
+                    dateFormat: "Y-m-d",
+                    minDate: "today",
+                    disableMobile: true,
+                    monthSelectorType: 'static'
                 });
 
                 document.getElementById('total-amount').textContent = '₩ ' + (data.totalPrice || 0).toLocaleString();
@@ -230,7 +259,6 @@
             return;
         }
 
-        // 각 투어별 입력값 수집
         const updatedItems = [...tourItems];
         const dateInputs = document.querySelectorAll('.tour-date-input');
         const resortInputs = document.querySelectorAll('.tour-resort-input');
