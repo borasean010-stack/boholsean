@@ -1,4 +1,4 @@
-// bohol-admin.js - Final Full Luxury Admin (STRICT KOREAN & INPUT FIX)
+// bohol-admin.js - Final Full Luxury Admin (STRICT KOREAN & FIXES)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs, addDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -28,7 +28,6 @@ function init() {
     let currentScheduleFilter = 'all';
     let currentScheduleDay = 'today'; 
 
-    // 🚀 상품명 한글 번역기
     function translateTourName(name) {
         if (!name) return '-';
         const low = name.toLowerCase();
@@ -47,7 +46,6 @@ function init() {
         return name;
     }
 
-    // 🚀 리조트 한글 번역기
     function translateResort(name) {
         if (!name || name === '-') return '-';
         let n = name.toLowerCase().replace(/\s/g, '').replace(/\./g, '').replace(/,/g, '');
@@ -71,7 +69,6 @@ function init() {
         return name; 
     }
 
-    // 🚀 입력창 제어 (퀵바우처, 견적서 등)
     window.showInputArea = (type) => {
         window.hideInputArea();
         const el = document.getElementById(`input-area-${type}`);
@@ -130,7 +127,7 @@ function init() {
     }
 
     function renderAll() {
-        updateSummaryCounts(); renderSchedule(); renderTable();
+        updateSummaryCounts(); renderDateBoxes(); renderSchedule(); renderTable();
     }
 
     function updateSummaryCounts() {
@@ -146,15 +143,33 @@ function init() {
         });
     }
 
-    window.switchScheduleDay = (day) => { currentScheduleDay = day; renderSchedule(); };
+    function renderDateBoxes() {
+        const now = new Date();
+        const offset = now.getTimezoneOffset() * 60000;
+        const todayStr = new Date(now.getTime() - offset + 32400000).toISOString().split('T')[0];
+        const tomorrowStr = new Date(now.getTime() - offset + 32400000 + 86400000).toISOString().split('T')[0];
+        if (document.getElementById('box-date-today')) document.getElementById('box-date-today').innerText = todayStr;
+        if (document.getElementById('box-date-tomorrow')) document.getElementById('box-date-tomorrow').innerText = tomorrowStr;
+    }
+
+    window.switchScheduleDay = (day) => { 
+        currentScheduleDay = day; 
+        document.getElementById('tool-box-today')?.classList.toggle('active', day === 'today');
+        document.getElementById('tool-box-tomorrow')?.classList.toggle('active', day === 'tomorrow');
+        renderSchedule(); 
+    };
 
     function renderSchedule() {
         const container = document.getElementById('active-timeline');
         if (!container) return;
+        const now = new Date();
+        const offset = now.getTimezoneOffset() * 60000;
         const targetDate = (currentScheduleDay === 'tomorrow') 
-            ? new Date(new Date().getTime() + 86400000 + 32400000).toISOString().split('T')[0]
-            : new Date(new Date().getTime() + 32400000).toISOString().split('T')[0];
+            ? new Date(now.getTime() - offset + 32400000 + 86400000).toISOString().split('T')[0]
+            : new Date(now.getTime() - offset + 32400000).toISOString().split('T')[0];
         
+        if (document.getElementById('schedule-title-date')) document.getElementById('schedule-title-date').innerText = targetDate;
+
         let rawItems = [];
         allSchedules.forEach(s => { 
             if (s.date === targetDate) {
@@ -195,7 +210,7 @@ function init() {
         document.querySelectorAll('.ss-nav-item').forEach(el => el.classList.remove('active'));
         if (tab === 'system') {
             document.getElementById('system-setup-section').style.display = 'block';
-            renderCleanupTable();
+            renderTable();
         } else {
             document.getElementById('system-setup-section').style.display = 'none';
             renderTable();
@@ -252,7 +267,7 @@ function init() {
                 remarkRaw.split('\n').forEach(line => {
                     const dm = line.match(/(\d{1,2})\/(\d{1,2})/); if (!dm) return;
                     const getMatch = line.match(/get:\s*(\d+[a-z]*)/i);
-                    if (getMatch) firstEx = getMatch[1].toUpperCase();
+                    if (getMatch) firstEx = `₱ ${getMatch[1].toUpperCase()}`;
                     allItems.push({ name: translateTourName(line.replace(dm[0], '').trim()), date: `2026-${dm[1].padStart(2,'0')}-${dm[2].padStart(2,'0')}`, time: "09:00", count: 1 });
                 });
             }
