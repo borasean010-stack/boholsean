@@ -320,35 +320,53 @@ document.addEventListener('DOMContentLoaded', () => {
         const firstNav = document.querySelector('.ss-nav-item:first-child');
         if (firstNav) firstNav.classList.add('active');
         document.getElementById('breadcrumb-active').innerText = '메인 페이지';
-        activeTab = 'new'; 
+        
+        // 메인 페이지 구성 요소 보여주기
+        const toolGrid = document.querySelector('.main-tool-grid');
+        const timelineSec = document.querySelector('.timeline-section');
+        const dataViewSec = document.getElementById('data-view-section');
+        
+        if (toolGrid) toolGrid.style.display = 'grid';
+        if (timelineSec) timelineSec.style.display = 'block';
+        // 테이블 섹션 숨기기
+        if (dataViewSec) dataViewSec.style.display = 'none';
+
         document.getElementById('system-setup-section').style.display = 'none';
-        document.getElementById('data-view-section').style.display = 'block';
-        renderTable();
     };
 
     window.switchAdminTab = (tab) => {
         activeTab = tab;
+        const bActive = document.getElementById('breadcrumb-active');
+        const toolGrid = document.querySelector('.main-tool-grid');
+        const timelineSec = document.querySelector('.timeline-section');
+        const dataViewSec = document.getElementById('data-view-section');
+        
         document.querySelectorAll('.ss-nav-item').forEach(el => el.classList.remove('active'));
         if (tab === 'new') document.getElementById('nav-new-quotes')?.classList.add('active');
         document.querySelectorAll('.stat-card').forEach(el => el.classList.remove('active'));
         const statCard = document.getElementById(`stat-${tab}`);
         if (statCard) statCard.classList.add('active');
-        const bActive = document.getElementById('breadcrumb-active');
-        const toolGrid = document.querySelector('.main-tool-grid');
-        const timelineSec = document.querySelector('.timeline-section');
+
         if (tab === 'system') {
             if (toolGrid) toolGrid.style.display = 'none';
             if (timelineSec) timelineSec.style.display = 'none';
+            if (dataViewSec) dataViewSec.style.display = 'block';
             document.getElementById('system-setup-section').style.display = 'block';
-            document.getElementById('data-view-section').style.display = 'block';
             if (bActive) bActive.innerText = '시스템 초기화';
             renderCleanupTable();
         } else {
-            if (toolGrid) toolGrid.style.display = 'grid';
-            if (timelineSec) timelineSec.style.display = 'block';
+            // 메인 페이지 구성 요소(일정 박스, 타임라인) 숨기기
+            if (toolGrid) toolGrid.style.display = 'none';
+            if (timelineSec) timelineSec.style.display = 'none';
+            // 테이블 섹션 보여주기
+            if (dataViewSec) dataViewSec.style.display = 'block';
+            
             document.getElementById('system-setup-section').style.display = 'none';
-            document.getElementById('data-view-section').style.display = 'block';
-            if (bActive) { const labels = { 'new': '신규 견적/예약', 'confirmed': '예약확정', 'resorts': '리조트 견적', 'resort-confirmed': '리조트 확정' }; bActive.innerText = labels[tab] || '메인 페이지'; }
+            
+            if (bActive) { 
+                const labels = { 'new': '신규 견적/예약', 'confirmed': '예약확정', 'resorts': '리조트 견적', 'resort-confirmed': '리조트 확정' }; 
+                bActive.innerText = labels[tab] || '예약 관리'; 
+            }
             renderTable();
         }
     };

@@ -152,7 +152,6 @@
                 </div>
 
                 <div class="timeline-section">
-
                     <div class="timeline-header">
                         <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
                             <div style="display:flex; align-items:center; gap:20px;">
@@ -175,6 +174,36 @@
                     </div>
                     <div id="active-timeline" class="timeline-content">
                         <div class="sc-empty">데이터 로딩 중...</div>
+                    </div>
+                </div>
+
+                <!-- 🚀 예약 목록 테이블 섹션 추가 -->
+                <div id="data-view-section" class="timeline-section" style="display: none;">
+                    <div class="timeline-header">
+                        <div class="timeline-title"><span class="material-icons">list_alt</span> <span id="table-view-title">예약 목록</span></div>
+                        <div class="ss-header-search" style="margin-left:auto;">
+                            <input type="text" id="header-global-search" placeholder="고객명 검색..." onkeyup="renderTable()">
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="ss-table">
+                            <thead>
+                                <tr>
+                                    <th width="40"><input type="checkbox"></th>
+                                    <th width="50">No</th>
+                                    <th width="100">예약번호</th>
+                                    <th width="120">고객명</th>
+                                    <th>상품내역</th>
+                                    <th width="120">합계금액</th>
+                                    <th width="120">등록일</th>
+                                    <th width="100">상태</th>
+                                    <th width="180">관리</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-table-body">
+                                <!-- renderTable()에 의해 데이터가 주입됩니다 -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
