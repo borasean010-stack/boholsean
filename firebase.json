@@ -13,6 +13,18 @@
     ],
     "rewrites": [
       {
+        "source": "/quote",
+        "destination": "/quote.html"
+      },
+      {
+        "source": "/bohol-admin",
+        "destination": "/bohol-admin.html"
+      },
+      {
+        "source": "/admin-quote-maker",
+        "destination": "/admin-quote-maker.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

@@ -212,7 +212,7 @@ window.submitQuote = async () => {
         btn.disabled = true;
         btn.innerText = "생성 중...";
 
-        const docRef = await addDoc(collection(db, "reservations"), {
+        const docRef = await addDoc(collection(db, "quotes"), {
             customerKorName: "(고객 입력 대기)",
             contact: "-",
             items: items,
@@ -223,7 +223,7 @@ window.submitQuote = async () => {
 
         const url = `${window.location.origin}/quote.html?id=${docRef.id}`;
         await navigator.clipboard.writeText(url);
-        alert('견적 링크가 생성되어 복사되었습니다!\n[신규예약] 탭에서 확인 가능합니다.');
+        alert('견적 링크가 생성되어 복사되었습니다!');
         window.close();
     } catch (e) { 
         console.error(e); 

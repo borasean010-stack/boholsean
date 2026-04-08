@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상세 견적서 - Bohol Sean</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root { --primary: #00b48a; --bg: #f4f7f6; }
+        body { background: var(--bg); font-family: 'Pretendard', sans-serif; padding: 20px; color: #333; line-height: 1.6; }
+        .quote-container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; }
+        
+        .header { background: var(--primary); color: #fff; padding: 40px 30px; text-align: center; }
+        .header img { width: 100px; margin-bottom: 15px; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -1px; }
+        .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; font-weight: 600; }
+
+        .section { padding: 30px; border-bottom: 1px solid #f0f0f0; }
+        .section-title { font-size: 16px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; color: #111; }
+        .section-title .material-icons { color: var(--primary); font-size: 20px; }
+
+        .item-list { display: flex; flex-direction: column; gap: 12px; }
+        .item { background: #f9fafb; padding: 18px; border-radius: 16px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .item-info { flex: 1; }
+        .item-name { display: block; font-size: 15px; font-weight: 800; color: #111; margin-bottom: 4px; }
+        .item-meta { font-size: 13px; color: #666; font-weight: 600; }
+        .item-price { font-size: 15px; font-weight: 800; color: var(--primary); }
+
+        .total-box { padding: 30px; background: #fdfdfd; text-align: center; }
+        .total-label { font-size: 14px; color: #888; font-weight: 600; }
+        .total-amount { font-size: 32px; font-weight: 900; color: #111; margin-top: 5px; }
+        
+        .footer-note { padding: 25px; background: #fff9eb; border-radius: 16px; margin: 0 30px 30px; border: 1px solid #ffecb5; font-size: 13px; color: #856404; line-height: 1.7; }
+        .footer-note b { display: block; margin-bottom: 5px; font-size: 14px; color: #664d03; }
+
+        #loading { text-align: center; padding: 100px 20px; color: #999; }
+    </style>
+</head>
+<body>
+
+<div class="quote-container" id="main-container" style="display: none;">
+    <div class="header">
+        <img src="boholsean-logo.png" alt="Bohol Sean">
+        <h1>BOHOL SEAN</h1>
+        <p>고객님만을 위한 맞춤 견적서</p>
+    </div>
+
+    <div class="section">
+        <div class="section-title"><span class="material-icons">receipt_long</span>선택하신 투어 및 상품</div>
+        <div class="item-list" id="item-list">
+            <!-- Items injected here -->
+        </div>
+    </div>
+
+    <div class="total-box">
+        <div class="total-label">최종 합계 금액</div>
+        <div class="total-amount" id="total-amount">₩ 0</div>
+    </div>
+
+    <div class="footer-note">
+        <b>유의사항</b>
+        • 위 견적은 현지 사정에 따라 변동될 수 있습니다.<br>
+        • 예약 확정을 원하시면 카카오톡 채널 '보홀션'으로 성함과 함께 메시지 부탁드립니다.<br>
+        • 모든 상품은 노쇼 방지를 위해 예약금 입금 후 최종 확정됩니다.
+    </div>
+</div>
+
+<div id="loading">데이터를 불러오는 중입니다...</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCqvsvuOGnQoNL3J0oGsOcN66ZOP0JlN5w",
+        authDomain: "boholsean-14014193-11202.firebaseapp.com",
+        projectId: "boholsean-14014193-11202",
+        storageBucket: "boholsean-14014193-11202.firebasestorage.app",
+        messagingSenderId: "684378696978",
+        appId: "1:684378696978:web:868e1e33581f38a188d7cb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadQuote() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const docId = urlParams.get('id');
+        if (!docId) {
+            document.getElementById('loading').textContent = "잘못된 접근입니다.";
+            return;
+        }
+
+        try {
+            const docRef = doc(db, "quotes", docId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                
+                // 항목 렌더링
+                const listContainer = document.getElementById('item-list');
+                listContainer.innerHTML = '';
+                
+                data.items.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'item';
+                    itemDiv.innerHTML = `
+                        <div class="item-info">
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-meta">수량: ${item.count}</span>
+                        </div>
+                        <div class="item-price">₩ ${(item.price * item.count).toLocaleString()}</div>
+                    `;
+                    listContainer.appendChild(itemDiv);
+                });
+
+                document.getElementById('total-amount').textContent = '₩ ' + (data.totalPrice || 0).toLocaleString();
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('main-container').style.display = 'block';
+            } else {
+                document.getElementById('loading').textContent = "만료되었거나 존재하지 않는 견적서입니다.";
+            }
+        } catch (error) {
+            console.error("Error loading quote:", error);
+            document.getElementById('loading').textContent = "데이터 오류가 발생했습니다.";
+        }
+    }
+
+    window.onload = loadQuote;
+</script>
+
+</body>
+</html>

@@ -192,10 +192,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getCategory(name, details = '') {
         const combined = ((name || '') + ' ' + (details || '')).toLowerCase();
-        if (combined.includes('픽업') || combined.includes('샌딩')) return '픽업/샌딩';
-        if (combined.includes('hopping') || combined.includes('호핑')) return '호핑투어';
-        if (combined.includes('land') || combined.includes('랜드')) return '랜드투어';
-        if (combined.includes('malum') || combined.includes('말룸')) return '시크릿가든 말룸파티';
+        
+        // 1. 픽업샌딩
+        if (combined.includes('픽업') || combined.includes('샌딩') || combined.includes('드랍')) return '픽업샌딩';
+        
+        // 2. 호핑투어 (샤인, 프라이빗, 파밀라칸 등)
+        if (combined.includes('호핑') || combined.includes('파밀라칸')) return '호핑투어';
+        
+        // 3. 육상투어
+        if (combined.includes('육상') || combined.includes('랜드') || combined.includes('daytour')) return '육상투어';
+        
+        // 4. 나팔링 (체험 다이빙, 나팔링, 대왕조개)
+        if (combined.includes('나팔링') || combined.includes('대왕조개')) return '나팔링';
+        
+        // 5. 마사지
+        if (combined.includes('마사지') || combined.includes('스파') || combined.includes('spa') || combined.includes('힐롯')) return '마사지';
+        
+        // 6. 액티비티 (그 외)
         return '액티비티';
     }
 
@@ -274,13 +287,13 @@ document.addEventListener('DOMContentLoaded', () => {
         container.innerHTML = sortedGroupKeys.map(key => {
             const group = groups[key];
             let icon = "event_available", catClass = "cat-activity", catLabel = group.category;
-            if (group.category === '픽업/샌딩') { icon = "local_airport"; catClass = "cat-pickup"; catLabel = "픽업/샌딩"; }
-            else if (group.category === '호핑투어') { icon = "sailing"; catClass = "cat-hopping"; catLabel = "호핑투어"; }
-            else if (group.category === '시크릿가든 말룸파티') { icon = "nature_people"; catClass = "cat-malum"; catLabel = "시크릿가든 말룸파티"; }
-            else if (group.category === '랜드투어') { icon = "directions_car"; catClass = "cat-activity"; catLabel = "랜드투어"; }
             
-            const isSpa = group.items.some(it => it.name.toLowerCase().includes('마사지') || it.name.toLowerCase().includes('스파'));
-            if (isSpa) icon = "spa";
+            if (group.category === '픽업샌딩') { icon = "local_airport"; catClass = "cat-pickup"; }
+            else if (group.category === '호핑투어') { icon = "sailing"; catClass = "cat-hopping"; }
+            else if (group.category === '육상투어') { icon = "directions_car"; catClass = "cat-activity"; }
+            else if (group.category === '나팔링') { icon = "waves"; catClass = "cat-hopping"; }
+            else if (group.category === '마사지') { icon = "spa"; catClass = "cat-activity"; }
+            else { icon = "star"; catClass = "cat-activity"; }
 
             let headerTitle = `${group.title} (${group.totalCount}명)`;
 
@@ -1039,9 +1052,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let filtered = [];
         if (mode === 'pickup') {
-            filtered = rawItems.filter(i => getCategory(i.name, i.details) === '픽업/샌딩');
+            filtered = rawItems.filter(i => getCategory(i.name, i.details) === '픽업샌딩');
         } else {
-            filtered = rawItems.filter(i => getCategory(i.name, i.details) !== '픽업/샌딩');
+            filtered = rawItems.filter(i => getCategory(i.name, i.details) !== '픽업샌딩');
         }
 
         // 시간순 정렬 + 같은 시간일 경우 리조트순 정렬
