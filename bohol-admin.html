@@ -85,13 +85,10 @@
             <div class="ss-sidebar-brand"><img src="boholsean-logo.png" alt="Logo" class="ss-logo"><span class="ss-brand-name">관리자 센터</span></div>
             <nav class="ss-nav">
                 <div class="ss-nav-group">
-                    <button class="ss-nav-item active" onclick="switchMainView()"><span class="material-icons">dashboard</span> 메인 페이지</button>
-                    <button class="ss-nav-item" onclick="switchAdminTab('new')"><span class="material-icons">inbox</span> 신규예약</button>
-                    <button class="ss-nav-item" onclick="switchAdminTab('confirmed')"><span class="material-icons">task_alt</span> 예약확정</button>
-                    <button class="ss-nav-item" onclick="switchAdminTab('resorts')"><span class="material-icons">hotel</span> 리조트 견적</button>
-                    <button class="ss-nav-item" onclick="switchAdminTab('resort-confirmed')"><span class="material-icons">check_circle</span> 리조트 확정</button>
+                    <button class="ss-nav-item active" onclick="switchMainView()"><span class="material-icons">calendar_month</span> 전체 일정 관리</button>
                 </div>
                 <div class="ss-nav-group">
+
                     <p class="ss-nav-label">시스템</p>
                     <button class="ss-nav-item" onclick="showInputArea('quick')"><span class="material-icons">confirmation_number</span> 퀵바우처 생성</button>
                     <button class="ss-nav-item" onclick="showInputArea('reg')"><span class="material-icons">upload_file</span> 스케줄 등록</button>
@@ -152,21 +149,9 @@
                         <button class="btn-action-outline" style="height:40px;" onclick="hideInputArea()">닫기</button>
                     </div>
                 </div>
-                <div id="input-area-quote" class="input-area-card" style="border-color: #007aff;">
-                    <h3 style="margin:0 0 15px 0; color:#007aff; font-size:15px;">📝 맞춤 견적서 생성</h3>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-                        <input type="text" id="quote-customer" class="tool-textarea" style="height:35px; margin:0;" placeholder="고객명">
-                        <input type="text" id="quote-contact" class="tool-textarea" style="height:35px; margin:0;" placeholder="연락처">
-                    </div>
-                    <textarea id="quote-items-input" class="tool-textarea" style="height:60px;" placeholder="상품정보 (예: 4/10 호핑 2명, 4/11 마사지 2명)"></textarea>
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <input type="number" id="quote-total" class="tool-textarea" style="height:40px; margin:0; flex:1;" placeholder="총 합계 금액 (원)">
-                        <button class="btn-action-received" style="background:#007aff; border-color:#007aff; height:40px; flex:1;" onclick="createCustomQuote()">견적 링크 생성</button>
-                        <button class="btn-action-outline" style="height:40px;" onclick="hideInputArea()">닫기</button>
-                    </div>
-                </div>
 
                 <div class="timeline-section">
+
                     <div class="timeline-header">
                         <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
                             <div style="display:flex; align-items:center; gap:20px;">
@@ -188,34 +173,6 @@
                     </div>
                     <div id="active-timeline" class="timeline-content">
                         <div class="sc-empty">데이터 로딩 중...</div>
-                    </div>
-                </div>
-
-                <!-- 예약 리스트 테이블 -->
-                <div id="data-view-section">
-                    <div class="ss-view-header">
-                        <h2 id="current-view-title">예약 리스트</h2>
-                        <input type="text" id="header-global-search" placeholder="고객명 검색" class="ss-search">
-                    </div>
-                    <div class="ss-card">
-                        <div class="ss-table-wrapper">
-                            <table class="ss-table">
-                                <thead>
-                                    <tr>
-                                        <th width="40"><input type="checkbox"></th>
-                                        <th width="50">번호</th>
-                                        <th width="100">예약번호</th>
-                                        <th width="140">고객명</th>
-                                        <th>상품 정보</th>
-                                        <th width="120">금액</th>
-                                        <th width="100">신청일</th>
-                                        <th width="90">상태</th>
-                                        <th width="160">액션</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="admin-table-body"></tbody>
-                            </table>
-                        </div>
                     </div>
                 </div>
 
@@ -253,14 +210,6 @@
         <button class="mobile-nav-item" onclick="switchScheduleDay('tomorrow'); updateMobileNav(this)">
             <span class="material-icons">event_repeat</span>
             <span>내일일정</span>
-        </button>
-        <button class="mobile-nav-item" onclick="switchAdminTab('new'); updateMobileNav(this)">
-            <span class="material-icons">inbox</span>
-            <span>신규예약</span>
-        </button>
-        <button class="mobile-nav-item" onclick="switchAdminTab('confirmed'); updateMobileNav(this)">
-            <span class="material-icons">task_alt</span>
-            <span>확정내역</span>
         </button>
     </nav>
 
