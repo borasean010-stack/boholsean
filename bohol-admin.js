@@ -1,4 +1,4 @@
-// bohol-admin.js - Final Full Luxury Admin (PICKUP FIX & TOUR NAME CLEANUP)
+// bohol-admin.js - Final Full Luxury Admin (PERFECT PARSING & CLEANUP)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs, addDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -28,7 +28,6 @@ function init() {
     let currentScheduleFilter = 'all';
     let currentScheduleDay = 'today'; 
 
-    // 🚀 투어명 전용 번역기 (투어명만 깔끔하게 기입)
     function translateTourName(name) {
         if (!name) return '-';
         const low = name.toLowerCase();
@@ -86,8 +85,7 @@ function init() {
     };
 
     function getDateStr(offsetDays = 0) {
-        const d = new Date();
-        d.setHours(d.getHours() + 9); 
+        const d = new Date(); d.setHours(d.getHours() + 9); 
         if (offsetDays !== 0) d.setDate(d.getDate() + offsetDays);
         return d.toISOString().split('T')[0];
     }
@@ -262,7 +260,8 @@ function init() {
     }
 
     window.registerBulkSchedule = async () => {
-        const input = document.getElementById('schedule-reg-input').value.trim(); if (!input) return;
+        const inputArea = document.getElementById('schedule-reg-input');
+        const input = inputArea.value.trim(); if (!input) return;
         const rows = parseRobustTSV(input); const batch = writeBatch(db); let count = 0; const currentYear = 2026;
         for (const row of rows) {
             if (row.length < 11) continue;
@@ -288,11 +287,12 @@ function init() {
                 });
             }
         }
-        await batch.commit(); alert(`${count}건 등록됨`); renderSchedule();
+        await batch.commit(); alert(`${count}건 등록됨`); inputArea.value = ''; renderSchedule();
     };
 
     window.makeQuickVoucher = async () => {
-        const inputVal = document.getElementById('quick-voucher-input').value.trim(); if (!inputVal) return;
+        const inputArea = document.getElementById('quick-voucher-input');
+        const inputVal = inputArea.value.trim(); if (!inputVal) return;
         const rows = parseRobustTSV(inputVal); const currentYear = 2026;
         let combinedKorNames = [], allItems = [], firstContact = '', firstResort = '', firstEx = '', totalAdults = 0, totalChildren = 0, totalInfants = 0;
         rows.forEach(row => {
@@ -326,7 +326,7 @@ function init() {
         });
         const resData = { customerKorName: combinedKorNames.join(', '), contact: firstContact, items: allItems, status: '예약확정', exchangeAmount: firstEx || '전액 결제 완료', paxInfo: `성인 ${totalAdults}, 아동 ${totalChildren}, 유아 ${totalInfants}`.replace(/, 아동 0, 유아 0/, '').replace(/, 유아 0/, ''), pickupResort: firstResort, createdAt: new Date() };
         const docRef = await addDoc(collection(db, "quick_vouchers"), resData);
-        window.open(`bohol-voucher.html?id=${docRef.id}`, '_blank');
+        inputArea.value = ''; window.open(`bohol-voucher.html?id=${docRef.id}`, '_blank');
     };
 }
 
