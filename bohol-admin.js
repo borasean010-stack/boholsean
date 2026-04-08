@@ -228,8 +228,8 @@ function init() {
         // 4. 육상투어
         if (combined.includes('육상') || combined.includes('랜드') || combined.includes('daytour')) return '육상투어';
         
-        // 5. 마사지
-        if (combined.includes('마사지') || combined.includes('스파') || combined.includes('spa') || combined.includes('힐롯')) return '마사지';
+        // 5. 마사지 (더 스톤 추가)
+        if (combined.includes('마사지') || combined.includes('스파') || combined.includes('spa') || combined.includes('힐롯') || combined.includes('stone') || combined.includes('스톤')) return '마사지';
         
         // 6. 액티비티 (그 외)
         return '액티비티';
