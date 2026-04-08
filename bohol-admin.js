@@ -36,8 +36,9 @@ function init() {
         if (low.includes('surin') || low.includes('수린')) return '수린 마사지샵';
         if (low.includes('stone') || low.includes('스톤')) return '더 스톤 마사지';
         if (low.includes('hopping') || low.includes('호핑')) return '샤인 호핑투어';
-        if (low.includes('daytour(d)') || low.includes('육상투어d')) return '데이투어 D코스';
-        if (low.includes('daytour(c)') || low.includes('육상투어c')) return '데이투어 C코스';
+        if (low.includes('daytour(d)') || low.includes('daytour d') || low.includes('육상투어d') || (low.includes('daytour') && low.includes('d'))) return '데이투어 D코스';
+        if (low.includes('daytour(c)') || low.includes('daytour c') || low.includes('육상투어c') || (low.includes('daytour') && low.includes('c'))) return '데이투어 C코스';
+        if (low.includes('parasailing') || low.includes('파라세일링')) return '파라세일링';
         if (low.includes('napaling') || low.includes('나팔링')) return '나팔링투어';
         if (low.includes('oslob') || low.includes('오슬롭')) return '오슬롭 고래상어';
         if (low.includes('pamilacan') || low.includes('파밀라칸')) return '파밀라칸 호핑';
