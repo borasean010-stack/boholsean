@@ -1,4 +1,4 @@
-// bohol-admin.js - Final Full Luxury Admin (SURIN FIX & UI RESTORE)
+// bohol-admin.js - Final Full Luxury Admin (FILTER FIX & UI RESTORE)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs, addDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -28,7 +28,6 @@ function init() {
     let currentScheduleFilter = 'all';
     let currentScheduleDay = 'today'; 
 
-    // 🚀 상품명 한글 번역기 (SURIN 포함)
     function translateTourName(name) {
         if (!name) return '-';
         const low = name.toLowerCase();
@@ -147,8 +146,7 @@ function init() {
     }
 
     function renderDateBoxes() {
-        const now = new Date();
-        const offset = now.getTimezoneOffset() * 60000;
+        const now = new Date(); const offset = now.getTimezoneOffset() * 60000;
         const todayStr = new Date(now.getTime() - offset + 32400000).toISOString().split('T')[0];
         const tomorrowStr = new Date(now.getTime() - offset + 32400000 + 86400000).toISOString().split('T')[0];
         if (document.getElementById('box-date-today')) document.getElementById('box-date-today').innerText = todayStr;
@@ -157,13 +155,25 @@ function init() {
 
     function getCategory(name, details = '') {
         const combined = ((name || '') + ' ' + (details || '')).toLowerCase();
-        if (combined.includes('픽업') || combined.includes('샌딩')) return '픽업샌딩';
+        if (combined.includes('픽업') || combined.includes('샌딩') || combined.includes('드랍')) return '픽업샌딩';
         if (combined.includes('나팔링')) return '나팔링';
         if (combined.includes('호핑') || combined.includes('파밀라칸')) return '호핑투어';
         if (combined.includes('데이투어') || combined.includes('육상')) return '육상투어';
         if (combined.includes('마사지') || combined.includes('스파') || combined.includes('수린') || combined.includes('스톤')) return '마사지';
         return '액티비티';
     }
+
+    // 🚀 스케줄 카테고리 필터링 함수 (추가됨!)
+    window.filterSchedule = (category) => {
+        currentScheduleFilter = category;
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            const btnText = btn.innerText.trim();
+            const isAll = category === 'all' && btnText === '전체';
+            const isMatch = btnText === category;
+            btn.classList.toggle('active', isAll || isMatch);
+        });
+        renderSchedule();
+    };
 
     window.switchScheduleDay = (day) => { 
         currentScheduleDay = day; 
@@ -197,8 +207,14 @@ function init() {
             }
         });
 
+        // 🚀 카테고리 필터링 로직 (추가됨!)
+        let filteredItems = rawItems;
+        if (currentScheduleFilter !== 'all') {
+            filteredItems = rawItems.filter(item => getCategory(item.name, item.details) === currentScheduleFilter);
+        }
+
         const groups = {};
-        rawItems.forEach(item => {
+        filteredItems.forEach(item => {
             const cat = getCategory(item.name, item.details);
             let groupTitle = item.name;
             if (cat === '픽업샌딩') groupTitle = (item.flight !== '-' && item.flight) ? item.flight : '공항 픽업/샌딩';
@@ -210,7 +226,7 @@ function init() {
         });
 
         const sortedKeys = Object.keys(groups).sort((a, b) => groups[a].time.localeCompare(groups[b].time));
-        if (sortedKeys.length === 0) { container.innerHTML = '<div style="text-align:center; padding:30px; color:#999;">일정이 없습니다.</div>'; return; }
+        if (sortedKeys.length === 0) { container.innerHTML = `<div style="text-align:center; padding:30px; color:#999;">일정이 없습니다. (${currentScheduleFilter !== 'all' ? currentScheduleFilter : '전체'})</div>`; return; }
 
         container.innerHTML = sortedKeys.map(key => {
             const group = groups[key];
