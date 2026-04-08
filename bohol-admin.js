@@ -1,4 +1,4 @@
-// bohol-admin.js - Final Full Luxury Admin (DATE FIX & ROBUST PARSING)
+// bohol-admin.js - Final Full Luxury Admin (PICKUP FIX & TOUR NAME CLEANUP)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs, addDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -28,9 +28,12 @@ function init() {
     let currentScheduleFilter = 'all';
     let currentScheduleDay = 'today'; 
 
+    // 🚀 투어명 전용 번역기 (투어명만 깔끔하게 기입)
     function translateTourName(name) {
         if (!name) return '-';
         const low = name.toLowerCase();
+        if (low.includes('p.hopping') || low.includes('프라이빗')) return '프라이빗 호핑투어';
+        if (low.includes('fire show') || low.includes('파이어쇼') || low.includes('amazing')) return '파이어쇼';
         if (low.includes('surin') || low.includes('수린')) return '수린 마사지샵';
         if (low.includes('stone') || low.includes('스톤')) return '더 스톤 마사지';
         if (low.includes('hopping') || low.includes('호핑')) return '샤인 호핑투어';
@@ -40,7 +43,6 @@ function init() {
         if (low.includes('oslob') || low.includes('오슬롭')) return '오슬롭 고래상어';
         if (low.includes('pamilacan') || low.includes('파밀라칸')) return '파밀라칸 호핑';
         if (low.includes('firefly') || low.includes('반딧불')) return '반딧불 투어';
-        if (low.includes('boholshow') || low.includes('보홀쇼')) return '보홀쇼 (어메이징)';
         if (low.includes('sunset') || low.includes('선셋')) return '선셋 낚시';
         if (low.includes('pickup') || low.includes('픽업')) return '공항 픽업';
         if (low.includes('sending') || low.includes('샌딩') || low.includes('drop')) return '공항 샌딩';
@@ -83,10 +85,9 @@ function init() {
         return rows;
     };
 
-    // 🚀 오늘/내일 날짜 문자열 가져오기 (타임존 문제 방지)
     function getDateStr(offsetDays = 0) {
         const d = new Date();
-        d.setHours(d.getHours() + 9); // 한국 시간 보정 (서버 환경 대응)
+        d.setHours(d.getHours() + 9); 
         if (offsetDays !== 0) d.setDate(d.getDate() + offsetDays);
         return d.toISOString().split('T')[0];
     }
@@ -102,9 +103,7 @@ function init() {
 
     function showAdminPanel() {
         if (!loginContainer || !adminContainer) return;
-        loginContainer.style.display = 'none';
-        adminContainer.style.display = 'flex';
-        fetchData();
+        loginContainer.style.display = 'none'; adminContainer.style.display = 'flex'; fetchData();
     }
 
     if (sessionStorage.getItem('isAdminLoggedIn') === 'true') showAdminPanel();
@@ -116,11 +115,8 @@ function init() {
             const id = document.getElementById('username').value.trim();
             const pw = document.getElementById('password').value.trim();
             const admins = { 'admin': 'sean1234!', 'sean': 'sean1', 'storm': 'storm1', 'mini': 'mini1', 'david': 'david1' };
-            if (admins[id] === pw) {
-                sessionStorage.setItem('isAdminLoggedIn', 'true');
-                sessionStorage.setItem('adminId', id);
-                showAdminPanel();
-            } else alert('로그인 실패');
+            if (admins[id] === pw) { sessionStorage.setItem('isAdminLoggedIn', 'true'); sessionStorage.setItem('adminId', id); showAdminPanel(); }
+            else alert('로그인 실패');
         };
     }
 
@@ -130,12 +126,10 @@ function init() {
     function fetchData() {
         if (!db) return;
         onSnapshot(query(collection(db, "reservations"), orderBy("createdAt", "desc")), (snap) => {
-            allReservations = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderAll();
+            allReservations = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })); renderAll();
         });
         onSnapshot(query(collection(db, "schedules"), orderBy("date", "asc")), (snap) => {
-            allSchedules = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderAll();
+            allSchedules = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })); renderAll();
         });
     }
 
@@ -154,15 +148,13 @@ function init() {
     }
 
     function renderDateBoxes() {
-        const todayStr = getDateStr(0);
-        const tomorrowStr = getDateStr(1);
-        if (document.getElementById('box-date-today')) document.getElementById('box-date-today').innerText = todayStr;
-        if (document.getElementById('box-date-tomorrow')) document.getElementById('box-date-tomorrow').innerText = tomorrowStr;
+        if (document.getElementById('box-date-today')) document.getElementById('box-date-today').innerText = getDateStr(0);
+        if (document.getElementById('box-date-tomorrow')) document.getElementById('box-date-tomorrow').innerText = getDateStr(1);
     }
 
     function getCategory(name, details = '') {
         const combined = ((name || '') + ' ' + (details || '')).toLowerCase();
-        if (combined.includes('픽업') || combined.includes('샌딩') || combined.includes('드랍')) return '픽업샌딩';
+        if (combined.includes('픽업') || combined.includes('샌딩') || combined.includes('drop')) return '픽업샌딩';
         if (combined.includes('나팔링')) return '나팔링';
         if (combined.includes('호핑') || combined.includes('파밀라칸')) return '호핑투어';
         if (combined.includes('데이투어') || combined.includes('육상')) return '육상투어';
@@ -271,13 +263,17 @@ function init() {
 
     window.registerBulkSchedule = async () => {
         const input = document.getElementById('schedule-reg-input').value.trim(); if (!input) return;
-        const rows = parseRobustTSV(input);
-        const batch = writeBatch(db); let count = 0;
+        const rows = parseRobustTSV(input); const batch = writeBatch(db); let count = 0; const currentYear = 2026;
         for (const row of rows) {
             if (row.length < 11) continue;
             const customerName = (row[9] || '').trim().toUpperCase() + " (" + (row[14] || '').trim().replace(/\n/g, ', ') + ")";
             const resortRaw = (row[8] || '').trim();
             const totalPax = (parseInt(row[10]) || 0) + (parseInt(row[11]) || 0) + (parseInt(row[12]) || 0) || 1;
+            const formatDate = (raw) => { if (!raw || !raw.includes('/')) return null; const parts = raw.split('/'); return `${currentYear}-${parts[0].trim().padStart(2, '0')}-${parts[1].trim().replace(/[^0-9]/g, '').padStart(2, '0')}`; };
+
+            if (formatDate(row[0]) && row[2] && row[2] !== '-') { batch.set(doc(collection(db, "schedules")), { date: formatDate(row[0]), time: "전날 재안내", name: "공항 픽업", customerName, count: totalPax, flight: row[2].trim(), resort: translateResort(resortRaw), createdAt: new Date() }); count++; }
+            if (formatDate(row[1]) && row[3] && row[3] !== '-') { batch.set(doc(collection(db, "schedules")), { date: formatDate(row[1]), time: "전날 재안내", name: "공항 샌딩", customerName, count: totalPax, flight: row[3].trim(), resort: translateResort(resortRaw), createdAt: new Date() }); count++; }
+
             const remarks = (row[15] || row[16] || '').trim();
             if (remarks) {
                 remarks.split('\n').forEach(line => {
@@ -288,7 +284,7 @@ function init() {
                     const resortOverride = line.match(/-\s*([A-Z\d\.\s]{2,})$/i);
                     if (resortOverride && !line.toLowerCase().includes('get')) itemResort = resortOverride[1].trim();
                     const itName = translateTourName(line.replace(dm[0], '').replace(tm?.[0] || '', '').replace(resortOverride?.[0] || '', '').trim());
-                    batch.set(doc(collection(db, "schedules")), { date: `2026-${dm[1].padStart(2,'0')}-${dm[2].padStart(2,'0')}`, time: itemTime, name: itName, customerName, count: totalPax, resort: translateResort(itemResort), details: line.trim(), createdAt: new Date() }); count++;
+                    batch.set(doc(collection(db, "schedules")), { date: `${currentYear}-${dm[1].padStart(2,'0')}-${dm[2].padStart(2,'0')}`, time: itemTime, name: itName, customerName, count: totalPax, resort: translateResort(itemResort), details: line.trim(), createdAt: new Date() }); count++;
                 });
             }
         }
@@ -297,14 +293,20 @@ function init() {
 
     window.makeQuickVoucher = async () => {
         const inputVal = document.getElementById('quick-voucher-input').value.trim(); if (!inputVal) return;
-        const rows = parseRobustTSV(inputVal);
+        const rows = parseRobustTSV(inputVal); const currentYear = 2026;
         let combinedKorNames = [], allItems = [], firstContact = '', firstResort = '', firstEx = '', totalAdults = 0, totalChildren = 0, totalInfants = 0;
         rows.forEach(row => {
             if (row.length < 15) return;
             combinedKorNames.push(`${row[9].toUpperCase()} (${row[14].replace(/\n/g, ', ')})`);
             totalAdults += (parseInt(row[10]) || 0); totalChildren += (parseInt(row[11]) || 0); totalInfants += (parseInt(row[12]) || 0);
+            const totalPax = (parseInt(row[10]) || 0) + (parseInt(row[11]) || 0) + (parseInt(row[12]) || 0);
             if (!firstContact) firstContact = row[13];
             if (!firstResort) firstResort = translateResort(row[8]);
+            const formatDate = (raw) => { if (!raw || !raw.includes('/')) return null; const parts = raw.split('/'); return `${currentYear}-${parts[0].trim().padStart(2,'0')}-${parts[1].trim().padStart(2,'0')}`; };
+
+            if (row[2] && row[2] !== '-') allItems.push({ name: "공항 픽업", date: formatDate(row[0]), time: "전날 재안내", count: totalPax });
+            if (row[3] && row[3] !== '-') allItems.push({ name: "공항 샌딩", date: formatDate(row[1]), time: "전날 재안내", count: totalPax });
+
             const remarkRaw = (row[15] || row[16] || '').trim();
             if (remarkRaw) {
                 remarkRaw.split('\n').forEach(line => {
@@ -315,10 +317,10 @@ function init() {
                     const resortOverride = line.match(/-\s*([A-Z\d\.\s]{2,})$/i);
                     if (resortOverride && !line.toLowerCase().includes('get')) itemResort = translateResort(resortOverride[1].trim());
                     const getMatch = line.match(/get:\s*(\d+[a-z]*)/i);
-                    if (getMatch) { firstEx = `₱ ${getMatch[1].toUpperCase()}`; }
+                    if (getMatch) firstEx = `₱ ${getMatch[1].toUpperCase()}`;
                     let itName = translateTourName(line.replace(dm[0], '').replace(tm?.[0] || '', '').replace(resortOverride?.[0] || '', '').trim());
                     if (getMatch) itName += ` (현지불: ${getMatch[1].toUpperCase()})`;
-                    allItems.push({ name: itName, date: `2026-${dm[1].padStart(2,'0')}-${dm[2].padStart(2,'0')}`, time: itemTime, count: (parseInt(row[10]) || 0) + (parseInt(row[11]) || 0), meetingPlace: itemResort });
+                    allItems.push({ name: itName, date: `${currentYear}-${dm[1].padStart(2,'0')}-${dm[2].padStart(2,'0')}`, time: itemTime, count: totalPax, meetingPlace: itemResort });
                 });
             }
         });
