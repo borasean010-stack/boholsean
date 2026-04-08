@@ -15,9 +15,11 @@ let db = null;
 try {
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
+    console.log("Firebase initialized");
 } catch (e) { console.error("Firebase Init Error", e); }
 
-document.addEventListener('DOMContentLoaded', () => {
+function init() {
+    console.log("Admin Init Started");
     const tableBody = document.getElementById('admin-table-body');
     const loginContainer = document.getElementById('login-container');
     const adminContainer = document.getElementById('admin-container');
@@ -76,7 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showAdminPanel() {
-        if (!loginContainer || !adminContainer) return;
+        console.log("Showing Admin Panel");
+        if (!loginContainer || !adminContainer) {
+            console.error("Containers not found!");
+            return;
+        }
         loginContainer.style.display = 'none';
         adminContainer.style.display = 'flex';
         const adminId = sessionStorage.getItem('adminId') || '관리자';
@@ -85,12 +91,17 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchData();
     }
 
-    if (sessionStorage.getItem('isAdminLoggedIn') === 'true') { showAdminPanel(); }
+    if (sessionStorage.getItem('isAdminLoggedIn') === 'true') { 
+        console.log("Already logged in");
+        showAdminPanel(); 
+    }
 
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
+        console.log("Attaching login form listener");
         loginForm.onsubmit = (e) => {
             e.preventDefault();
+            console.log("Login submitted");
             const id = document.getElementById('username').value.trim();
             const pw = document.getElementById('password').value.trim();
             const admins = { 
@@ -101,14 +112,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 'david': 'david1'
             };
             if (admins[id] && admins[id] === pw) {
+                console.log("Login success");
                 sessionStorage.setItem('isAdminLoggedIn', 'true');
                 sessionStorage.setItem('adminId', id);
                 showAdminPanel();
-            } else { alert('아이디 또는 비밀번호가 올바르지 않습니다.'); }
+            } else { 
+                console.warn("Login failed: incorrect id/pw");
+                alert('아이디 또는 비밀번호가 올바르지 않습니다.'); 
+            }
         };
+    } else {
+        console.error("Login form not found!");
     }
 
-    document.getElementById('logout-btn').onclick = () => { sessionStorage.removeItem('isAdminLoggedIn'); location.reload(); };
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.onclick = () => { 
+            sessionStorage.removeItem('isAdminLoggedIn'); 
+            location.reload(); 
+        };
+    }
 
     function fetchData() {
         if (!db) return;
@@ -189,30 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         renderSchedule();
     };
-
-    // 🚀 상품명 한글 변환기
-    function translateTourName(name) {
-        if (!name) return '기타 일정';
-        const n = name.toLowerCase();
-        if (n.includes('pamilacan') || n.includes('파밀라칸')) return '파밀라칸 호핑투어';
-        if (n.includes('oslob') || n.includes('오슬롭')) return '오슬롭 고래상어';
-        if (n.includes('hopping(s)') || n.includes('샤인')) return '샤인 호핑투어';
-        if (n.includes('p.hopping') || n.includes('프라이빗')) return '프라이빗 호핑투어';
-        if (n.includes('napaling') || n.includes('나팔링')) return '나팔링 투어';
-        if (n.includes('daytour(d)') || n.includes('육상투어d')) return '육상투어 D코스';
-        if (n.includes('daytour(c)') || n.includes('육상투어c')) return '육상투어 C코스';
-        if (n.includes('hilot') || n.includes('힐롯')) return '힐롯 스파';
-        if (n.includes('surin') || n.includes('수린')) return '수린 스파';
-        if (n.includes('stone') || n.includes('스톤')) return '더 스톤 마사지';
-        if (n.includes('firefly') || n.includes('반딧불')) return '반딧불이 투어';
-        if (n.includes('fire show') || n.includes('불쇼') || n.includes('보홀쇼')) return '보홀 불쇼';
-        if (n.includes('atv') || n.includes('bugcar') || n.includes('버그카')) return 'ATV/버그카';
-        if (n.includes('jumbo') || n.includes('점보')) return '점보크랩';
-        if (n.includes('pickup') || n.includes('픽업')) return '✈️ 공항 픽업';
-        if (n.includes('sending') || n.includes('샌딩') || n.includes('drop') || n.includes('드랍')) return '✈️ 공항 샌딩';
-        
-        return name; // 매칭되는 게 없으면 원문 유지
-    }
 
     function getCategory(name, details = '') {
         const combined = ((name || '') + ' ' + (details || '')).toLowerCase();
@@ -369,31 +368,38 @@ document.addEventListener('DOMContentLoaded', () => {
         if (firstNav) firstNav.classList.add('active');
         document.getElementById('breadcrumb-active').innerText = '메인 페이지';
         activeTab = 'new'; 
-        document.getElementById('system-setup-section').style.display = 'none';
-        document.getElementById('data-view-section').style.display = 'none'; // 메인에서는 테이블 숨김
+        const systemSec = document.getElementById('system-setup-section');
+        const dataSec = document.getElementById('data-view-section');
+        if (systemSec) systemSec.style.display = 'none';
+        if (dataSec) dataSec.style.display = 'none';
         renderSchedule();
     };
 
     window.switchAdminTab = (tab) => {
         activeTab = tab;
         document.querySelectorAll('.ss-nav-item').forEach(el => el.classList.remove('active'));
-        // stat-card 관련 로직 제거 (HTML에서 삭제됨)
         const bActive = document.getElementById('breadcrumb-active');
         const toolGrid = document.querySelector('.main-tool-grid');
         const timelineSec = document.querySelector('.timeline-section');
+        const systemSec = document.getElementById('system-setup-section');
+        const dataSec = document.getElementById('data-view-section');
+
         if (tab === 'system') {
             if (toolGrid) toolGrid.style.display = 'none';
             if (timelineSec) timelineSec.style.display = 'none';
-            document.getElementById('system-setup-section').style.display = 'block';
-            document.getElementById('data-view-section').style.display = 'block';
+            if (systemSec) systemSec.style.display = 'block';
+            if (dataSec) dataSec.style.display = 'block';
             if (bActive) bActive.innerText = '시스템 초기화';
             renderCleanupTable();
         } else {
             if (toolGrid) toolGrid.style.display = 'grid';
             if (timelineSec) timelineSec.style.display = 'block';
-            document.getElementById('system-setup-section').style.display = 'none';
-            document.getElementById('data-view-section').style.display = 'block';
-            if (bActive) { const labels = { 'new': '신규예약', 'confirmed': '예약확정', 'resorts': '리조트 견적', 'resort-confirmed': '리조트 확정' }; bActive.innerText = labels[tab] || '메인 페이지'; }
+            if (systemSec) systemSec.style.display = 'none';
+            if (dataSec) dataSec.style.display = 'block';
+            if (bActive) { 
+                const labels = { 'new': '신규예약', 'confirmed': '예약확정', 'resorts': '리조트 견적', 'resort-confirmed': '리조트 확정' }; 
+                bActive.innerText = labels[tab] || '메인 페이지'; 
+            }
             renderTable();
         }
     };
@@ -754,10 +760,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const timeMatch = line.match(/(\d{1,2}):(\d{2})/);
                         if (timeMatch) itemTime = `${timeMatch[1].padStart(2, '0')}:${timeMatch[2]}`;
 
-                        // 상품명 추출 및 한글 변환
+                        // 상품명 추출 (날짜와 시간 제외한 나머지)
                         let itemName = line.replace(dateMatch[0], '').trim();
                         if (timeMatch) itemName = itemName.replace(timeMatch[0], '').trim();
-                        itemName = translateTourName(itemName);
+                        if (!itemName) itemName = "기타 일정";
 
                         // 세부 인원 파싱 (예: 태반4 등 숫자가 포함된 경우)
                         let itemPax = totalPax;
@@ -941,10 +947,38 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (sum > 0) itemPax = sum;
                         }
                         const actualTimeMatch = line.match(/(\d{1,2}):(\d{2})/); if (actualTimeMatch) itemTime = `${actualTimeMatch[1].padStart(2,'0')}:${actualTimeMatch[2]}`;
+                        const lowerLine = line.toLowerCase();
                         
-                        let itemName = line.replace(dm[0], '').trim();
-                        if (actualTimeMatch) itemName = itemName.replace(actualTimeMatch[0], '').trim();
-                        itemName = translateTourName(itemName);
+                        if (lowerLine.includes('meeting') || lowerLine.includes('pickup') || lowerLine.includes('픽업')) itemName = '✈️ 공항 픽업';
+                        else if (lowerLine.includes('sending') || lowerLine.includes('샌딩')) itemName = '✈️ 공항 샌딩';
+                        else if (lowerLine.includes('sspa') || lowerLine.includes('에스파')) itemName = '에스파(S-SPA)';
+                        else if (lowerLine.includes('luna') || lowerLine.includes('루나')) itemName = '루나스파';
+                        else if (lowerLine.includes('bora') || lowerLine.includes('보라')) itemName = '보라스파';
+                        else if (lowerLine.includes('kabayan') || lowerLine.includes('카바얀')) itemName = '카바얀스파';
+                        else if (lowerLine.includes('hilot') || lowerLine.includes('힐롯')) itemName = '힐롯마사지';
+                        else if (lowerLine.includes('poseidon') || lowerLine.includes('포세이돈')) itemName = '포세이돈 스파';
+                        else if (lowerLine.includes('maris') || lowerLine.includes('마리스')) itemName = '마리스 스파';
+                        else if (lowerLine.includes('helios') || lowerLine.includes('헬리오스')) itemName = '헬리오스 스파';
+                        else if (lowerLine.includes('land') || lowerLine.includes('랜드')) { itemName = '보라카이 랜드투어'; if(!actualTimeMatch) itemTime = "10:30"; }
+                        else if (lowerLine.includes('bohol show') || lowerLine.includes('보홀쇼')) { itemName = '보홀쇼'; }
+                        else if (lowerLine.includes('surin') || lowerLine.includes('수린')) { itemName = '수린스파'; }
+                        else if (lowerLine.includes('hilot') || lowerLine.includes('힐롯')) { itemName = '힐롯스파'; }
+                        else if (lowerLine.includes('firefly') || lowerLine.includes('반딧불')) { itemName = '반딧불이 투어'; }
+                        else if (lowerLine.includes('napaling + clamshell') || lowerLine.includes('대왕조개')) { itemName = '나팔링+대왕조개 투어'; }
+                        else if (lowerLine.includes('napaling') || lowerLine.includes('나팔링')) { itemName = '나팔링투어'; }
+                        else if (lowerLine.includes('daytour(d)')) { itemName = '데이투어 D코스'; }
+                        else if (lowerLine.includes('daytour(c)')) { itemName = '데이투어 C코스'; }
+                        else if (lowerLine.includes('p.hopping') || lowerLine.includes('프라이빗 호핑')) { itemName = '프라이빗 호핑투어'; }
+                        else if (lowerLine.includes('hopping') || lowerLine.includes('호핑')) { itemName = '샤인 호핑투어'; }
+                        else if (lowerLine.includes('malum') || lowerLine.includes('말룸')) { itemName = '시크릿가든 말룸파티'; if(!actualTimeMatch) itemTime = "09:40"; }
+                        else if (lowerLine.includes('jetski') || lowerLine.includes('zetski') || lowerLine.includes('제트스키')) itemName = '제트스키';
+                        else if (lowerLine.includes('helmet') || lowerLine.includes('헬멧')) itemName = '헬멧다이빙';
+                        else if (lowerLine.includes('para') || lowerLine.includes('파라')) itemName = '파라세일링';
+                        else if (lowerLine.includes('diving') || lowerLine.includes('다이빙')) itemName = '체험다이빙';
+                        else if (lowerLine.includes('golf') || lowerLine.includes('골프')) itemName = '페어웨이 골프';
+                        else if (lowerLine.includes('sub') || lowerLine.includes('잠수함')) itemName = '잠수함';
+                        else if (lowerLine.includes('yacht') || lowerLine.includes('요트')) itemName = '프라이빗 요트';
+                        else if (lowerLine.includes('sunset') || lowerLine.includes('선셋')) itemName = '선셋 세일링';
                         
                         if (line.includes('afh') || line.includes('AFH')) itemTime = "18:00";
                         else if (line.includes('afm') || line.includes('AFM')) itemTime = "17:00";
@@ -1085,4 +1119,10 @@ document.addEventListener('DOMContentLoaded', () => {
         popup.document.write(html);
         popup.document.close();
     };
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
