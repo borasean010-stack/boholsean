@@ -147,7 +147,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCqvsvuOGnQoNL3J0oGsOcN66ZOP0JlN5w",
@@ -281,6 +281,21 @@
                 status: '예약신청완료',
                 updatedAt: new Date()
             });
+
+            // 관리자 예약 목록(reservations)에 새 예약으로 추가하여 즉시 확인 가능하게 함
+            const resData = {
+                customerKorName: nameKor,
+                customerEngName: nameEng,
+                items: updatedItems,
+                totalPrice: tourItems.reduce((acc, item) => acc + (item.price * item.count), 0),
+                status: '입금확인요청',
+                createdAt: new Date(),
+                reservationNumber: 'Q-' + currentDocId.substring(0, 5).toUpperCase(),
+                source: 'quote_maker',
+                requests: "견적서 생성기 통해 고객 직접 입력"
+            };
+
+            await addDoc(collection(db, "reservations"), resData);
 
             alert('예약 신청이 완료되었습니다!\n확인을 위해 카카오톡 상담 채팅으로 연결합니다.');
             window.location.href = "http://pf.kakao.com/_JxoxlTG/chat";

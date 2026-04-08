@@ -441,7 +441,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const isQuote = res.status === '견적' || res.status === '견적완료';
         const totalVoucherBtn = isQuote ? '' : `<div style="display:grid; grid-template-columns:1fr; margin-bottom:15px;"><button onclick="copyVoucherLink('${res.id}', null)" style="padding:12px; background:#ff6a00; color:white; border:none; border-radius:8px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"><span class="material-icons" style="font-size:18px;">share</span> 주문 일정</button></div>`;
-        const itemsHtml = (res.items || []).map((item, idx) => `<div style="padding:12px; background:#f8f9fa; border:1px solid #eee; border-radius:8px; margin-bottom:8px;"><div style="display:flex; justify-content:space-between;"><div style="font-size:15px; font-weight:800;">${item.name}</div><div style="font-size:14px; font-weight:800; color:#ff6a00;">${item.count}명</div></div><div style="margin-top:6px; font-size:13px; color:#666;">📅 ${item.date} ${item.time || ''}</div>${!isQuote ? `<div style="margin-top:10px; display:flex; gap:5px;"><a href="reservation-schedule.html?id=${res.id}&itemIndex=${idx}" target="_blank" style="flex:1; text-align:center; padding:6px; background:#fff; border:1px solid #ddd; border-radius:4px; font-size:11px; text-decoration:none; color:#333;">바우처</a><button onclick="copyVoucherLink('${res.id}', ${idx})" style="flex:1; padding:6px; background:#ff6a00; color:white; border:none; border-radius:4px; font-size:11px; cursor:pointer;">복사</button></div>` : ''}</div>`).join('');
+        const itemsHtml = (res.items || []).map((item, idx) => `
+            <div style="padding:15px; background:#f8f9fa; border:1px solid #eee; border-radius:12px; margin-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="font-size:16px; font-weight:800; color:#111;">${item.name}</div>
+                    <div style="font-size:14px; font-weight:800; color:#ff6a00;">${item.count}인</div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:13px; color:#555;">
+                    <div>📅 <b>날짜:</b> ${item.date || '-'}</div>
+                    <div>📍 <b>픽업:</b> ${item.pickup || '-'}</div>
+                </div>
+                ${!isQuote ? `
+                <div style="margin-top:12px; display:flex; gap:5px;">
+                    <a href="reservation-schedule.html?id=${res.id}&itemIndex=${idx}" target="_blank" style="flex:1; text-align:center; padding:8px; background:#fff; border:1px solid #ddd; border-radius:6px; font-size:11px; text-decoration:none; color:#333; font-weight:700;">바우처</a>
+                    <button onclick="copyVoucherLink('${res.id}', ${idx})" style="flex:1; padding:8px; background:#ff6a00; color:white; border:none; border-radius:6px; font-size:11px; cursor:pointer; font-weight:700;">링크복사</button>
+                </div>` : ''}
+            </div>`).join('');
         const displayEngName = res.engName || '-';
         const displayExchange = res.exchangeAmount || '-';
         const displayPax = res.paxInfo || (res.items?.[0]?.count ? `${res.items[0].count}명` : '-');
