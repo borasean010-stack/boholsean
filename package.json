@@ -1,0 +1,10 @@
+{
+  "name": "boholsean",
+  "version": "1.0.0",
+  "description": "Bohol Sean Admin Dashboard",
+  "scripts": {
+    "build": "mkdir -p dist public build && cp *.html *.css *.js *.png dist/ 2>/dev/null || : && cp *.html *.css *.js *.png public/ 2>/dev/null || : && cp *.html *.css *.js *.png build/ 2>/dev/null || :"
+  },
+  "author": "",
+  "license": "ISC"
+}
