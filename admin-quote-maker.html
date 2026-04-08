@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>견적서 메이커 - Bohol Sean</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body { background: #f0f2f5; font-family: 'Pretendard', sans-serif; padding: 40px 20px; }
+        .maker-container { max-width: 1000px; margin: 0 auto; background: #fff; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; }
+        .maker-header { background: #007aff; color: #fff; padding: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .maker-header h1 { margin: 0; font-size: 22px; font-weight: 800; }
+        
+        .maker-body { padding: 30px; }
+        
+        .item-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .item-table th { text-align: left; padding: 15px 12px; border-bottom: 2px solid #eee; font-size: 14px; color: #888; }
+        .item-table td { padding: 15px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        
+        .item-row select, .item-row input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; box-sizing: border-box; transition: 0.2s; }
+        .item-row select:focus, .item-row input:focus { border-color: #007aff; outline: none; }
+        
+        .btn-add { background: #f0f7ff; color: #007aff; border: 1px dashed #007aff; width: 100%; padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer; margin-bottom: 30px; transition: 0.2s; }
+        .btn-add:hover { background: #e0eeff; }
+
+        .total-display { background: #f8f9fa; border-radius: 15px; padding: 25px; text-align: right; margin-bottom: 30px; }
+        .total-display .label { font-size: 14px; color: #666; }
+        .total-display .amount { font-size: 32px; font-weight: 900; color: #007aff; margin-top: 5px; }
+
+        .maker-footer { padding: 0 30px 30px; display: flex; gap: 10px; }
+        .btn-submit { flex: 2; background: #111; color: #fff; border: none; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-close { flex: 1; background: #eee; color: #666; border: none; padding: 18px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+        
+        .btn-remove { color: #ff4b4b; background: none; border: none; cursor: pointer; font-size: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="maker-container">
+    <div class="maker-header">
+        <h1>📝 맞춤 견적서 메이커</h1>
+        <div style="font-size: 14px; opacity: 0.8;">Admin Mode</div>
+    </div>
+
+    <div class="maker-body">
+        <div style="margin-bottom: 25px; padding: 15px; background: #f0f7ff; border-radius: 12px; color: #007aff; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+            <span class="material-icons">info</span>
+            상품을 선택하면 해당 상품의 옵션(마사지 종류 등)이 자동으로 활성화됩니다.
+        </div>
+
+        <table class="item-table">
+            <thead>
+                <tr>
+                    <th width="300">상품 선택</th>
+                    <th width="100">인원</th>
+                    <th width="300">종류 / 옵션</th>
+                    <th width="180" style="text-align:right;">소계</th>
+                    <th width="50"></th>
+                </tr>
+            </thead>
+            <tbody id="item-tbody">
+                <!-- Rows injected here -->
+            </tbody>
+        </table>
+
+        <button class="btn-add" onclick="addItemRow()">
+            <span class="material-icons" style="vertical-align: middle; font-size: 18px;">add_circle</span> 상품 항목 추가
+        </button>
+
+        <div class="total-display">
+            <div class="label">최종 합계 금액</div>
+            <div class="amount" id="total-amount">₩ 0</div>
+        </div>
+    </div>
+
+    <div class="maker-footer">
+        <button class="btn-close" onclick="window.close()">닫기</button>
+        <button class="btn-submit" onclick="submitQuote()">
+            <span class="material-icons">link</span> 견적서 생성 및 링크 복사
+        </button>
+    </div>
+</div>
+
+<script type="module" src="admin-quote-maker.js"></script>
+</body>
+</html>
