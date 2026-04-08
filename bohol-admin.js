@@ -28,11 +28,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentScheduleFilter = 'all';
     let currentScheduleDay = 'today'; 
 
-    // 🚀 리조트 번역기 (한글 우선)
+    // 🚀 리조트 번역기 (보홀 전용 한글 우선)
     function translateResort(name) {
         if (!name || name === '-') return '-';
         let n = name.toLowerCase().replace(/\s/g, '').replace(/\./g, '').replace(/,/g, '');
-        n = n.replace(/drop/g, ''); // DROP는 무시
+        
+        // DROP 포함된 경우 (예: "H.ALONA DROP") DROP 부분 제거하고 처리
+        if (n.includes('drop')) {
+            n = n.replace(/drop/g, '');
+        }
         
         // 보홀 리조트 목록 반영 (영어 -> 한글)
         if (n.includes('halona')) return '헤난 알로나';
@@ -48,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (n.includes('luxuhotel')) return '럭슈 호텔';
         if (n.includes('danbi')) return '단비 리조트';
         if (n.includes('cocotree')) return '코코트리';
-        if (n.includes('mgh')) return 'MGH';
+        if (n.includes('mgh') || n.includes('southpalm')) return '사우스팜 (MGH)';
         if (n.includes('alonadetropicana')) return '알로나 데 트로피카나';
         if (n.includes('ramede')) return '라메디 리조트';
         if (n.includes('cliffside')) return '클리프사이드 리조트';
@@ -65,34 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (n.includes('cherrys')) return '체리스 홈';
         if (n.includes('molly')) return '몰리 리조트';
         if (n.includes('holabay')) return '홀라베이 리조트';
+        if (n.includes('mayfair')) return '메이페어 가든';
+        if (n.includes('bellanapoli')) return '벨라 나폴리';
 
-        // 기존 보라카이 목록 (혹시 몰라 유지, 필요 시 삭제 가능)
-        if (n.includes('hgarden') || n.includes('henanngarden')) return '헤난 가든';
-        if (n.includes('asya')) return '아샤';
-        if (n.includes('lagoon')) return '헤난 라군';
-        if (n.includes('prime')) return '헤난 프라임';
-        if (n.includes('palm')) return '헤난 팜비치';
-        if (n.includes('park')) return '헤난 파크';
-        if (n.includes('crystal') || n.includes('sands')) return '헤난 크리스탈';
-        if (n.includes('regency')) return '헤난 리젠시';
-        if (n.includes('crimson')) return '크림슨';
-        if (n.includes('savoy')) return '사보이';
-        if (n.includes('belmont')) return '벨몬트';
-        if (n.includes('hue')) return '휴 리조트';
-        if (n.includes('fairway')) return '페어웨이';
-        if (n.includes('discovery')) return '디스커버리';
-        if (n.includes('movenpick')) return '모벤픽';
-        if (n.includes('shangri')) return '샹그릴라';
-        if (n.includes('astoria')) return '아스토리아';
-        if (n.includes('mandarin') || n.includes('mbay') || n.includes('m,bay') || n === 'mbay' || n === 'm bay') return '만다린 베이';
-        if (n.includes('lind')) return '더 린드';
-        if (n.includes('feliz')) return '펠리즈';
-        if (n.includes('coast')) return '코스트';
-        if (n.includes('gray')) return '세븐스톤';
-        if (n.includes('henann')) return '헤난';
-        if (n.includes('aqua')) return '아쿠아';
-        if (n.includes('canyon')) return '캐년';
-        if (n.includes('lacarmela')) return '라카멜라';
         return name; 
     }
 
@@ -492,17 +471,144 @@ document.addEventListener('DOMContentLoaded', () => {
     window.copyGuidance = (id) => { 
         const res = allReservations.find(r => r.id === id); 
         if (!res) return; 
-        
-        let msg = `[보라카이션 예약 확정 안내]\n\n대표자: ${res.customerKorName}\n투어내역:\n${res.items.map(i => `- ${i.name} (${i.date} ${i.time || ''}) / ${i.count}명`).join('\n')}`;
-        
-        // 보라아재 호핑투어 포함 시 전용 안내문 추가
-        const hasBoraAjae = res.items.some(i => i.name.includes('보라아재') || i.name.includes('카라바오'));
-        if (hasBoraAjae) {
-            msg += `\n\n------------------\n🚨📢 8시 (08:00) / 각반 선착장 미팅😊💜\n보라카이가 제주도라면, 카라바오는 우도라고 생각하시면 이해가 편하십니다. 보라카이에서 배를 타고 1시간정도 이동, 카라바오 섬에 도착하여 아재호핑 전용공간으로 안내해드립니다. 해당 장소에서 진행하는 온종일 투어입니다. 아재투어의 전용공간은 보라아재에서 준비한 다양한 액티비티 및 사진 포인트가 많이 있는 매력적인 장소입니다. 넉넉한 시간으로 편안하고 즐거운 시간이 되시길 바랍니다.\n\n✅ 미팅 시간 및 장소\n🔺현지시각 오전 8시 까지 각반 선착장 도착\n** 미팅시간 10분 전 도착 권장. 미팅 시간내 미 도착시 노쇼처리, 환불불가합니다 **\n🔺각반(CAGBAN PORT) 선착장 세븐일레븐 앞 보라아재 피켓 든 직원을 찾아주세요! 👍\n주의!!! 각반선착장 입니다. E-트라이크(툭툭이) 탑승 후 각반 혹은 각반포트 말씀해주시면 됩니다. \n디몰출발을 기준으로 시간은 15분 내외, 비용은 한 대당 150페소~200페소 정도이니 참고해주세요.\n\n✅ 포함 사항\n씨푸드런치, 무제한 음료+맥주+물, 라면간식, 선상 사진촬영, 수중 사진촬영, vip 밀착케어, 스노클 장비 무상 대여(구명조끼, 스노클마스크), 스노클링, 스킨다이빙, 슬라이드, 포토스팟, 줄낚시, 클리프다이빙 등등\n\n✅ 필수 준비물\n래쉬가드, 선크림, 비치타올, 아쿠아슈즈, 불포함 매너팁 인당 200페소(유아 포함)\n\n✅ 안내 및 주의사항\n* 투어 당일 출발시 날씨에 따라 호핑투어 진행 동선 및 장소, 내용 등등이 변경되어 진행될 수 있습니다.\n* 미팅 후 다른 분들과 함께 조인으로 액티비티가 진행됩니다. 서로 피해가 없도록, 약속시간은 꼭 지켜주세요.\n* 고가의 귀중품, 많은 현금, 여권은 필히 리조트에 두고 오세요!\n* 식사 불포함인 36개월 이하의 아이들의 식사는 따로 준비가 되어 있지 않습니다. (흰 쌀밥은 제공)\n* 맥주와 음료를 무제한으로 제공 해드리고 있지만, 테이크 아웃은 엄격히 금하고 있습니다!\n* 수중사진은 서비스 품목으로 현지 사정상 제공 불가일 수 있는 점 양해 부탁드립니다.\n* 지나친 음주로 물놀이가 안전하지 않다 판단되는 경우 제재를 받으실 수도 있습니다.\n\n📌 우천 시 안내\n보라카이는 스콜성 비가 자주 내리는 지역입니다. 비가 내리더라도 별도의 안내가 없는 경우, 호핑투어는 정상적으로 진행됩니다. 😊`;
+
+        const TOUR_TEMPLATES = {
+            pamilacan: {
+                title: "보홀 파밀라칸 호핑투어 예약 확정 안내",
+                precautions: " - 젖어도 되는 복장\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            },
+            oslob: {
+                title: "보홀 출발 오슬롭 고래상어 투어 예약 확정 안내",
+                precautions: " - 젖어도 되는 복장\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)\n - 자외선 차단제 불가능"
+            },
+            fishing: {
+                title: "보홀 선셋 낚시 투어 예약 확정 안내",
+                precautions: " - 젖어도 되는 복장\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            },
+            landD: {
+                title: "보홀션 육상투어D 예약 확정 안내",
+                precautions: "- 편한 복장\n- 쪼리등 슬리퍼 비추천 , 긴옷으로 추천(바클라욘 입장 제한이 있습니다.)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            },
+            landC: {
+                title: "보홀션 육상투어C 예약 확정 안내",
+                precautions: "- 편한 복장\n- 쪼리등 슬리퍼 비추천 , 긴옷으로 추천(바클라욘 입장 제한이 있습니다)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            },
+            secret: {
+                title: "보홀션 시크릿 플레이스 예약 확정 안내",
+                precautions: " - 편한 물놀이 복장\n - 예쁜 사진 촬영으로 예쁜 옷입고 오셔도 됩니다.\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)\n - 나팔링 포인트 추가 선택 1인 400페소"
+            },
+            shineHopping: {
+                title: "보홀션 샤인 호핑투어 예약 확정 안내",
+                precautions: " - 편한 물놀이 복장, 인당 1개\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)\n - 해파리 출몰로 인한 긴팔, 긴바지 레쉬가드(추천)"
+            },
+            privateHopping: {
+                title: "보홀션 단독 호핑투어 예약 확정 안내",
+                precautions: " - 편한 물놀이 복장, 타월인당 1개\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100소 (성인, 소인 동일)"
+            },
+            napaling: {
+                title: "보홀션 나팔링 예약 확정 안내",
+                precautions: " - 편한 물놀이 복장, 타월인당 1개\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            },
+            hilot: {
+                title: "보홀션 힐롯스파 예약 확정 안내",
+                precautions: " - 간편한 복장(소지품 주의)\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            },
+            pickup: {
+                title: "보홀션 공항 픽업 예약 확정 안내",
+                precautions: " - 항공기 연착이나 지연도 미리 대기합니다^^\n - 문제가 있을경우 채널에 비상연락망으로 연락 주시면 됩니다!\n - 이트래블 큐알 캡처 꼭 부탁드립니다."
+            },
+            round: {
+                title: "보홀션 공항 픽업&드랍 예약 확정 안내",
+                precautions: " - 항공기 연착이나 지연도 미리 대기합니다^^\n - 문제가 있을경우 채널에 비상연락망으로 연락 주시면 됩니다!\n\n나가시는 날: 체크아웃 후 대기 부탁드립니다."
+            },
+            drop: {
+                title: "보홀션 공항 드랍 예약 확정 안내",
+                precautions: " - 문제가 있을경우 채널에 비상연락망으로 연락 주시면 됩니다!\n\n나가시는 날: 체크아웃 후 대기 부탁드립니다."
+            },
+            firefly: {
+                title: "보홀션 반딧불투어(단독 차량) 예약 확정 안내",
+                precautions: " - 편한 복장\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            },
+            sunsetPack: {
+                title: "보홀션 선반팩(단독 차량) 예약 확정 안내",
+                precautions: " - 편한 복장\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            },
+            boholShow: {
+                title: "보홀션 보홀쇼 예약 확정 안내",
+                precautions: " - 간편한 복장(소지품 주의)\n - 매너팁 1인 100페소 (성인, 소인 동일)"
+            },
+            port: {
+                title: "보홀션 항구 픽업 확정 안내",
+                precautions: " - 공항 내에 티켓 발권이나 환경세는 직접 내셔야하며,\n티켓을 교환할 일이 있으실 경우 교환 사무실은 바깥쪽에 위치하기에 입구에 내리셔야합니다."
+            }
+        };
+
+        function getTemplateKey(name) {
+            const n = name.toLowerCase();
+            if (n.includes('파밀라칸')) return 'pamilacan';
+            if (n.includes('오슬롭') || n.includes('고래상어')) return 'oslob';
+            if (n.includes('낚시')) return 'fishing';
+            if (n.includes('육상') && n.includes('d')) return 'landD';
+            if (n.includes('육상') && n.includes('c')) return 'landC';
+            if (n.includes('시크릿')) return 'secret';
+            if (n.includes('프리미엄 샤인') || (n.includes('샤인') && n.includes('호핑'))) return 'shineHopping';
+            if (n.includes('단독') || n.includes('프라이빗')) return 'privateHopping';
+            if (n.includes('나팔링')) return 'napaling';
+            if (n.includes('힐롯')) return 'hilot';
+            if (n.includes('왕복') || (n.includes('픽업') && n.includes('드랍'))) return 'round';
+            if (n.includes('픽업') || n.includes('공항 픽업')) return 'pickup';
+            if (n.includes('드랍') || n.includes('샌딩')) return 'drop';
+            if (n.includes('반딧불')) return 'firefly';
+            if (n.includes('선반팩') || n.includes('노스젠')) return 'sunsetPack';
+            if (n.includes('보홀쇼')) return 'boholShow';
+            if (n.includes('항구')) return 'port';
+            return null;
         }
-        
-        msg += `\n\n감사합니다.`;
-        navigator.clipboard.writeText(msg).then(() => alert('안내문이 복사되었습니다.')); 
+
+        let fullMsg = "";
+        const processedKeys = new Set();
+
+        res.items.forEach((item, idx) => {
+            const key = getTemplateKey(item.name);
+            const template = key ? TOUR_TEMPLATES[key] : null;
+            
+            let itemMsg = `\n${template ? template.title : "[보홀션 투어 예약 확정 안내]"}\n`;
+            itemMsg += `대표자 성함 : ${res.customerKorName}\n`;
+            itemMsg += `인원 : ${item.count || '-'}\n`;
+            itemMsg += `투어 : ${item.name}\n`;
+            itemMsg += `투어날짜 : ${item.date || '-'}\n`;
+            
+            let meetingTime = item.time || "전날 재인폼";
+            if (key === 'oslob' && !item.time) meetingTime = "AM05:20 (전날 재인폼)";
+            if (key === 'pamilacan' && !item.time) meetingTime = "07:40AM (전날 재인폼)";
+            if (key === 'fishing' && !item.time) meetingTime = "PM05:00 (전날 재인폼)";
+            if (key === 'landD' || key === 'landC') meetingTime = meetingTime || "13:00";
+            if (key === 'secret' && !item.time) meetingTime = "AM09:30 (전날 재인폼)";
+            if (key === 'shineHopping' && !item.time) meetingTime = "07:30 (전날 재인폼)";
+            if (key === 'firefly' && !item.time) meetingTime = "18:30";
+            if (key === 'boholShow' && !item.time) meetingTime = "19:00PM";
+            
+            itemMsg += `투어 미팅 시간 : ${meetingTime}\n`;
+            
+            const mPlace = (idx === 0 ? res.pickupResort : (item.pickupResort || res.pickupResort)) || "헤난 알로나 로비";
+            itemMsg += `투어 미팅장소 : ${translateResort(mPlace)}\n`;
+            
+            const dPlace = (idx === 0 ? res.sendingResort : (item.sendingResort || res.sendingResort)) || "헤난 알로나 로비";
+            itemMsg += `투어 종료 후 드랍 : ${translateResort(dPlace)}\n`;
+            
+            if (res.exchangeAmount && res.exchangeAmount !== '전액 결제 완료') {
+                itemMsg += `투어 잔금 : ${res.exchangeAmount}\n`;
+            }
+
+            itemMsg += `\n★★ 주의 사항 및 준비물 ★★\n`;
+            itemMsg += template ? template.precautions : " - 편한 복장\n - 매너팁 별도";
+            itemMsg += `\n\n------------------------------------------------------\n`;
+            
+            fullMsg += itemMsg;
+        });
+
+        fullMsg += `\n감사합니다.`;
+        navigator.clipboard.writeText(fullMsg.trim()).then(() => alert('보홀션 안내문이 복사되었습니다.')); 
     };
     window.showInputArea = (type) => { 
         if (type === 'quote') {
