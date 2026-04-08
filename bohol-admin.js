@@ -490,55 +490,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const res = allReservations.find(r => r.id === id); 
         if (!res) return; 
         
-        let finalMsg = "";
-
-        res.items.forEach((item, idx) => {
-            let msg = "";
-            const lowerName = item.name.toLowerCase();
-            const pax = item.count || (res.paxInfo || "-");
-            const date = item.date || "-";
-            const time = item.time || "-";
-            const resort = res.pickupResort || "-";
-            const dropResort = res.sendingResort || "-";
-
-            if (lowerName.includes("파밀라칸")) {
-                msg = `보홀 파밀라칸 호핑투어 투어 예약 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${date} ${time} (전날 재인폼)\n투어 미팅장소 : ${resort}\n투어 종료 후 드랍 : ${dropResort}\n\n★★ 주의 사항 및 준비물 ★★\n - 젖어도 되는 복장\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)`;
-            } else if (lowerName.includes("오슬롭")) {
-                msg = `보홀 출발 오슬롭 고래상어 투어 예약 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${date} ${time} (전날 재인폼)\n투어 미팅장소 : ${resort}\n투어 종료 후 드랍 : ${dropResort}\n\n★★ 주의 사항 및 준비물 ★★\n - 젖어도 되는 복장\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)\n - 자외선 차단제 불가능`;
-            } else if (lowerName.includes("낚시")) {
-                msg = `보홀 선셋 낚시 투어 예약 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${date} ${time} (전날 재인폼)\n투어 미팅장소 : ${resort}\n투어 종료 후 드랍 : ${dropResort}\n\n★★ 주의 사항 및 준비물 ★★\n - 젖어도 되는 복장\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)`;
-            } else if (lowerName.includes("육상투어d")) {
-                msg = `보홀션 육상투어D 예약 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${date} ${time}\n투어 미팅장소 : ${resort}\n투어 종료 후 드랍 : ${dropResort}\n\n투어 잔금: ${res.exchangeAmount || "X"}\n\n★★ 주의 사항 및 준비물 ★★\n- 편한 복장\n- 쪼리등 슬리퍼 비추천 , 긴옷으로 추천(바클라욘 입장 제한이 있습니다.)\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
-            } else if (lowerName.includes("육상투어c")) {
-                msg = `보홀션 육상투어C 예약 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${date} ${time}\n투어 미팅장소 : ${resort}\n투어 종료 후 드랍 : ${dropResort}\n\n잔금: ${res.exchangeAmount || "X"}\n\n★★ 주의 사항 및 준비물 ★★\n- 편한 복장\n- 쪼리등 슬리퍼 비추천 , 긴옷으로 추천(바클라욘 입장 제한이 있습니다)\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
-            } else if (lowerName.includes("시크릿") || lowerName.includes("플레이스")) {
-                msg = `보홀션 시크릿 플레이스 예약 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${date} ${time} (전날 재인폼)\n투어 미팅장소 : ${resort}\n투어 종료 후 드랍 : ${dropResort}\n\n투어 잔금 : ${res.exchangeAmount || "X"}\n\n★★ 주의 사항 및 준비물 ★★\n - 편한 물놀이 복장\n - 예쁜 사진 촬영으로 예쁜 옷입고 오셔도 됩니다.\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)\n - 나팔링 포인트 추가 선택 1인 400페소`;
-            } else if (lowerName.includes("프리미엄") || lowerName.includes("샤인") || lowerName.includes("호핑")) {
-                msg = `보홀션 샤인 호핑투어 예약 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${date} ${time} (전날 재인폼)\n투어 미팅장소 : ${resort}\n투어 종료 후 드랍 : ${dropResort}\n잔금: ${res.exchangeAmount || "X"}\n\n★★ 주의 사항 및 준비물 ★★\n - 편한 물놀이 복장, 인당 1개\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)\n - 해파리 출몰로 인한 긴팔, 긴바지 레쉬가드(추천)`;
-            } else if (lowerName.includes("나팔링")) {
-                msg = `보홀션 나팔링 예약 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${date} ${time}\n투어 미팅장소 : ${resort}\n투어 종료 후 드랍 : ${dropResort}\n\n투어 잔금: ${res.exchangeAmount || "X"}\n\n★★ 주의 사항 및 준비물 ★★\n - 편한 물놀이 복장, 타월인당 1개\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)`;
-            } else if (lowerName.includes("마사지") || lowerName.includes("힐롯") || lowerName.includes("스파")) {
-                msg = `보홀션 힐롯스파 예약 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${date} ${time}\n투어 미팅장소 : ${resort}\n투어 종료 후 드랍 : ${dropResort}\n\n★★ 주의 사항 및 준비물 ★★\n - 간편한 복장(소지품 주의)\n - 매너팁 1인 100페소 (성인, 소인 동일)`;
-            } else if (lowerName.includes("픽업") && lowerName.includes("샌딩")) {
-                msg = `보홀션 공항 픽업&드랍 예약 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${res.pickupDate || date}, ${res.sendingDate || date}\n투어 미팅 시간 : ${res.pickupFlight || "-"}, ${res.sendingFlight || "-"}\n투어 미팅장소 : 보홀 공항 -> ${resort}\n공항 드랍 미팅장소 : ${resort} -> 보홀 공항\n공항 드랍 미팅시간: ${res.sendingTime || "23:00PM"}\n\n★★ 주의 사항 및 준비물 ★★\n - 항공기 연착이나 지연도 미리 대기합니다^^\n - 문제가 있을경우 채널에 비상연락망으로 연락 주시면 됩니다!\n\n나가시는 날: 체크아웃 후 대기 부탁드립니다.`;
-            } else if (lowerName.includes("픽업")) {
-                msg = `보홀션 공항 픽업 예약 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${res.pickupFlight || time}\n투어 미팅장소 : 보홀 공항 -> ${resort}\n투어 종료 후 드랍 : X\n\n★★ 주의 사항 및 준비물 ★★\n - 항공기 연착이나 지연도 미리 대기합니다^^\n - 문제가 있을경우 채널에 비상연락망으로 연락 주시면 됩니다!\n - 이트래블 큐알 캡처 꼭 부탁드립니다.`;
-            } else if (lowerName.includes("드랍")) {
-                msg = `보홀션 공항 드랍 예약 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${date} ${time}\n공항 드랍 미팅장소 : ${resort} -> 공항 드랍\n공항 드랍 미팅시간: ${time}\n\n★★ 주의 사항 및 준비물 ★★\n - 문제가 있을경우 채널에 비상연락망으로 연락 주시면 됩니다!\n\n나가시는 날: 체크아웃 후 대기 부탁드립니다.`;
-            } else if (lowerName.includes("반딧불")) {
-                msg = `보홀션 반딧불투어(단독 차량) 예약 확정 안내 문자\n\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${date} ${time}\n투어 미팅장소 : ${resort}\n투어 종료 후 드랍 : ${dropResort}\n\n★★ 주의 사항 및 준비물 ★★\n - 편한 복장\n - 매너팁 1인 100페소 (성인, 소인 동일)`;
-            } else if (lowerName.includes("보홀쇼")) {
-                msg = `보홀션 보홀쇼 예약 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${date} ${time}\n투어 미팅장소 : ${resort}\n투어 종료 : ${dropResort}\n\n★★ 주의 사항 및 준비물 ★★\n - 간편한 복장(소지품 주의)\n - 매너팁 1인 100페소 (성인, 소인 동일)`;
-            } else if (lowerName.includes("항구")) {
-                msg = `보홀션 항구 픽업 확정 안내 문자\n대표자 성함 : ${res.customerKorName}\n인원 : ${pax}\n투어 : ${item.name}\n투어날짜 : ${date}\n투어 미팅 시간 : ${date} ${time}(도착 후)\n미팅장소 : 탁빌라란 항구\n드랍장소 : ${resort}\n\n★★ 주의 사항 및 준비물 ★★\n -공항 내에 티켓 발권이나 환경세는 직접 내셔야하며,\n티켓을 교환할 일이 있으실 경우 교환 사무실은 바깥쪽에 위치하기에 입구에 내리셔야합니다.`;
-            } else {
-                msg = `[보홀션 예약 확정 안내]\n\n대표자: ${res.customerKorName}\n인원: ${pax}\n투어: ${item.name}\n날짜: ${date}\n미팅시간: ${time}\n미팅장소: ${resort}\n\n★★ 주의 사항 및 준비물 ★★\n - 매너팁 1인 100페소 (성인, 소인 동일)\n\n감사합니다.`;
-            }
-            
-            finalMsg += msg + "\n\n------------------\n\n";
-        });
-
-        navigator.clipboard.writeText(finalMsg.trim()).then(() => alert('보홀션 안내문이 복사되었습니다.')); 
+        let msg = `[보라카이션 예약 확정 안내]\n\n대표자: ${res.customerKorName}\n투어내역:\n${res.items.map(i => `- ${i.name} (${i.date} ${i.time || ''}) / ${i.count}명`).join('\n')}`;
+        
+        // 보라아재 호핑투어 포함 시 전용 안내문 추가
+        const hasBoraAjae = res.items.some(i => i.name.includes('보라아재') || i.name.includes('카라바오'));
+        if (hasBoraAjae) {
+            msg += `\n\n------------------\n🚨📢 8시 (08:00) / 각반 선착장 미팅😊💜\n보라카이가 제주도라면, 카라바오는 우도라고 생각하시면 이해가 편하십니다. 보라카이에서 배를 타고 1시간정도 이동, 카라바오 섬에 도착하여 아재호핑 전용공간으로 안내해드립니다. 해당 장소에서 진행하는 온종일 투어입니다. 아재투어의 전용공간은 보라아재에서 준비한 다양한 액티비티 및 사진 포인트가 많이 있는 매력적인 장소입니다. 넉넉한 시간으로 편안하고 즐거운 시간이 되시길 바랍니다.\n\n✅ 미팅 시간 및 장소\n🔺현지시각 오전 8시 까지 각반 선착장 도착\n** 미팅시간 10분 전 도착 권장. 미팅 시간내 미 도착시 노쇼처리, 환불불가합니다 **\n🔺각반(CAGBAN PORT) 선착장 세븐일레븐 앞 보라아재 피켓 든 직원을 찾아주세요! 👍\n주의!!! 각반선착장 입니다. E-트라이크(툭툭이) 탑승 후 각반 혹은 각반포트 말씀해주시면 됩니다. \n디몰출발을 기준으로 시간은 15분 내외, 비용은 한 대당 150페소~200페소 정도이니 참고해주세요.\n\n✅ 포함 사항\n씨푸드런치, 무제한 음료+맥주+물, 라면간식, 선상 사진촬영, 수중 사진촬영, vip 밀착케어, 스노클 장비 무상 대여(구명조끼, 스노클마스크), 스노클링, 스킨다이빙, 슬라이드, 포토스팟, 줄낚시, 클리프다이빙 등등\n\n✅ 필수 준비물\n래쉬가드, 선크림, 비치타올, 아쿠아슈즈, 불포함 매너팁 인당 200페소(유아 포함)\n\n✅ 안내 및 주의사항\n* 투어 당일 출발시 날씨에 따라 호핑투어 진행 동선 및 장소, 내용 등등이 변경되어 진행될 수 있습니다.\n* 미팅 후 다른 분들과 함께 조인으로 액티비티가 진행됩니다. 서로 피해가 없도록, 약속시간은 꼭 지켜주세요.\n* 고가의 귀중품, 많은 현금, 여권은 필히 리조트에 두고 오세요!\n* 식사 불포함인 36개월 이하의 아이들의 식사는 따로 준비가 되어 있지 않습니다. (흰 쌀밥은 제공)\n* 맥주와 음료를 무제한으로 제공 해드리고 있지만, 테이크 아웃은 엄격히 금하고 있습니다!\n* 수중사진은 서비스 품목으로 현지 사정상 제공 불가일 수 있는 점 양해 부탁드립니다.\n* 지나친 음주로 물놀이가 안전하지 않다 판단되는 경우 제재를 받으실 수도 있습니다.\n\n📌 우천 시 안내\n보라카이는 스콜성 비가 자주 내리는 지역입니다. 비가 내리더라도 별도의 안내가 없는 경우, 호핑투어는 정상적으로 진행됩니다. 😊`;
+        }
+        
+        msg += `\n\n감사합니다.`;
+        navigator.clipboard.writeText(msg).then(() => alert('안내문이 복사되었습니다.')); 
     };
     window.showInputArea = (type) => { 
         if (type === 'quote') {
@@ -782,11 +743,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const rows = parseRobustTSV(inputVal);
         const currentYear = new Date().getFullYear();
         
-        let allOutputText = "";
+        let combinedKorNames = [];
+        let totalAdults = 0, totalChildren = 0, totalInfants = 0;
+        let allItems = [];
+        let firstResort = '', secondResort = '', firstContact = '', firstExVal = '';
+        let firstPickupFlight = '', firstSendingFlight = '';
+        let totalExAmount = 0;
+        let isExNumeric = true;
 
         rows.forEach(row => {
             if (row.length < 16) return;
-            // 0:픽업일, 1:샌딩일, 2:픽업편, 3:샌딩편, 5:잔금, 9:리조트, 10:영문명, 11~13:인원, 14:연락처, 15:한글명, 16:비고
             const p10 = (row[10] || '').trim();
             const p15 = (row[15] || '').trim().replace(/\n/g, ', ');
             const isP10Korean = /[가-힣]/.test(p10);
@@ -794,29 +760,38 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isP10Korean && !p10.includes(' ')) { korName = p10; engName = p15.toUpperCase(); }
             else if (p15.includes('맘') || p15.includes('아빠') || p15.includes('네') || p15.length > 5) { if (isP10Korean) { korName = p10; engName = p15.toUpperCase(); } }
             else { engName = p10.toUpperCase(); korName = p15; }
-            const customerName = engName ? `${engName} (${korName || ''})`.replace(' ()', '') : (korName || '고객');
+            combinedKorNames.push(engName ? `${engName} (${korName || ''})`.replace(' ()', '') : (korName || '고객'));
 
-            const totalAdults = (parseInt(row[11]) || 0);
-            const totalChildren = (parseInt(row[12]) || 0);
-            const totalInfants = (parseInt(row[13]) || 0);
-            const paxInfo = `성인 ${totalAdults}, 아동 ${totalChildren}${totalInfants ? `, 유아 ${totalInfants}` : ''}`;
-            const totalPaxNum = totalAdults + totalChildren + totalInfants;
+            if (!firstPickupFlight) firstPickupFlight = (row[2] || '').trim().toUpperCase();
+            if (!firstSendingFlight) firstSendingFlight = (row[3] || '').trim().toUpperCase();
 
+            totalAdults += (parseInt(row[11]) || 0);
+            totalChildren += (parseInt(row[12]) || 0);
+            totalInfants += (parseInt(row[13]) || 0);
+
+            if (!firstContact) firstContact = (row[14] || '').trim();
             const resortRaw = (row[9] || '').trim();
-            const pickupResort = translateResort(resortRaw.split('/')[0].trim());
-            const sendingResort = translateResort(resortRaw.split('/')[1]?.trim() || pickupResort);
+            const pResort = translateResort(resortRaw.split('/')[0].trim());
+            const sResort = translateResort(resortRaw.split('/')[1]?.trim() || pResort);
+            if (!firstResort) { firstResort = pResort; secondResort = sResort; }
 
-            const pickupDateRaw = (row[0] || '').trim();
-            const sendingDateRaw = (row[1] || '').trim();
-            const pickupFlight = (row[2] || '').trim().toUpperCase();
-            const sendingFlight = (row[3] || '').trim().toUpperCase();
-            const exAmount = (row[5] || '').trim();
+            let exVal = (row[5] || '').trim();
+            if (exVal && !exVal.includes('/') && !exVal.includes('▲') && exVal !== '0') {
+                const numericEx = parseInt(exVal.replace(/[^0-9]/g, ''));
+                if (!isNaN(numericEx)) totalExAmount += numericEx; else isExNumeric = false;
+            } else if (exVal === '0' || !exVal) { } else { isExNumeric = false; }
+            if (!firstExVal) firstExVal = exVal;
 
-            const formatDate = (raw) => { if (!raw || !raw.includes('/')) return '-'; const [m, d] = raw.split('/').map(v => v.trim().padStart(2,'0')); return `${m}/${d}`; };
+            const totalPax = (parseInt(row[11]) || 0) + (parseInt(row[12]) || 0) + (parseInt(row[13]) || 0);
+            const formatDate = (raw) => { if (!raw || !raw.includes('/')) return null; const [m, d] = raw.split('/').map(v => v.trim().padStart(2,'0')); return `${currentYear}-${m}-${d}`; };
             
-            // 픽업 샌딩 안내문 생성
-            if (pickupFlight && pickupFlight !== '-') {
-                allOutputText += `보홀션 공항 픽업 예약 확정 안내 문자\n대표자 성함 : ${customerName}\n인원 : ${totalPaxNum}\n투어 : 공항 픽업\n투어날짜 : ${formatDate(pickupDateRaw)}\n투어 미팅 시간 : ${pickupFlight}\n투어 미팅장소 : 보홀 공항 -> ${pickupResort}\n\n★★ 주의 사항 및 준비물 ★★\n - 항공기 연착이나 지연도 미리 대기합니다^^\n - 문제가 있을경우 채널에 비상연락망으로 연락 주시면 됩니다!\n - 이트래블 큐알 캡처 꼭 부탁드립니다.\n\n------------------\n\n`;
+            if (row[2] && row[2].match(/[A-Z]{2}\d+/)) { allItems.push({ name: `✈️ 공항 픽업 (${row[2].toUpperCase()})`, date: formatDate(row[0]), time: "14:00", count: totalPax }); }
+            if (row[3] && row[3].match(/[A-Z]{2}\d+/)) { 
+                const fl = row[3].toUpperCase().trim();
+                let sTime = "21:00";
+                if (fl === 'TW126') sTime = "08:30";
+                else if (fl.startsWith('TW') || fl.startsWith('5J') || fl.startsWith('Z2') || fl.startsWith('DG') || (fl.startsWith('PR') && !['PR469', 'PR489'].includes(fl))) sTime = "전날 재안내";
+                allItems.push({ name: `✈️ 공항 샌딩 (${fl})`, date: formatDate(row[1]), time: sTime, count: totalPax }); 
             }
 
             const remarkRaw = (row[16] || '').trim();
@@ -824,48 +799,76 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dm = line.trim().match(/^(\d{1,2})\/(\d{1,2})/);
                 if (dm) {
                     const tDate = formatDate(dm[0]);
-                    let itemName = line.replace(dm[0], '').trim(); 
-                    let itemTime = "전날 재인폼"; 
-                    let itemPax = totalPaxNum;
+                    let itemName = line.replace(dm[0], '').trim(); let itemTime = "09:00"; let itemPax = totalPax;
+                    const mCount = line.match(/\d+(?=명|인|태반|성장|스톤|오일|포쉘|진주)/g);
+                    if ((line.includes('spa') || line.includes('스파')) && mCount) {
+                        const sum = mCount.filter(n => parseInt(n) < 15).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+                        if (sum > 0) itemPax = sum;
+                    }
+                    const timeMatch = line.match(/(\d{1,2})\/(\d{1,2})/); // Prevent re-matching dates
                     const actualTimeMatch = line.match(/(\d{1,2}):(\d{2})/); if (actualTimeMatch) itemTime = `${actualTimeMatch[1].padStart(2,'0')}:${actualTimeMatch[2]}`;
                     const lowerLine = line.toLowerCase();
                     
-                    let template = `[보홀션 예약 확정 안내]\n\n대표자: ${customerName}\n인원: ${itemPax}\n투어: ${itemName}\n날짜: ${tDate}\n미팅시간: ${itemTime}\n미팅장소: ${pickupResort}\n\n★★ 주의 사항 및 준비물 ★★\n - 매너팁 1인 100페소 (성인, 소인 동일)\n\n감사합니다.`;
-
-                    if (lowerLine.includes("파밀라칸")) {
-                        template = `보홀 파밀라칸 호핑투어 투어 예약 확정 안내 문자\n대표자 성함 : ${customerName}\n인원 : ${itemPax}\n투어 : 파밀라칸 호핑투어\n투어날짜 : ${tDate}\n투어 미팅 시간 : ${tDate} ${itemTime} (전날 재인폼)\n투어 미팅장소 : ${pickupResort}\n투어 종료 후 드랍 : ${sendingResort}\n\n★★ 주의 사항 및 준비물 ★★\n - 젖어도 되는 복장\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)`;
-                    } else if (lowerLine.includes("오슬롭")) {
-                        template = `보홀 출발 오슬롭 고래상어 투어 예약 확정 안내 문자\n대표자 성함 : ${customerName}\n인원 : ${itemPax}\n투어 : 오슬롭 고래상어\n투어날짜 : ${tDate}\n투어 미팅 시간 : ${tDate} ${itemTime} (전날 재인폼)\n투어 미팅장소 : ${pickupResort}\n투어 종료 후 드랍 : ${sendingResort}\n\n★★ 주의 사항 및 준비물 ★★\n - 젖어도 되는 복장\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)\n - 자외선 차단제 불가능`;
-                    } else if (lowerLine.includes("육상투어d")) {
-                        template = `보홀션 육상투어D 예약 확정 안내 문자\n대표자 성함 : ${customerName}\n인원 : ${itemPax}\n투어 : 보홀 샤인 육상투어D\n투어날짜 : ${tDate}\n투어 미팅 시간 : ${tDate} ${itemTime}\n투어 미팅장소 : ${pickupResort}\n투어 종료 후 드랍 : ${sendingResort}\n\n투어 잔금: ${exAmount || "X"}\n\n★★ 주의 사항 및 준비물 ★★\n- 편한 복장\n- 쪼리등 슬리퍼 비추천 , 긴옷으로 추천(바클라욘 입장 제한이 있습니다.)\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
-                    } else if (lowerLine.includes("육상투어c")) {
-                        template = `보홀션 육상투어C 예약 확정 안내 문자\n대표자 성함 : ${customerName}\n인원 : ${itemPax}\n투어 : 보홀 샤인 육상투어C\n투어날짜 : ${tDate}\n투어 미팅 시간 : ${tDate} ${itemTime}\n투어 미팅장소 : ${pickupResort}\n투어 종료 후 드랍 : ${sendingResort}\n\n잔금: ${exAmount || "X"}\n\n★★ 주의 사항 및 준비물 ★★\n- 편한 복장\n- 쪼리등 슬리퍼 비추천 , 긴옷으로 추천(바클라욘 입장 제한이 있습니다)\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
-                    } else if (lowerLine.includes("시크릿")) {
-                        template = `보홀션 시크릿 플레이스 예약 확정 안내 문자\n대표자 성함 : ${customerName}\n인원 : ${itemPax}\n투어 : 시크릿 플레이스\n투어날짜 : ${tDate}\n투어 미팅 시간 : ${tDate} ${itemTime} (전날 재인폼)\n투어 미팅장소 : ${pickupResort}\n투어 종료 후 드랍 : ${sendingResort}\n\n투어 잔금 : ${exAmount || "X"}\n\n★★ 주의 사항 및 준비물 ★★\n - 편한 물놀이 복장\n - 예쁜 사진 촬영으로 예쁜 옷입고 오셔도 됩니다.\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)\n - 나팔링 포인트 추가 선택 1인 400페소`;
-                    } else if (lowerLine.includes("호핑")) {
-                        template = `보홀션 샤인 호핑투어 예약 확정 안내 문자\n대표자 성함 : ${customerName}\n인원 : ${itemPax}\n투어 : ${itemName}\n투어날짜 : ${tDate}\n투어 미팅 시간 : ${tDate} ${itemTime} (전날 재인폼)\n투어 미팅장소 : ${pickupResort}\n투어 종료 후 드랍 : ${sendingResort}\n잔금: ${exAmount || "X"}\n\n★★ 주의 사항 및 준비물 ★★\n - 편한 물놀이 복장, 인당 1개\n - 쪼리등 슬리퍼 비추천 , 긴옷으로 추천\n - 매너팁 1인 100페소 (성인, 소인 동일)\n - 해파리 출몰로 인한 긴팔, 긴바지 레쉬가드(추천)`;
-                    } else if (lowerLine.includes("반딧불")) {
-                        template = `보홀션 반딧불투어(단독 차량) 예약 확정 안내 문자\n\n대표자 성함 : ${customerName}\n인원 : ${itemPax}\n투어 : 반딧불 투어\n투어날짜 : ${tDate}\n투어 미팅 시간 : ${tDate} ${itemTime}\n투어 미팅장소 : ${pickupResort}\n투어 종료 후 드랍 : ${sendingResort}\n\n★★ 주의 사항 및 준비물 ★★\n - 편한 복장\n - 매너팁 1인 100페소 (성인, 소인 동일)`;
-                    } else if (lowerLine.includes("마사지") || lowerLine.includes("힐롯") || lowerLine.includes("스파")) {
-                        template = `보홀션 힐롯스파 예약 확정 안내 문자\n대표자 성함 : ${customerName}\n인원 : ${itemPax}\n투어 : ${itemName}\n투어날짜 : ${tDate}\n투어 미팅 시간 : ${tDate} ${itemTime}\n투어 미팅장소 : ${pickupResort}\n투어 종료 후 드랍 : ${sendingResort}\n\n★★ 주의 사항 및 준비물 ★★\n - 간편한 복장(소지품 주의)\n - 매너팁 1인 100페소 (성인, 소인 동일)`;
+                    if (lowerLine.includes('meeting') || lowerLine.includes('pickup') || lowerLine.includes('픽업')) itemName = '✈️ 공항 픽업';
+                    else if (lowerLine.includes('sending') || lowerLine.includes('샌딩')) itemName = '✈️ 공항 샌딩';
+                    else if (lowerLine.includes('sspa') || lowerLine.includes('에스파')) itemName = '에스파(S-SPA)';
+                    else if (lowerLine.includes('luna') || lowerLine.includes('루나')) itemName = '루나스파';
+                    else if (lowerLine.includes('bora') || lowerLine.includes('보라')) itemName = '보라스파';
+                    else if (lowerLine.includes('kabayan') || lowerLine.includes('카바얀')) itemName = '카바얀스파';
+                    else if (lowerLine.includes('hilot') || lowerLine.includes('힐롯')) itemName = '힐롯마사지';
+                    else if (lowerLine.includes('poseidon') || lowerLine.includes('포세이돈')) itemName = '포세이돈 스파';
+                    else if (lowerLine.includes('maris') || lowerLine.includes('마리스')) itemName = '마리스 스파';
+                    else if (lowerLine.includes('helios') || lowerLine.includes('헬리오스')) itemName = '헬리오스 스파';
+                    else if (lowerLine.includes('land') || lowerLine.includes('랜드')) { itemName = '보라카이 랜드투어'; if(!actualTimeMatch) itemTime = "10:30"; }
+                    else if (lowerLine.includes('hopping') || lowerLine.includes('호핑')) { 
+                        if (lowerLine.includes('보라아재') || lowerLine.includes('카라바오')) { itemName = '보라아재 호핑투어'; if(!actualTimeMatch) itemTime = "08:00"; }
+                        else if (lowerLine.includes('(j)') || lowerLine.includes('점보')) { itemName = '블랙펄 호핑투어 (+점보크랩 점심)'; if(!actualTimeMatch) itemTime = "12:30"; } 
+                        else { itemName = '블랙펄 선셋 호핑투어'; if(!actualTimeMatch) itemTime = "13:30"; } 
                     }
-
-                    allOutputText += template + "\n\n------------------\n\n";
+                    else if (lowerLine.includes('malum') || lowerLine.includes('말룸')) { itemName = '시크릿가든 말룸파티'; if(!actualTimeMatch) itemTime = "09:40"; }
+                    else if (lowerLine.includes('jetski') || lowerLine.includes('zetski') || lowerLine.includes('제트스키')) itemName = '제트스키';
+                    else if (lowerLine.includes('helmet') || lowerLine.includes('헬멧')) itemName = '헬멧다이빙';
+                    else if (lowerLine.includes('para') || lowerLine.includes('파라')) itemName = '파라세일링';
+                    else if (lowerLine.includes('diving') || lowerLine.includes('다이빙')) itemName = '체험다이빙';
+                    else if (lowerLine.includes('golf') || lowerLine.includes('골프')) itemName = '페어웨이 골프';
+                    else if (lowerLine.includes('sub') || lowerLine.includes('잠수함')) itemName = '잠수함';
+                    else if (lowerLine.includes('yacht') || lowerLine.includes('요트')) itemName = '프라이빗 요트';
+                    else if (lowerLine.includes('sunset') || lowerLine.includes('선셋')) itemName = '선셋 세일링';
+                    
+                    if (line.includes('afh') || line.includes('AFH')) itemTime = "18:00";
+                    else if (line.includes('afm') || line.includes('AFM')) itemTime = "17:00";
+                    allItems.push({ name: itemName, date: tDate, time: itemTime, count: itemPax, details: line });
                 }
             });
-
-            if (sendingFlight && sendingFlight !== '-') {
-                allOutputText += `보홀션 공항 드랍 예약 확정 안내 문자\n대표자 성함 : ${customerName}\n인원 : ${totalPaxNum}\n투어 : 공항 드랍\n투어날짜 : ${formatDate(sendingDateRaw)}\n투어 미팅 시간 : ${formatDate(sendingDateRaw)} ${row[3] || "23:00PM"}\n공항 드랍 미팅장소 : ${sendingResort} -> 공항 드랍\n공항 드랍 미팅시간: ${row[3] || "23:00PM"}\n\n★★ 주의 사항 및 준비물 ★★\n - 문제가 있을경우 채널에 비상연락망으로 연락 주시면 됩니다!\n\n나가시는 날: 체크아웃 후 대기 부탁드립니다.\n\n------------------\n\n`;
-            }
         });
 
-        if (allOutputText) {
-            navigator.clipboard.writeText(allOutputText.trim()).then(() => {
-                alert('모든 보홀션 안내문이 생성되어 복사되었습니다!');
-                document.getElementById('quick-voucher-input').value = ''; 
-                window.hideInputArea();
-            });
-        }
+        if (combinedKorNames.length === 0) return;
+        const mergedItemsMap = {};
+        allItems.forEach(it => {
+            const key = `${it.name}_${it.date}_${it.time}`;
+            if (!mergedItemsMap[key]) { mergedItemsMap[key] = { ...it }; }
+            else { mergedItemsMap[key].count += it.count; }
+        });
+        const finalExAmount = (isExNumeric && totalExAmount > 0) ? totalExAmount.toString() : firstExVal;
+        const resData = { 
+            customerKorName: combinedKorNames.join(', '), 
+            contact: firstContact, 
+            items: Object.values(mergedItemsMap), 
+            status: '예약확정', 
+            exchangeAmount: finalExAmount || '-', 
+            paxInfo: `성인 ${totalAdults}, 아동 ${totalChildren}, 유아 ${totalInfants}`, 
+            pickupResort: firstResort, 
+            sendingResort: secondResort, 
+            pickupFlight: firstPickupFlight,
+            sendingFlight: firstSendingFlight,
+            createdAt: new Date() 
+        };
+        const docRef = await addDoc(collection(db, "quick_vouchers"), resData);
+        navigator.clipboard.writeText(`${window.location.origin}/reservation-schedule.html?id=${docRef.id}&type=quick`).then(() => {
+            alert('통합 바우처 생성 완료!');
+            document.getElementById('quick-voucher-input').value = ''; 
+            window.hideInputArea();
+        });
     };
 
     window.openSchedulePopup = (mode) => {
