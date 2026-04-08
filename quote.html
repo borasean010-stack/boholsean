@@ -35,6 +35,10 @@
         .item-meta { font-size: 13px; color: #666; font-weight: 600; }
         .item-price { font-size: 15px; font-weight: 800; color: var(--primary); }
 
+        /* 투어별 상세 설정 카드 */
+        .tour-setting-card { background: #fff; border: 1.5px solid #eee; border-radius: 18px; padding: 20px; margin-bottom: 15px; }
+        .tour-setting-card .tour-name { font-size: 15px; font-weight: 800; color: var(--primary); margin-bottom: 15px; display: block; padding-bottom: 10px; border-bottom: 1px solid #f5f5f5; }
+
         .total-box { padding: 30px; background: #fdfdfd; text-align: center; }
         .total-label { font-size: 14px; color: #888; font-weight: 600; }
         .total-amount { font-size: 32px; font-weight: 900; color: #111; margin-top: 5px; }
@@ -64,7 +68,18 @@
         <p>고객님만을 위한 맞춤 견적서</p>
     </div>
 
-    <!-- 1. 예약자 정보 입력 -->
+    <!-- 1. 견적 항목 (최상단) -->
+    <div class="section" style="background: #fafafa;">
+        <div class="section-title"><span class="material-icons">receipt_long</span>선택하신 투어 및 상품</div>
+        <div class="item-list" id="item-list"></div>
+        
+        <div class="total-box">
+            <div class="total-label">최종 합계 금액</div>
+            <div class="total-amount" id="total-amount">₩ 0</div>
+        </div>
+    </div>
+
+    <!-- 2. 예약자 정보 입력 -->
     <div class="section">
         <div class="section-title"><span class="material-icons">person</span>예약자 기본 정보</div>
         <div class="input-group">
@@ -81,27 +96,11 @@
         </div>
     </div>
 
-    <!-- 2. 투어 세부 정보 -->
+    <!-- 3. 투어별 세부 정보 (날짜/리조트) -->
     <div class="section">
-        <div class="section-title"><span class="material-icons">calendar_month</span>날짜 및 리조트 설정</div>
-        <div class="input-group">
-            <label>투어 희망 날짜<span>*</span></label>
-            <input type="date" id="tour-date">
-        </div>
-        <div class="input-group">
-            <label>픽업 리조트 / 장소<span>*</span></label>
-            <input type="text" id="pickup-resort" placeholder="예: 헤난 알로나 로비">
-        </div>
-    </div>
-
-    <!-- 3. 견적 항목 -->
-    <div class="section" style="background: #fafafa;">
-        <div class="section-title"><span class="material-icons">receipt_long</span>선택하신 투어 및 상품</div>
-        <div class="item-list" id="item-list"></div>
-        
-        <div class="total-box">
-            <div class="total-label">최종 합계 금액</div>
-            <div class="total-amount" id="total-amount">₩ 0</div>
+        <div class="section-title"><span class="material-icons">calendar_month</span>투어별 희망 날짜 및 장소 설정</div>
+        <div id="tour-settings-container">
+            <!-- 각 투어별 입력 카드가 여기에 생성됨 -->
         </div>
     </div>
 
@@ -146,6 +145,7 @@
     const db = getFirestore(app);
 
     let currentDocId = null;
+    let tourItems = [];
 
     async function loadQuote() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -161,10 +161,18 @@
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
+                tourItems = data.items || [];
+
+                // 1. 상단 상품 목록 렌더링
                 const listContainer = document.getElementById('item-list');
                 listContainer.innerHTML = '';
                 
-                data.items.forEach(item => {
+                // 2. 투어별 상세 설정 컨테이너 렌더링
+                const settingsContainer = document.getElementById('tour-settings-container');
+                settingsContainer.innerHTML = '';
+
+                tourItems.forEach((item, index) => {
+                    // 상품 목록
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'item';
                     itemDiv.innerHTML = `
@@ -175,6 +183,22 @@
                         <div class="item-price">₩ ${(item.price * item.count).toLocaleString()}</div>
                     `;
                     listContainer.appendChild(itemDiv);
+
+                    // 투어별 설정 카드 (날짜/리조트)
+                    const settingCard = document.createElement('div');
+                    settingCard.className = 'tour-setting-card';
+                    settingCard.innerHTML = `
+                        <span class="tour-name">${item.name}</span>
+                        <div class="input-group">
+                            <label>투어 희망 날짜<span>*</span></label>
+                            <input type="date" class="tour-date-input" data-index="${index}">
+                        </div>
+                        <div class="input-group">
+                            <label>픽업 리조트 / 장소<span>*</span></label>
+                            <input type="text" class="tour-resort-input" data-index="${index}" placeholder="예: 헤난 알로나 로비">
+                        </div>
+                    `;
+                    settingsContainer.appendChild(settingCard);
                 });
 
                 document.getElementById('total-amount').textContent = '₩ ' + (data.totalPrice || 0).toLocaleString();
@@ -200,23 +224,39 @@
         const nameKor = document.getElementById('cust-name-kor').value.trim();
         const nameEng = document.getElementById('cust-name-eng').value.trim();
         const contact = document.getElementById('cust-contact').value.trim();
-        const tourDate = document.getElementById('tour-date').value;
-        const resort = document.getElementById('pickup-resort').value.trim();
 
-        if (!nameKor || !nameEng || !contact || !tourDate || !resort) {
-            alert('모든 필수 정보를 입력해 주세요.');
+        if (!nameKor || !nameEng || !contact) {
+            alert('예약자 기본 정보를 모두 입력해 주세요.');
+            return;
+        }
+
+        // 각 투어별 입력값 수집
+        const updatedItems = [...tourItems];
+        const dateInputs = document.querySelectorAll('.tour-date-input');
+        const resortInputs = document.querySelectorAll('.tour-resort-input');
+        
+        let allFilled = true;
+        updatedItems.forEach((item, index) => {
+            const date = dateInputs[index].value;
+            const resort = resortInputs[index].value.trim();
+            if (!date || !resort) allFilled = false;
+            
+            item.date = date;
+            item.pickup = resort;
+        });
+
+        if (!allFilled) {
+            alert('모든 투어의 날짜와 픽업 장소를 입력해 주세요.');
             return;
         }
 
         try {
-            // DB 업데이트 (고객이 입력한 정보 반영)
             const docRef = doc(db, "quotes", currentDocId);
             await updateDoc(docRef, {
                 customerKorName: nameKor,
                 customerEngName: nameEng,
                 contact: contact,
-                tourDate: tourDate,
-                pickupResort: resort,
+                items: updatedItems,
                 status: '예약신청완료',
                 updatedAt: new Date()
             });

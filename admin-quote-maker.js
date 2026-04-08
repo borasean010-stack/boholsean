@@ -60,6 +60,10 @@ const PRODUCT_DATA = {
         { name: "성인", price: 58500 },
         { name: "아동", price: 43500 }
     ],
+    "대왕조개 + 나팔링": [
+        { name: "성인/아동", price: 60000 },
+        { name: "35개월 이하", price: 0 }
+    ],
     "보홀쇼": [
         { name: "성인", price: 56000 },
         { name: "만 4세 이하", price: 0 }
