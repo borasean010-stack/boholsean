@@ -1,14 +1,14 @@
-// bohol-admin.js - Final Full Luxury Admin (STRICT ORDER & KOREAN RESORTS)
+// admin.js - Final Full Luxury Admin (STRICT ORDER & KOREAN RESORTS)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs, addDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCqvsvuOGnQoNL3J0oGsOcN66ZOP0JlN5w",
-    authDomain: "boholsean-14014193-11202.firebaseapp.com",
-    projectId: "boholsean-14014193-11202",
-    storageBucket: "boholsean-14014193-11202.firebasestorage.app",
-    messagingSenderId: "684378696978",
-    appId: "1:684378696978:web:868e1e33581f38a188d7cb"
+    apiKey: "AIzaSyDkDjmGKQDF-0Vu2S_qtI6W5Hf2-j4tKcM",
+    authDomain: "boracaysean-69b4a.firebaseapp.com",
+    projectId: "boracaysean-69b4a",
+    storageBucket: "boracaysean-69b4a.firebasestorage.app",
+    messagingSenderId: "806585874771",
+    appId: "1:806585874771:web:64a094d241730ca38109a6"
 };
 
 let db = null;
@@ -31,42 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 🚀 리조트 번역기 (한글 우선)
     function translateResort(name) {
         if (!name || name === '-') return '-';
-        let n = name.toLowerCase().replace(/\s/g, '').replace(/\./g, '').replace(/,/g, '');
-        n = n.replace(/drop/g, ''); // DROP는 무시
-        
-        // 보홀 리조트 목록 반영 (영어 -> 한글)
-        if (n.includes('halona')) return '헤난 알로나';
-        if (n.includes('htawala')) return '헤난 타왈라';
-        if (n.includes('hpmr') || n.includes('hpremier')) return '헤난 프리미어';
-        if (n.includes('begrand')) return '비그랜드';
-        if (n.includes('mithi')) return '미티';
-        if (n.includes('bathala')) return '바탈라 리조트';
-        if (n.includes('amihan')) return '아미한';
-        if (n.includes('modala')) return '모달라';
-        if (n.includes('tamarind')) return '타마린드';
-        if (n.includes('alonanorthland')) return '알로나 노스랜드';
-        if (n.includes('luxuhotel')) return '럭슈 호텔';
-        if (n.includes('danbi')) return '단비 리조트';
-        if (n.includes('cocotree')) return '코코트리';
-        if (n.includes('mgh')) return 'MGH';
-        if (n.includes('alonadetropicana')) return '알로나 데 트로피카나';
-        if (n.includes('ramede')) return '라메디 리조트';
-        if (n.includes('cliffside')) return '클리프사이드 리조트';
-        if (n.includes('jolibee') || n.includes('jollibee')) return '졸리비';
-        if (n.includes('fruitbasket')) return '과일바구니 (과일가게)';
-        if (n.includes('bluewaterpanglao')) return '블루워터 팡라오';
-        if (n.includes('bbc')) return 'BBC';
-        if (n === 'bs' || n.includes('bsresort')) return 'BS리조트';
-        if (n.includes('ohana')) return '오하나';
-        if (n.includes('tba')) return '미정 (TBA)';
-        if (n.includes('alonaaustria')) return '알로나 오스트리아';
-        if (n.includes('travelbee')) return '트래블비 호텔';
-        if (n.includes('adela')) return '아델라 리조트';
-        if (n.includes('cherrys')) return '체리스 홈';
-        if (n.includes('molly')) return '몰리 리조트';
-        if (n.includes('holabay')) return '홀라베이 리조트';
-
-        // 기존 보라카이 목록 (혹시 몰라 유지, 필요 시 삭제 가능)
+        const n = name.toLowerCase().replace(/\s/g, '').replace(/\./g, '').replace(/,/g, '');
         if (n.includes('hgarden') || n.includes('henanngarden')) return '헤난 가든';
         if (n.includes('asya')) return '아샤';
         if (n.includes('lagoon')) return '헤난 라군';
@@ -405,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tr = document.createElement('tr');
             const status = res.status || '대기';
             const firstItem = (res.items?.[0]?.name || '-') + (res.items?.length > 1 ? ` 외 ${res.items.length-1}건` : '');
-            let actionButtons = `<button class="btn-action-received" style="background:#00b48a; border-color:#00b48a;" onclick="showDetail('${res.id}', 'reservation')"><span class="material-icons">visibility</span>상세</button><button class="btn-action-outline" onclick="copyCombinedVoucherLink('${res.contact}')"><span class="material-icons">content_copy</span>일정표</button>`;
+            let actionButtons = `<button class="btn-action-received" style="background:#ff6a00; border-color:#ff6a00;" onclick="showDetail('${res.id}', 'reservation')"><span class="material-icons">visibility</span>상세</button><button class="btn-action-outline" onclick="copyCombinedVoucherLink('${res.contact}')"><span class="material-icons">content_copy</span>일정표</button>`;
             
             if (status === '입금확인요청') {
                 actionButtons = `<button class="btn-action-received" style="background:#00c73c; border-color:#00c73c;" onclick="handleAutoConfirm('${res.id}')"><span class="material-icons">payments</span>입금확인</button>` + actionButtons;
@@ -475,12 +440,12 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.style.display = 'flex'; return;
         }
         const isQuote = res.status === '견적' || res.status === '견적완료';
-        const totalVoucherBtn = isQuote ? '' : `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;"><button onclick="copyCombinedVoucherLink('${res.contact}')" style="padding:12px; background:#00c73c; color:white; border:none; border-radius:8px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"><span class="material-icons" style="font-size:18px;">people</span> 통합 링크</button><button onclick="copyVoucherLink('${res.id}', null)" style="padding:12px; background:#00b48a; color:white; border:none; border-radius:8px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"><span class="material-icons" style="font-size:18px;">share</span> 주문 일정</button></div>`;
-        const itemsHtml = (res.items || []).map((item, idx) => `<div style="padding:12px; background:#f8f9fa; border:1px solid #eee; border-radius:8px; margin-bottom:8px;"><div style="display:flex; justify-content:space-between;"><div style="font-size:15px; font-weight:800;">${item.name}</div><div style="font-size:14px; font-weight:800; color:#00b48a;">${item.count}명</div></div><div style="margin-top:6px; font-size:13px; color:#666;">📅 ${item.date} ${item.time || ''}</div>${!isQuote ? `<div style="margin-top:10px; display:flex; gap:5px;"><a href="reservation-schedule.html?id=${res.id}&itemIndex=${idx}" target="_blank" style="flex:1; text-align:center; padding:6px; background:#fff; border:1px solid #ddd; border-radius:4px; font-size:11px; text-decoration:none; color:#333;">바우처</a><button onclick="copyVoucherLink('${res.id}', ${idx})" style="flex:1; padding:6px; background:#00b48a; color:white; border:none; border-radius:4px; font-size:11px; cursor:pointer;">복사</button></div>` : ''}</div>`).join('');
+        const totalVoucherBtn = isQuote ? '' : `<div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;"><button onclick="copyCombinedVoucherLink('${res.contact}')" style="padding:12px; background:#00c73c; color:white; border:none; border-radius:8px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"><span class="material-icons" style="font-size:18px;">people</span> 통합 링크</button><button onclick="copyVoucherLink('${res.id}', null)" style="padding:12px; background:#ff6a00; color:white; border:none; border-radius:8px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"><span class="material-icons" style="font-size:18px;">share</span> 주문 일정</button></div>`;
+        const itemsHtml = (res.items || []).map((item, idx) => `<div style="padding:12px; background:#f8f9fa; border:1px solid #eee; border-radius:8px; margin-bottom:8px;"><div style="display:flex; justify-content:space-between;"><div style="font-size:15px; font-weight:800;">${item.name}</div><div style="font-size:14px; font-weight:800; color:#ff6a00;">${item.count}명</div></div><div style="margin-top:6px; font-size:13px; color:#666;">📅 ${item.date} ${item.time || ''}</div>${!isQuote ? `<div style="margin-top:10px; display:flex; gap:5px;"><a href="reservation-schedule.html?id=${res.id}&itemIndex=${idx}" target="_blank" style="flex:1; text-align:center; padding:6px; background:#fff; border:1px solid #ddd; border-radius:4px; font-size:11px; text-decoration:none; color:#333;">바우처</a><button onclick="copyVoucherLink('${res.id}', ${idx})" style="flex:1; padding:6px; background:#ff6a00; color:white; border:none; border-radius:4px; font-size:11px; cursor:pointer;">복사</button></div>` : ''}</div>`).join('');
         const displayEngName = res.engName || '-';
         const displayExchange = res.exchangeAmount || '-';
         const displayPax = res.paxInfo || (res.items?.[0]?.count ? `${res.items[0].count}명` : '-');
-        body.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid #eee;"><h3 style="margin:0;">예약 상세 정보</h3><button onclick="copyGuidance('${res.id}')" style="background:#00b48a; color:white; border:none; padding:8px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">👉 안내문 복사</button></div><div id="modal-scroll-area" style="max-height: 60vh; overflow-y: auto;"><div style="margin-bottom:20px;">${totalVoucherBtn}${itemsHtml}</div><div style="background:#fcfcfc; padding:15px; border-radius:10px; border:1px solid #f0f0f0; margin-bottom:20px;"><p style="margin:0;">이름 | <b>${res.customerKorName}</b> (${displayEngName})</p><p style="margin:5px 0 0 0;">연락처 | <b>${res.contact}</b></p><p style="margin:5px 0 0 0;">인원 | <b>${displayPax}</b></p></div>${!isQuote ? `<div style="background:#fff5eb; padding:15px; border-radius:10px; border:1px solid #ffe8cc; margin-bottom:20px;"><div style="font-weight:bold; margin-bottom:10px; color:#00b48a;">✈️ 항공 및 환전 정보</div><p style="margin:5px 0; font-size:13px;"><b>픽업:</b> ${res.pickupDate || '-'} / ${res.pickupFlight || '-'} / ${res.pickupResort || '-'}</p><p style="margin:5px 0; font-size:13px;"><b>샌딩:</b> ${res.sendingDate || '-'} / ${res.sendingFlight || '-'} / ${res.sendingResort || '-'}</p><p style="margin-top:10px; padding-top:10px; border-top:1px dashed #ffd8a8;"><b>💰 환전:</b> <span style="font-size:15px; color:#e67e22; font-weight:800;">${displayExchange}</span></p></div>` : ''}<div style="padding:10px; background:#f8f9fa; border-radius:6px; font-size:13px; white-space:pre-wrap;"><b>[요청사항]</b>\n${res.requests || '없음'}</div></div><div style="display:flex; gap:10px; margin-top:20px; padding-top:15px; border-top:1px solid #eee;"><button id="edit-btn" onclick="toggleEditMode('${res.id}')" style="flex:1; padding:12px; background:#00b48a; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">수정하기</button><button onclick="closeModal()" style="flex:1; padding:12px; background:#333; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">창 닫기</button></div>`;
+        body.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid #eee;"><h3 style="margin:0;">예약 상세 정보</h3><button onclick="copyGuidance('${res.id}')" style="background:#ff6a00; color:white; border:none; padding:8px 14px; border-radius:6px; font-weight:bold; cursor:pointer;">👉 안내문 복사</button></div><div id="modal-scroll-area" style="max-height: 60vh; overflow-y: auto;"><div style="margin-bottom:20px;">${totalVoucherBtn}${itemsHtml}</div><div style="background:#fcfcfc; padding:15px; border-radius:10px; border:1px solid #f0f0f0; margin-bottom:20px;"><p style="margin:0;">이름 | <b>${res.customerKorName}</b> (${displayEngName})</p><p style="margin:5px 0 0 0;">연락처 | <b>${res.contact}</b></p><p style="margin:5px 0 0 0;">인원 | <b>${displayPax}</b></p></div>${!isQuote ? `<div style="background:#fff5eb; padding:15px; border-radius:10px; border:1px solid #ffe8cc; margin-bottom:20px;"><div style="font-weight:bold; margin-bottom:10px; color:#ff6a00;">✈️ 항공 및 환전 정보</div><p style="margin:5px 0; font-size:13px;"><b>픽업:</b> ${res.pickupDate || '-'} / ${res.pickupFlight || '-'} / ${res.pickupResort || '-'}</p><p style="margin:5px 0; font-size:13px;"><b>샌딩:</b> ${res.sendingDate || '-'} / ${res.sendingFlight || '-'} / ${res.sendingResort || '-'}</p><p style="margin-top:10px; padding-top:10px; border-top:1px dashed #ffd8a8;"><b>💰 환전:</b> <span style="font-size:15px; color:#e67e22; font-weight:800;">${displayExchange}</span></p></div>` : ''}<div style="padding:10px; background:#f8f9fa; border-radius:6px; font-size:13px; white-space:pre-wrap;"><b>[요청사항]</b>\n${res.requests || '없음'}</div></div><div style="display:flex; gap:10px; margin-top:20px; padding-top:15px; border-top:1px solid #eee;"><button id="edit-btn" onclick="toggleEditMode('${res.id}')" style="flex:1; padding:12px; background:#ff6a00; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">수정하기</button><button onclick="closeModal()" style="flex:1; padding:12px; background:#333; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">창 닫기</button></div>`;
         modal.style.display = 'flex';
     };
 
@@ -722,12 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.makeQuickVoucher = async () => {
-        console.log("makeQuickVoucher triggered");
-        const inputVal = document.getElementById('quick-voucher-input').value.trim(); 
-        if (!inputVal) {
-            console.log("Input is empty, returning");
-            return;
-        }
+        const inputVal = document.getElementById('quick-voucher-input').value.trim(); if (!inputVal) return;
         
         const parseRobustTSV = (text) => {
             const rows = [];
@@ -746,7 +706,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const rows = parseRobustTSV(inputVal);
-        console.log("Parsed rows count:", rows.length);
         const currentYear = new Date().getFullYear();
         
         let combinedKorNames = [];
@@ -757,12 +716,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let totalExAmount = 0;
         let isExNumeric = true;
 
-        rows.forEach((row, index) => {
-            if (row.length < 16) {
-                console.log(`Row ${index} skipped: length ${row.length} is less than 16`);
-                return;
-            }
-            console.log(`Processing row ${index}...`);
+        rows.forEach(row => {
+            if (row.length < 16) return;
             const p10 = (row[10] || '').trim();
             const p15 = (row[15] || '').trim().replace(/\n/g, ', ');
             const isP10Korean = /[가-힣]/.test(p10);
@@ -852,13 +807,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        if (combinedKorNames.length === 0) {
-            console.log("No valid rows found to process (combinedKorNames is empty)");
-            alert("처리할 수 있는 올바른 형식의 데이터가 없습니다. (최소 16개 이상의 열이 필요하며, 이름/연락처/내용이 포함되어야 합니다.)");
-            return;
-        }
-        
-        console.log("Valid rows processed. Merging items...");
+        if (combinedKorNames.length === 0) return;
         const mergedItemsMap = {};
         allItems.forEach(it => {
             const key = `${it.name}_${it.date}_${it.time}`;
@@ -879,26 +828,12 @@ document.addEventListener('DOMContentLoaded', () => {
             sendingFlight: firstSendingFlight,
             createdAt: new Date() 
         };
-        console.log("Data ready to save to Firebase:", resData);
-        try {
-            console.log("Calling addDoc...");
-            const docRef = await addDoc(collection(db, "quick_vouchers"), resData);
-            console.log("Saved successfully! Doc ID:", docRef.id);
-            const copyUrl = `${window.location.origin}/reservation-schedule.html?id=${docRef.id}&type=quick`;
-            console.log("Attempting to copy URL:", copyUrl);
-            navigator.clipboard.writeText(copyUrl).then(() => {
-                console.log("Copy success!");
-                alert('통합 바우처 생성 완료! 링크가 복사되었습니다.\n생성된 링크: ' + copyUrl);
-                document.getElementById('quick-voucher-input').value = ''; 
-                window.hideInputArea();
-            }).catch(err => {
-                console.error("Clipboard copy failed:", err);
-                alert(`바우처가 생성되었지만 클립보드 복사에 실패했습니다.\n아래 링크를 직접 복사해주세요:\n\n${copyUrl}`);
-            });
-        } catch (error) {
-            console.error("Firebase DB Error:", error);
-            alert("바우처 저장에 실패했습니다. 파이어베이스 권한(Firestore Rules)이 열려있는지 확인해주세요.\n에러 내용: " + error.message);
-        }
+        const docRef = await addDoc(collection(db, "quick_vouchers"), resData);
+        navigator.clipboard.writeText(`${window.location.origin}/reservation-schedule.html?id=${docRef.id}&type=quick`).then(() => {
+            alert('통합 바우처 생성 완료!');
+            document.getElementById('quick-voucher-input').value = ''; 
+            window.hideInputArea();
+        });
     };
 
     window.openSchedulePopup = (mode) => {
@@ -958,7 +893,7 @@ document.addEventListener('DOMContentLoaded', () => {
             th, td { border: 1px solid #ddd; padding: 12px 10px; text-align: left; font-size: 13px; }
             th { background: #f8f9fa; font-weight: 800; }
             tr:nth-child(even) { background: #fafafa; }
-            .pax { font-weight: 800; color: #00b48a; }
+            .pax { font-weight: 800; color: #ff6a00; }
             .time { font-weight: 900; color: #333; }
             .btn-print { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
             @media print { .btn-print { display: none; } }
