@@ -863,12 +863,17 @@ document.addEventListener('DOMContentLoaded', () => {
             sendingFlight: firstSendingFlight,
             createdAt: new Date() 
         };
-        const docRef = await addDoc(collection(db, "quick_vouchers"), resData);
-        navigator.clipboard.writeText(`${window.location.origin}/reservation-schedule.html?id=${docRef.id}&type=quick`).then(() => {
-            alert('통합 바우처 생성 완료!');
-            document.getElementById('quick-voucher-input').value = ''; 
-            window.hideInputArea();
-        });
+        try {
+            const docRef = await addDoc(collection(db, "quick_vouchers"), resData);
+            navigator.clipboard.writeText(`${window.location.origin}/reservation-schedule.html?id=${docRef.id}&type=quick`).then(() => {
+                alert('통합 바우처 생성 완료! 링크가 복사되었습니다.');
+                document.getElementById('quick-voucher-input').value = ''; 
+                window.hideInputArea();
+            }).catch(err => alert('링크 복사 실패: ' + err));
+        } catch (error) {
+            console.error("Firebase DB Error:", error);
+            alert("바우처 저장에 실패했습니다. 파이어베이스 권한(Firestore Rules)이 열려있는지 확인해주세요.\n에러 내용: " + error.message);
+        }
     };
 
     window.openSchedulePopup = (mode) => {
