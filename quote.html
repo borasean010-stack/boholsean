@@ -18,8 +18,15 @@
         .header p { margin: 5px 0 0; opacity: 0.9; font-size: 14px; font-weight: 600; }
 
         .section { padding: 30px; border-bottom: 1px solid #f0f0f0; }
-        .section-title { font-size: 16px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; color: #111; }
-        .section-title .material-icons { color: var(--primary); font-size: 20px; }
+        .section-title { font-size: 17px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; color: #111; }
+        .section-title .material-icons { color: var(--primary); font-size: 22px; }
+
+        /* 입력 폼 스타일 */
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 13px; font-weight: 700; color: #666; margin-bottom: 6px; }
+        .input-group label span { color: #ff4b4b; margin-left: 2px; }
+        .input-group input { width: 100%; padding: 14px; border: 1.5px solid #eee; border-radius: 12px; font-size: 15px; box-sizing: border-box; transition: 0.2s; }
+        .input-group input:focus { border-color: var(--primary); outline: none; background: #f0fbf8; }
 
         .item-list { display: flex; flex-direction: column; gap: 12px; }
         .item { background: #f9fafb; padding: 18px; border-radius: 16px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
@@ -32,8 +39,18 @@
         .total-label { font-size: 14px; color: #888; font-weight: 600; }
         .total-amount { font-size: 32px; font-weight: 900; color: #111; margin-top: 5px; }
         
-        .footer-note { padding: 25px; background: #fff9eb; border-radius: 16px; margin: 0 30px 30px; border: 1px solid #ffecb5; font-size: 13px; color: #856404; line-height: 1.7; }
-        .footer-note b { display: block; margin-bottom: 5px; font-size: 14px; color: #664d03; }
+        /* 계좌 정보 박스 */
+        .account-card { background: #f0f7f4; border-radius: 18px; padding: 25px; margin-top: 10px; border: 1px solid #e0eeea; }
+        .account-info { text-align: center; }
+        .bank-name { font-size: 14px; font-weight: 700; color: #666; }
+        .account-number { font-size: 20px; font-weight: 900; color: #111; margin: 5px 0 15px; display: block; }
+        .btn-copy { background: #fff; border: 1.5px solid var(--primary); color: var(--primary); padding: 8px 20px; border-radius: 50px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .btn-copy:hover { background: var(--primary); color: #fff; }
+
+        .btn-submit { width: 100%; background: #111; color: #fff; border: none; padding: 20px; border-radius: 16px; font-size: 18px; font-weight: 800; cursor: pointer; margin-top: 30px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+        .btn-submit:hover { background: var(--primary); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,180,138,0.2); }
+
+        .footer-note { padding: 20px; font-size: 13px; color: #888; text-align: center; line-height: 1.6; }
 
         #loading { text-align: center; padding: 100px 20px; color: #999; }
     </style>
@@ -47,23 +64,66 @@
         <p>고객님만을 위한 맞춤 견적서</p>
     </div>
 
+    <!-- 1. 예약자 정보 입력 -->
     <div class="section">
-        <div class="section-title"><span class="material-icons">receipt_long</span>선택하신 투어 및 상품</div>
-        <div class="item-list" id="item-list">
-            <!-- Items injected here -->
+        <div class="section-title"><span class="material-icons">person</span>예약자 기본 정보</div>
+        <div class="input-group">
+            <label>대표자 성함 (한글)<span>*</span></label>
+            <input type="text" id="cust-name-kor" placeholder="예: 홍길동">
+        </div>
+        <div class="input-group">
+            <label>대표자 영문 이름 (여권 동일)<span>*</span></label>
+            <input type="text" id="cust-name-eng" placeholder="예: HONG GILDONG">
+        </div>
+        <div class="input-group">
+            <label>카카오톡 ID 또는 연락처<span>*</span></label>
+            <input type="text" id="cust-contact" placeholder="ID 또는 휴대폰 번호">
         </div>
     </div>
 
-    <div class="total-box">
-        <div class="total-label">최종 합계 금액</div>
-        <div class="total-amount" id="total-amount">₩ 0</div>
+    <!-- 2. 투어 세부 정보 -->
+    <div class="section">
+        <div class="section-title"><span class="material-icons">calendar_month</span>날짜 및 리조트 설정</div>
+        <div class="input-group">
+            <label>투어 희망 날짜<span>*</span></label>
+            <input type="date" id="tour-date">
+        </div>
+        <div class="input-group">
+            <label>픽업 리조트 / 장소<span>*</span></label>
+            <input type="text" id="pickup-resort" placeholder="예: 헤난 알로나 로비">
+        </div>
     </div>
 
-    <div class="footer-note">
-        <b>유의사항</b>
-        • 위 견적은 현지 사정에 따라 변동될 수 있습니다.<br>
-        • 예약 확정을 원하시면 카카오톡 채널 '보홀션'으로 성함과 함께 메시지 부탁드립니다.<br>
-        • 모든 상품은 노쇼 방지를 위해 예약금 입금 후 최종 확정됩니다.
+    <!-- 3. 견적 항목 -->
+    <div class="section" style="background: #fafafa;">
+        <div class="section-title"><span class="material-icons">receipt_long</span>선택하신 투어 및 상품</div>
+        <div class="item-list" id="item-list"></div>
+        
+        <div class="total-box">
+            <div class="total-label">최종 합계 금액</div>
+            <div class="total-amount" id="total-amount">₩ 0</div>
+        </div>
+    </div>
+
+    <!-- 4. 결제 및 확정 안내 -->
+    <div class="section">
+        <div class="section-title"><span class="material-icons">payments</span>결제 및 확정 안내</div>
+        <div class="account-card">
+            <div class="account-info">
+                <span class="bank-name">국민은행 (예금주: 윤오현)</span>
+                <span class="account-number" id="acc-num">058102-04-044157</span>
+                <button class="btn-copy" onclick="copyAccount()">계좌번호 복사하기</button>
+            </div>
+        </div>
+
+        <button class="btn-submit" onclick="submitReservation()">
+            <span class="material-icons">check_circle</span> 입금 완료 및 예약 신청
+        </button>
+        
+        <div class="footer-note">
+            신청 버튼을 누르시면 <b>보홀션 카카오톡</b>으로 연결됩니다.<br>
+            메시지를 보내주셔야 최종 예약 확인이 가능합니다.
+        </div>
     </div>
 </div>
 
@@ -71,7 +131,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCqvsvuOGnQoNL3J0oGsOcN66ZOP0JlN5w",
@@ -85,22 +145,22 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    let currentDocId = null;
+
     async function loadQuote() {
         const urlParams = new URLSearchParams(window.location.search);
-        const docId = urlParams.get('id');
-        if (!docId) {
+        currentDocId = urlParams.get('id');
+        if (!currentDocId) {
             document.getElementById('loading').textContent = "잘못된 접근입니다.";
             return;
         }
 
         try {
-            const docRef = doc(db, "quotes", docId);
+            const docRef = doc(db, "quotes", currentDocId);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                
-                // 항목 렌더링
                 const listContainer = document.getElementById('item-list');
                 listContainer.innerHTML = '';
                 
@@ -118,7 +178,6 @@
                 });
 
                 document.getElementById('total-amount').textContent = '₩ ' + (data.totalPrice || 0).toLocaleString();
-                
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('main-container').style.display = 'block';
             } else {
@@ -129,6 +188,46 @@
             document.getElementById('loading').textContent = "데이터 오류가 발생했습니다.";
         }
     }
+
+    window.copyAccount = () => {
+        const acc = document.getElementById('acc-num').innerText;
+        navigator.clipboard.writeText(acc.replace(/-/g, '')).then(() => {
+            alert('계좌번호가 복사되었습니다.');
+        });
+    };
+
+    window.submitReservation = async () => {
+        const nameKor = document.getElementById('cust-name-kor').value.trim();
+        const nameEng = document.getElementById('cust-name-eng').value.trim();
+        const contact = document.getElementById('cust-contact').value.trim();
+        const tourDate = document.getElementById('tour-date').value;
+        const resort = document.getElementById('pickup-resort').value.trim();
+
+        if (!nameKor || !nameEng || !contact || !tourDate || !resort) {
+            alert('모든 필수 정보를 입력해 주세요.');
+            return;
+        }
+
+        try {
+            // DB 업데이트 (고객이 입력한 정보 반영)
+            const docRef = doc(db, "quotes", currentDocId);
+            await updateDoc(docRef, {
+                customerKorName: nameKor,
+                customerEngName: nameEng,
+                contact: contact,
+                tourDate: tourDate,
+                pickupResort: resort,
+                status: '예약신청완료',
+                updatedAt: new Date()
+            });
+
+            alert('예약 신청이 완료되었습니다!\n확인을 위해 카카오톡 상담 채팅으로 연결합니다.');
+            window.location.href = "http://pf.kakao.com/_JxoxlTG/chat";
+        } catch (e) {
+            console.error(e);
+            alert('처리 중 오류가 발생했습니다.');
+        }
+    };
 
     window.onload = loadQuote;
 </script>
