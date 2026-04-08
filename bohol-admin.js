@@ -1,4 +1,4 @@
-// bohol-admin.js - Final Full Luxury Admin (ROBUST PARSING & STRICT KOREAN)
+// bohol-admin.js - Final Full Luxury Admin (SURIN FIX & UI RESTORE)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs, addDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -28,9 +28,11 @@ function init() {
     let currentScheduleFilter = 'all';
     let currentScheduleDay = 'today'; 
 
+    // 🚀 상품명 한글 번역기 (SURIN 포함)
     function translateTourName(name) {
         if (!name) return '-';
         const low = name.toLowerCase();
+        if (low.includes('surin') || low.includes('수린')) return '수린 마사지샵';
         if (low.includes('stone') || low.includes('스톤')) return '더 스톤 마사지';
         if (low.includes('hopping') || low.includes('호핑')) return '샤인 호핑투어';
         if (low.includes('daytour(d)') || low.includes('육상투어d')) return '데이투어 D코스';
@@ -86,12 +88,10 @@ function init() {
         window.hideInputArea();
         const el = document.getElementById(`input-area-${type}`);
         if (el) { el.style.display = 'block'; el.scrollIntoView({ behavior: 'smooth' }); }
-        else if (type === 'quote') { window.open('admin-quote-maker.html', '_blank'); }
+        else if (type === 'quote') window.open('admin-quote-maker.html', '_blank');
     };
 
-    window.hideInputArea = () => {
-        ['quick', 'reg', 'quote'].forEach(id => { const el = document.getElementById(`input-area-${id}`); if(el) el.style.display = 'none'; });
-    };
+    window.hideInputArea = () => { ['quick', 'reg', 'quote'].forEach(id => { const el = document.getElementById(`input-area-${id}`); if(el) el.style.display = 'none'; }); };
 
     function showAdminPanel() {
         if (!loginContainer || !adminContainer) return;
@@ -132,9 +132,7 @@ function init() {
         });
     }
 
-    function renderAll() {
-        updateSummaryCounts(); renderDateBoxes(); renderSchedule(); renderTable();
-    }
+    function renderAll() { updateSummaryCounts(); renderDateBoxes(); renderSchedule(); renderTable(); }
 
     function updateSummaryCounts() {
         const counts = {
@@ -157,6 +155,16 @@ function init() {
         if (document.getElementById('box-date-tomorrow')) document.getElementById('box-date-tomorrow').innerText = tomorrowStr;
     }
 
+    function getCategory(name, details = '') {
+        const combined = ((name || '') + ' ' + (details || '')).toLowerCase();
+        if (combined.includes('픽업') || combined.includes('샌딩')) return '픽업샌딩';
+        if (combined.includes('나팔링')) return '나팔링';
+        if (combined.includes('호핑') || combined.includes('파밀라칸')) return '호핑투어';
+        if (combined.includes('데이투어') || combined.includes('육상')) return '육상투어';
+        if (combined.includes('마사지') || combined.includes('스파') || combined.includes('수린') || combined.includes('스톤')) return '마사지';
+        return '액티비티';
+    }
+
     window.switchScheduleDay = (day) => { 
         currentScheduleDay = day; 
         document.getElementById('tool-box-today')?.classList.toggle('active', day === 'today');
@@ -167,12 +175,10 @@ function init() {
     function renderSchedule() {
         const container = document.getElementById('active-timeline');
         if (!container) return;
-        const now = new Date();
-        const offset = now.getTimezoneOffset() * 60000;
+        const now = new Date(); const offset = now.getTimezoneOffset() * 60000;
         const targetDate = (currentScheduleDay === 'tomorrow') 
             ? new Date(now.getTime() - offset + 32400000 + 86400000).toISOString().split('T')[0]
             : new Date(now.getTime() - offset + 32400000).toISOString().split('T')[0];
-        
         if (document.getElementById('schedule-title-date')) document.getElementById('schedule-title-date').innerText = targetDate;
 
         let rawItems = [];
@@ -181,8 +187,7 @@ function init() {
                 const lines = (s.details || '').split('\n').filter(l => l.trim() !== '');
                 (lines.length > 0 ? lines : ['']).forEach(line => {
                     const mCount = line.match(/\d+(?=명|인|태반|성장|스톤|오일|포쉘|진주)/g);
-                    let displayPax = s.count;
-                    if (mCount) displayPax = mCount.reduce((a, b) => a + parseInt(b), 0);
+                    let displayPax = s.count; if (mCount) displayPax = mCount.reduce((a, b) => a + parseInt(b), 0);
                     rawItems.push({ 
                         time: s.time || "09:00", name: translateTourName(s.name), customer: s.customerName || "고객", count: displayPax, 
                         status: '스케줄', id: s.id, source: 'schedule', resort: translateResort(s.resort || "-"), 
@@ -192,22 +197,40 @@ function init() {
             }
         });
 
-        const sorted = rawItems.sort((a, b) => a.time.localeCompare(b.time));
-        if (sorted.length === 0) { container.innerHTML = '<div style="text-align:center; padding:30px; color:#999;">일정이 없습니다.</div>'; return; }
+        const groups = {};
+        rawItems.forEach(item => {
+            const cat = getCategory(item.name, item.details);
+            let groupTitle = item.name;
+            if (cat === '픽업샌딩') groupTitle = (item.flight !== '-' && item.flight) ? item.flight : '공항 픽업/샌딩';
+            else if (['호핑투어', '육상투어', '나팔링'].includes(cat)) groupTitle = cat;
+            else if (cat === '마사지') groupTitle = item.name.replace(/마사지샵|마사지|스파|스톤|\(|\)/gi, '').trim() || '마사지';
+            const key = `${cat}_${groupTitle}_${item.time}`;
+            if (!groups[key]) groups[key] = { title: groupTitle, time: item.time, items: [], totalCount: 0, category: cat };
+            groups[key].items.push(item); groups[key].totalCount += item.count;
+        });
 
-        container.innerHTML = sorted.map(it => `
-            <div class="schedule-group-card" onclick="showDetail('${it.id}', '${it.source}')">
-                <div class="sg-header">
-                    <div class="sg-time">${it.time}</div>
-                    <div class="sg-title-row"><span class="sg-title">${it.name} (${it.count}명)</span></div>
-                </div>
-                <div class="sg-body">
-                    <div class="sc-detail-row">
-                        <div><span class="sc-detail-name">${it.customer}</span><span class="sc-detail-resort">${it.resort}</span></div>
-                        <span class="sc-detail-pax">${it.count}인</span>
-                    </div>
-                </div>
-            </div>`).join('');
+        const sortedKeys = Object.keys(groups).sort((a, b) => groups[a].time.localeCompare(groups[b].time));
+        if (sortedKeys.length === 0) { container.innerHTML = '<div style="text-align:center; padding:30px; color:#999;">일정이 없습니다.</div>'; return; }
+
+        container.innerHTML = sortedKeys.map(key => {
+            const group = groups[key];
+            let icon = "event_available", catClass = "cat-activity";
+            if (group.category === '픽업샌딩') { icon = "local_airport"; catClass = "cat-pickup"; }
+            else if (group.category === '호핑투어') { icon = "sailing"; catClass = "cat-hopping"; }
+            else if (group.category === '나팔링') { icon = "waves"; catClass = "cat-napaling"; }
+            else if (group.category === '마사지') { icon = "spa"; catClass = "cat-activity"; }
+
+            const bodyHtml = group.items.map(it => `
+                <div class="sc-detail-row" onclick="showDetail('${it.id}', '${it.source}')">
+                    <div><span class="sc-detail-name">${it.customer}</span><span class="sc-detail-resort">${it.resort}</span></div>
+                    <span class="sc-detail-pax">${it.count}인</span>
+                </div>`).join('');
+
+            return `<div class="schedule-group-card">
+                <div class="sg-header"><div class="sg-time">${group.time}</div>
+                <div class="sg-title-row"><span class="material-icons">${icon}</span><span class="sg-title">${group.title} (${group.totalCount}명)</span></div>
+                <span class="sc-category-tag ${catClass}">${group.category}</span></div><div class="sg-body">${bodyHtml}</div></div>`;
+        }).join('');
     }
 
     window.switchAdminTab = (tab) => {
