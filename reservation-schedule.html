@@ -2,90 +2,64 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="boholsean-logo.png">
-    <link rel="apple-touch-icon" href="boholsean-logo.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>예약 확인서 - Bohol Sean</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root { --primary: #00b48a; --bg: #f4f7f6; --text: #333; }
-        body { font-family: 'Pretendard', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: var(--text); line-height: 1.6; }
-        .voucher-container { max-width: 600px; margin: 0 auto; }
-        
-        .header { text-align: center; padding: 30px 0; }
-        .header img { width: 120px; margin-bottom: 10px; }
-        .header h1 { margin: 0; font-size: 24px; font-weight: 900; color: var(--primary); letter-spacing: -0.5px; }
-        
-        .card { background: #fff; border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .section-title { font-size: 17px; font-weight: 800; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; color: #111; }
-        .section-title .material-icons { color: var(--primary); font-size: 20px; }
-
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
-        .info-row label { color: #888; font-weight: 600; }
-        .info-row span { font-weight: 700; color: #111; }
-
-        /* 통합 아이템 스타일 */
-        .item-container { background: #fff; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        
-        .item-header { display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0; margin-bottom: 15px; }
-        .date-box { text-align: center; min-width: 55px; background: #f8faf9; padding: 8px; border-radius: 12px; }
-        .date-box .month { display: block; font-size: 11px; font-weight: 700; color: var(--primary); }
-        .date-box .day { display: block; font-size: 20px; font-weight: 800; color: #111; line-height: 1; }
-        
-        .item-main-info { flex: 1; }
-        .item-main-info .item-name { display: block; font-size: 17px; font-weight: 800; color: #111; margin-bottom: 4px; }
-        .item-main-info .item-meta { display: flex; gap: 10px; font-size: 13px; color: #666; font-weight: 600; }
-        .item-pax-tag { font-size: 12px; font-weight: 700; color: var(--primary); background: #e6f7f3; padding: 3px 10px; border-radius: 8px; }
-
-        .item-guide { font-size: 14px; color: #555; white-space: pre-wrap; line-height: 1.8; }
-        .item-guide b { color: #111; font-weight: 700; }
-        .item-guide .guide-title { display: block; font-size: 15px; font-weight: 800; color: #111; margin-bottom: 10px; padding-left: 10px; border-left: 4px solid var(--primary); }
-
-        .notice-box { background: #fff8e6; border-radius: 20px; padding: 20px; border: 1px solid #ffeeba; margin-top: 20px; font-size: 13px; color: #856404; }
-        .notice-box b { display: block; margin-bottom: 5px; }
-
-        .print-btn { position: fixed; bottom: 20px; right: 20px; background: #333; color: #fff; border: none; padding: 12px 25px; border-radius: 50px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; }
-
-        @media print {
-            body { padding: 0; background: #fff; }
-            .print-btn { display: none; }
-            .voucher-container { max-width: 100%; }
-        }
-    </style>
+    <title>예약 확인 및 상세 일정 - BOHOL SEAN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="reservation.css">
 </head>
 <body>
 
-<div class="voucher-container">
-    <div class="header">
-        <img src="boholsean-logo.png" alt="Bohol Sean">
-        <h1>BOHOL SEAN</h1>
+<div class="reservation-container">
+    <div class="res-header">
+        <img src="boholsean-logo.png" alt="Bohol Sean Logo" class="res-logo">
+        <h1>예약 확인서</h1>
+        <p class="res-subtitle">BOHOL SEAN CONFIRMATION</p>
     </div>
 
-    <!-- 예약자 정보 -->
-    <div class="card">
-        <div class="section-title"><span class="material-icons">person</span>예약 정보</div>
-        <div class="info-row"><label>성함</label><span id="v-name">-</span></div>
-        <div class="info-row"><label>구매처</label><span id="v-contact">-</span></div>
-        <div class="info-row"><label>인원</label><span id="v-pax">-</span></div>
-        <div class="info-row"><label>환전 및 잔금</label><span id="v-exchange">-</span></div>
-    </div>
+    <div class="res-content">
+        <!-- 고객 기본 정보 -->
+        <div class="res-section">
+            <h2 class="section-title">예약 정보 (Reservation Info)</h2>
+            <div class="info-card">
+                <div class="info-row"><span class="label">대표자명</span><span class="value" id="v-name">-</span></div>
+                <div class="info-row"><span class="label">구매처</span><span class="value" id="v-contact">-</span></div>
+                <div class="info-row"><span class="label">예약인원</span><span class="value" id="v-pax">-</span></div>
+            </div>
+        </div>
 
-    <!-- 투어 및 일정 안내 (통합 리스트) -->
-    <div class="section-title" style="padding-left: 10px; margin-top: 30px;"><span class="material-icons">assignment</span>투어 및 일정 안내 (Tour Schedule & Guidance)</div>
-    <div id="unified-list">
-        <div id="loading" style="text-align:center; padding:40px; color:#999; font-size:14px;">데이터를 불러오는 중...</div>
-    </div>
+        <!-- 픽업/샌딩 정보 -->
+        <div class="res-section">
+            <h2 class="section-title">항공 및 리조트 (Flight & Resort)</h2>
+            <div class="info-card">
+                <div class="info-row"><span class="label">픽업정보</span><span class="value" id="v-pickup">-</span></div>
+                <div class="info-row"><span class="label">샌딩정보</span><span class="value" id="v-sending">-</span></div>
+                <div class="info-row"><span class="label">숙소정보</span><span class="value highlight" id="v-resort">-</span></div>
+            </div>
+        </div>
 
-    <div class="notice-box">
-        <b>안내 및 유의사항</b>
-        • 모든 일정은 현지 기상 상황 및 업체 사정에 의해 변경될 수 있습니다.<br>
-        • 미팅 시간 10분 전까지 약속 장소에서 대기해 주시기 바랍니다.<br>
-        • 문의 사항은 보홀션 카카오톡 채널을 이용해 주세요.
+        <!-- 결제 정보 -->
+        <div class="res-section">
+            <h2 class="section-title">결제 및 잔금 (Payment)</h2>
+            <div class="info-card balance-card">
+                <div class="info-row"><span class="label">현장 결제 잔금</span><span class="value balance-value" id="v-exchange">-</span></div>
+                <p class="balance-note">* 현지 지불 금액은 페소(PHP)로 준비해 주세요.</p>
+            </div>
+        </div>
+
+        <!-- 상세 일정 (바우처 리스트) -->
+        <div class="res-section">
+            <h2 class="section-title">상세 일정 (Schedule)</h2>
+            <div id="v-items-list">
+                <!-- 아이템들이 여기에 렌더링됩니다 -->
+            </div>
+        </div>
+
+        <div class="footer-notice">
+            <p>보홀 션 투어를 이용해 주셔서 감사합니다.</p>
+            <p>픽업 시간 10분 전까지 미팅 장소 대기 부탁드립니다.</p>
+        </div>
     </div>
 </div>
-
-<button class="print-btn" onclick="window.print()">인쇄하기</button>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -103,207 +77,122 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const resortMap = {
-        'halona': '헤난 알로나',
-        'htawala': '헤난 타왈라',
-        'hpmr': '헤난 프리미어',
-        'hpremier': '헤난 프리미어',
-        'begrand': '비그랜드',
-        'mithi': '미티',
-        'bathala': '바탈라 리조트',
-        'amihan': '아미한',
-        'modala': '모달라',
-        'tamarind': '타마린드',
-        'mgh': '사우스팜 (MGH)',
-        'southpalm': '사우스팜 (MGH)',
-        'danbi': '단비 리조트',
-        'jollibee': '졸리비',
-        'mayfair': '메이페어 가든',
-        'bellanapoli': '벨라 나폴리',
-        'bs': 'BS리조트'
-    };
-
-    function translateResort(name) {
-        if (!name || name === '-') return '-';
-        let n = name.toLowerCase().replace(/\s/g, '').replace(/\./g, '').replace(/,/g, '').replace(/drop/g, '');
-        for (const [eng, kor] of Object.entries(resortMap)) {
-            if (n === eng || n.includes(eng)) return kor;
-        }
-        return name;
-    }
-
-    const TOUR_TEMPLATES = {
-        pamilacan: {
-            title: "파밀라칸 호핑투어 안내",
-            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
-        },
-        oslob: {
-            title: "오슬롭 고래상어 투어 안내",
-            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 고래상어 와칭 시 선크림 등 화장품 사용 금지"
-        },
-        fishing: {
-            title: "선셋 낚시 투어 안내",
-            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
-        },
-        landD: {
-            title: "보홀션 육상투어D 안내",
-            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천 (바클라욘 입장 제한)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
-        },
-        landC: {
-            title: "보홀션 육상투어C 안내",
-            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천 (바클라욘 입장 제한)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
-        },
-        secret: {
-            title: "시크릿 플레이스 안내",
-            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장 (예쁜 사진용 옷 추천)\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 나팔링 포인트 추가 선택 시 1인 400페소"
-        },
-        shineHopping: {
-            title: "보홀션 샤인 호핑투어 안내",
-            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 개인 타월\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 해파리 대비 긴팔/긴바지 래쉬가드 추천"
-        },
-        privateHopping: {
-            title: "단독 호핑투어 안내",
-            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 개인 타월\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
-        },
-        napaling: {
-            title: "나팔링 투어 안내",
-            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 개인 타월\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
-        },
-        hilot: {
-            title: "힐롯스파 안내",
-            content: "미팅 장소 : 육상투어 후 또는 개별이동\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 간편한 복장 (소지품 주의)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
-        },
-        firefly: {
-            title: "반딧불 투어 안내",
-            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 매너팁 1인 100페소 (성인, 소인 동일)"
-        },
-        sunsetPack: {
-            title: "선반팩 안내",
-            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 매너팁 1인 100페소 (성인, 소인 동일)"
-        },
-        boholShow: {
-            title: "보홀쇼 안내",
-            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 간편한 복장 (소지품 주의)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
-        },
-        pickup: {
-            title: "공항 픽업 안내",
-            content: "미팅 장소 : 보홀 공항 ➜ [DROP]\n\n★ 안내 사항\n- 항공기 연착이나 지연 시에도 미리 대기합니다.\n- 이트래블 QR 캡처 꼭 부탁드립니다.\n- 문제가 있을 경우 비상연락망으로 연락 바랍니다."
-        },
-        round: {
-            title: "공항 왕복 픽업샌딩 안내",
-            content: "미팅 장소 : 보홀 공항 ➜ [DROP] / [MEETING] ➜ 보홀 공항\n\n★ 안내 사항\n- 항공기 연착이나 지연 시에도 미리 대기합니다.\n- 문제가 있을 경우 비상연락망으로 연락 바랍니다.\n\n나가시는 날: 체크아웃 후 대기 부탁드립니다."
-        },
-        drop: {
-            title: "공항 드랍 안내",
-            content: "미팅 장소 : [MEETING] ➜ 보홀 공항\n\n★ 안내 사항\n- 문제가 있을 경우 비상연락망으로 연락 바랍니다.\n\n나가시는 날: 체크아웃 후 대기 부탁드립니다."
-        },
-        port: {
-            title: "항구 픽업 안내",
-            content: "미팅 장소 : 탁빌라란 항구 ➜ [DROP]\n\n★ 주의 사항\n- 항구 내 티켓 발권/환경세는 직접 지불하셔야 합니다.\n- 티켓 교환이 필요할 경우 외부 사무실로 가야 하니 입구에서 내리셔야 합니다."
-        }
-    };
-
-    function getTemplateKey(name) {
-        const n = name.toLowerCase();
-        if (n.includes('파밀라칸')) return 'pamilacan';
-        if (n.includes('오슬롭') || n.includes('고래상어')) return 'oslob';
-        if (n.includes('낚시')) return 'fishing';
-        if (n.includes('육상') && n.includes('d')) return 'landD';
-        if (n.includes('육상') && n.includes('c')) return 'landC';
-        if (n.includes('시크릿')) return 'secret';
-        if (n.includes('샤인') && n.includes('호핑')) return 'shineHopping';
-        if (n.includes('단독') || n.includes('프라이빗')) return 'privateHopping';
-        if (n.includes('나팔링')) return 'napaling';
-        if (n.includes('힐롯')) return 'hilot';
-        if (n.includes('반딧불')) return 'firefly';
-        if (n.includes('선반팩') || n.includes('노스젠')) return 'sunsetPack';
-        if (n.includes('보홀쇼')) return 'boholShow';
-        if (n.includes('왕복') || (n.includes('픽업') && n.includes('드랍'))) return 'round';
-        if (n.includes('픽업') || n.includes('공항 픽업')) return 'pickup';
-        if (n.includes('드랍') || n.includes('공항 드랍') || n.includes('샌딩')) return 'drop';
-        if (n.includes('항구')) return 'port';
-        return null;
-    }
-
-    async function loadVoucher() {
+    async function initVoucher() {
         const urlParams = new URLSearchParams(window.location.search);
-        const contact = urlParams.get('contact');
         const resId = urlParams.get('id');
-        
-        if (!contact && !resId) return;
+        const itemIdx = urlParams.get('itemIndex');
+        const contact = urlParams.get('contact');
 
-        try {
-            let resData = null;
-            if (contact) {
-                const q = query(collection(db, "reservations"), where("contact", "==", contact), where("status", "==", "예약확정"));
-                const snap = await getDocs(q);
-                if (!snap.empty) resData = snap.docs[0].data();
-            } else {
-                const docSnap = await getDoc(doc(db, "reservations", resId));
-                if (docSnap.exists()) resData = docSnap.data();
+        if (resId) {
+            // 단일 예약 건 상세
+            const resSnap = await getDoc(doc(db, "reservations", resId));
+            const quickSnap = await getDoc(doc(db, "quick_vouchers", resId));
+            
+            if (resSnap.exists()) renderSingleVoucher(resSnap.data(), itemIdx);
+            else if (quickSnap.exists()) renderSingleVoucher(quickSnap.data(), itemIdx);
+        } else if (contact) {
+            // 연락처 기준 통합 일정
+            const q = query(collection(db, "reservations"), where("contact", "==", contact));
+            const q2 = query(collection(db, "quick_vouchers"), where("contact", "==", contact));
+            const snap = await getDocs(q);
+            const snap2 = await getDocs(q2);
+            let allItems = [];
+            let baseData = null;
+
+            snap.docs.forEach(d => { 
+                const data = d.data(); if (!baseData) baseData = data;
+                (data.items || []).forEach(it => allItems.push(it));
+            });
+            snap2.docs.forEach(d => {
+                const data = d.data(); if (!baseData) baseData = data;
+                (data.items || []).forEach(it => allItems.push(it));
+            });
+
+            if (baseData) {
+                baseData.items = allItems;
+                renderSingleVoucher(baseData, null);
             }
-
-            if (resData) {
-                document.getElementById('v-name').innerText = resData.customerKorName || '-';
-                document.getElementById('v-contact').innerText = resData.contact || '-';
-                document.getElementById('v-pax').innerText = resData.paxInfo || (resData.items?.[0]?.count ? resData.items[0].count + '명' : '-');
-                document.getElementById('v-exchange').innerText = resData.exchangeAmount || '전액 결제 완료';
-
-                const items = resData.items || [];
-                items.sort((a, b) => (a.date || "").localeCompare(b.date || "") || (a.time || "00:00").localeCompare(b.time || "00:00"));
-
-                const unifiedList = document.getElementById('unified-list');
-                let html = '';
-
-                items.forEach(item => {
-                    const month = item.date ? item.date.split('-')[1] : '--';
-                    const day = item.date ? item.date.split('-')[2] : '--';
-                    
-                    const key = getTemplateKey(item.name);
-                    let guideContent = '';
-                    let guideTitle = item.name + ' 안내';
-                    
-                    if (key) {
-                        const template = TOUR_TEMPLATES[key];
-                        guideTitle = template.title;
-                        guideContent = template.content
-                            .replace('[NAME]', resData.customerKorName)
-                            .replace('[PAX]', item.count + '명')
-                            .replace('[TIME]', item.time || '전날 재인폼')
-                            .replace('[MEETING]', translateResort(item.meetingPlace || resData.pickupResort || '헤난 알로나 로비'))
-                            .replace('[DROP]', translateResort(resData.sendingResort || resData.pickupResort || '헤난 알로나 로비'));
-                    }
-
-                    html += `
-                        <div class="item-container">
-                            <div class="item-header">
-                                <div class="date-box">
-                                    <span class="month">${month}월</span>
-                                    <span class="day">${day}</span>
-                                </div>
-                                <div class="item-main-info">
-                                    <span class="item-name">${item.name}</span>
-                                    <div class="item-meta">
-                                        <span><span class="material-icons" style="font-size:14px; vertical-align:middle;">access_time</span> ${item.time || '전날 재인폼'}</span>
-                                        <span class="item-pax-tag">${item.count}명</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="item-guide">
-                                <span class="guide-title">${guideTitle}</span>
-                                ${guideContent || '상세 안내가 준비 중입니다.'}
-                            </div>
-                        </div>
-                    `;
-                });
-
-                unifiedList.innerHTML = html;
-                document.getElementById('loading').style.display = 'none';
-            }
-        } catch (e) { console.error(e); }
+        }
     }
 
-    loadVoucher();
+    function renderSingleVoucher(resData, filterIdx) {
+        document.getElementById('v-name').innerText = resData.customerKorName || '-';
+        document.getElementById('v-contact').innerText = resData.contact || '-';
+        document.getElementById('v-pax').innerText = resData.paxInfo || '-';
+        document.getElementById('v-pickup').innerText = `${resData.pickupDate || '-'} / ${resData.pickupFlight || '-'}`;
+        document.getElementById('v-sending').innerText = `${resData.sendingDate || '-'} / ${resData.sendingFlight || '-'}`;
+        document.getElementById('v-resort').innerText = resData.pickupResort || '-';
+        
+        // 💎 잔금 표시 깔끔하게 수정
+        let exText = resData.exchangeAmount || '전액 결제 완료';
+        if (exText !== '전액 결제 완료' && !exText.includes('₱')) {
+            exText = `₱ ${exText.replace(/GET:/gi, '').trim()}`;
+        } else if (exText.includes('GET:')) {
+            exText = exText.replace(/GET:/gi, '₱').trim();
+        }
+        document.getElementById('v-exchange').innerText = exText;
+
+        const listContainer = document.getElementById('v-items-list');
+        listContainer.innerHTML = '';
+
+        let items = resData.items || [];
+        if (filterIdx !== null) items = [items[filterIdx]];
+
+        items.sort((a, b) => a.date.localeCompare(b.date));
+
+        items.forEach(item => {
+            if (!item) return;
+            const itemCard = document.createElement('div');
+            itemCard.className = 'item-card';
+
+            let guidanceMsg = '';
+            const lowerName = (item.name || '').toLowerCase();
+            const time = item.time || "09:00";
+            // 💎 개별 아이템에 지정된 장소가 있으면 우선 사용, 없으면 전체 예약 장소 사용
+            const resort = item.meetingPlace || resData.pickupResort || "-";
+
+            if (lowerName.includes("파밀라칸")) {
+                guidanceMsg = `미팅 장소 및 시간 : ${resort} 로비 / ${time} (전날 재안내)\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리등 슬리퍼 비추천, 긴옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
+            } else if (lowerName.includes("오슬롭")) {
+                guidanceMsg = `미팅 장소 및 시간 : ${resort} 로비 / ${time} (전날 재안내)\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리등 슬리퍼 비추천, 긴옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 자외선 차단제 사용 불가`;
+            } else if (lowerName.includes("낚시")) {
+                guidanceMsg = `미팅 장소 및 시간 : ${resort} 로비 / ${time} (전날 재안내)\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리등 슬리퍼 비추천, 긴옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
+            } else if (lowerName.includes("육상투어d") || lowerName.includes("육상투어 d")) {
+                guidanceMsg = `미팅 장소 및 시간 : ${resort} 로비 / ${time}\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 쪼리등 슬리퍼 비추천, 긴옷 추천 (바클라욘 입장 제한)\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
+            } else if (lowerName.includes("육상투어c") || lowerName.includes("육상투어 c")) {
+                guidanceMsg = `미팅 장소 및 시간 : ${resort} 로비 / ${time}\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 쪼리등 슬리퍼 비추천, 긴옷 추천 (바클라욘 입장 제한)\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
+            } else if (lowerName.includes("샤인") || lowerName.includes("호핑")) {
+                guidanceMsg = `미팅 장소 및 시간 : ${resort} 로비 / ${time} (전날 재안내)\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 비치타올 인당 1개\n- 쪼리등 슬리퍼 비추천, 긴옷 추천\n- 해파리 출몰 대비 긴팔/긴바지 래쉬가드 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
+            } else if (lowerName.includes("나팔링")) {
+                guidanceMsg = `미팅 장소 및 시간 : ${resort} 로비 / ${time}\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 비치타올 인당 1개\n- 쪼리등 슬리퍼 비추천, 긴옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
+            } else if (lowerName.includes("마사지") || lowerName.includes("힐롯") || lowerName.includes("스파") || lowerName.includes("stone") || lowerName.includes("스톤")) {
+                guidanceMsg = `미팅 장소 및 시간 : ${resort} 로비 / ${time}\n\n★ 주의 사항 및 준비물\n- 간편한 복장 (소지품 주의)\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
+            } else if (lowerName.includes("항구")) {
+                guidanceMsg = `미팅 장소 및 시간 : 탁빌라란 항구 / ${time} (도착 후)\n\n★ 안내 사항\n- 항구 내 티켓 발권이나 환경세는 직접 내셔야 합니다.\n- 티켓 교환 사무실은 바깥쪽에 위치하므로 입구에 내리셔야 합니다.`;
+            } else if (lowerName.includes("반딧불") || lowerName.includes("firefly")) {
+                guidanceMsg = `미팅 장소 및 시간 : ${resort} 로비 / ${time}\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
+            } else if (lowerName.includes("보홀쇼")) {
+                guidanceMsg = `미팅 장소 및 시간 : ${resort} 로비 / ${time}\n\n★ 주의 사항 및 준비물\n- 간편한 복장 (소지품 주의)\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
+            } else {
+                guidanceMsg = `미팅 장소 및 시간 : ${resort} / ${time}\n\n★ 안내 사항\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 픽업 지연 등 문제 발생 시 긴급 연락처로 문의 바랍니다.`;
+            }
+
+            itemCard.innerHTML = `
+                <div class="item-header">
+                    <span class="item-date">📅 ${item.date}</span>
+                    <span class="item-pax">${item.count}명</span>
+                </div>
+                <div class="item-body">
+                    <h3 class="item-name">${item.name}</h3>
+                    <p class="item-guidance">${guidanceMsg}</p>
+                </div>
+            `;
+            listContainer.appendChild(itemCard);
+        });
+    }
+
+    initVoucher();
 </script>
+
 </body>
 </html>
