@@ -115,8 +115,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const id = document.getElementById('username').value.trim();
             const pw = document.getElementById('password').value.trim();
             const admins = { 
-                'admin': 'sean1234!', 'luca': 'luca1', 'zohan': 'zohan1', 'windy': 'windy1', 'sean': 'sean1',
-                'kelly': 'kelly1', 'leo': 'leo1', 'anna': 'anna1', 'pablo': 'pablo1', 'josh': 'josh1', 'kay': 'kay1', 'tina': 'tina1'
+                'admin': 'sean1234!', 
+                'sean': 'sean1',
+                'storm': 'storm1',
+                'mini': 'mini1',
+                'david': 'david1'
             };
             if (admins[id] && admins[id] === pw) {
                 sessionStorage.setItem('isAdminLoggedIn', 'true');
