@@ -253,18 +253,15 @@
             return;
         }
 
-        const updatedItems = [...tourItems];
-        const dateInputs = document.querySelectorAll('.tour-date-input');
-        const resortInputs = document.querySelectorAll('.tour-resort-input');
-        
-        let allFilled = true;
-        updatedItems.forEach((item, index) => {
+        const updatedItems = tourItems.map((item, index) => {
             const date = dateInputs[index].value;
             const resort = resortInputs[index].value.trim();
             if (!date || !resort) allFilled = false;
-            
-            item.date = date;
-            item.pickup = resort;
+            return {
+                ...item,
+                date: date,
+                pickup: resort
+            };
         });
 
         if (!allFilled) {
@@ -273,6 +270,7 @@
         }
 
         try {
+            // 1. 견적서 원본 업데이트
             const docRef = doc(db, "quotes", currentDocId);
             await updateDoc(docRef, {
                 customerKorName: nameKor,
@@ -282,20 +280,21 @@
                 updatedAt: new Date()
             });
 
-            // 관리자 예약 목록(reservations)에 새 예약으로 추가하여 즉시 확인 가능하게 함
+            // 2. 관리자용 예약 데이터 생성
             const resData = {
                 customerKorName: nameKor,
                 customerEngName: nameEng,
-                items: updatedItems,
-                totalPrice: tourItems.reduce((acc, item) => acc + (item.price * item.count), 0),
+                items: updatedItems, // 상세 날짜/픽업지 포함
+                totalPrice: updatedItems.reduce((acc, item) => acc + (item.price * item.count), 0),
                 status: '입금확인요청',
                 createdAt: new Date(),
                 reservationNumber: 'Q-' + currentDocId.substring(0, 5).toUpperCase(),
                 source: 'quote_maker',
-                requests: "견적서 생성기 통해 고객 직접 입력"
+                requests: "견적서 통해 고객이 직접 입력한 예약입니다."
             };
 
-            await addDoc(collection(db, "reservations"), resData);
+            const newResRef = await addDoc(collection(db, "reservations"), resData);
+            console.log("Reservation added with ID: ", newResRef.id);
 
             alert('예약 신청이 완료되었습니다!\n확인을 위해 카카오톡 상담 채팅으로 연결합니다.');
             window.location.href = "http://pf.kakao.com/_JxoxlTG/chat";
