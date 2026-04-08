@@ -121,6 +121,8 @@
                     const resort = data.pickupResort || "-";
                     const dropResort = data.sendingResort || "-";
 
+                    const isPickupItem = lowerName.includes("픽업") || lowerName.includes("샌딩") || lowerName.includes("드랍");
+
                     if (lowerName.includes("파밀라칸")) {
                         guidanceMsg = `<b>미팅 장소 및 시간 : ${resort} 로비 / ${time}</b> (전날 재안내)\n<b>종료 후 드랍 : ${dropResort}</b>\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리등 슬리퍼 비추천, 긴옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
                     } else if (lowerName.includes("오슬롭")) {
@@ -143,7 +145,7 @@
                         guidanceMsg = `<b>미팅 장소 : 보홀 공항 ➜ ${resort}</b>\n\n★ 안내 사항\n- 항공기 연착이나 지연 시에도 미리 대기합니다.\n- 이트래블 QR 캡처 꼭 부탁드립니다.\n- 문제가 있을 경우 비상연락망으로 연락 바랍니다.`;
                     } else if (lowerName.includes("샌딩") || lowerName.includes("드랍")) {
                         guidanceMsg = `<b>미팅 장소 및 시간 : ${resort} ➜ 보홀 공항 / ${time}</b>\n\n★ 안내 사항\n- 나가는 날(샌딩): 체크아웃 후 로비에서 대기 부탁드립니다.\n- 문제가 있을 경우 비상연락망으로 연락 바랍니다.`;
-                    } else if (lowerName.includes("반딧불")) {
+                    } else if (lowerName.includes("반딧불") || lowerName.includes("firefly")) {
                         guidanceMsg = `<b>미팅 장소 및 시간 : ${resort} 로비 / ${time}</b>\n<b>종료 후 드랍 : ${dropResort}</b>\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
                     } else if (lowerName.includes("보홀쇼")) {
                         guidanceMsg = `<b>미팅 장소 및 시간 : ${resort} 로비 / ${time}</b>\n<b>종료 후 드랍 : ${dropResort}</b>\n\n★ 주의 사항 및 준비물\n- 간편한 복장 (소지품 주의)\n- 매너팁 1인 100페소 (성인, 소인 동일)`;
@@ -155,11 +157,14 @@
 
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'schedule-item-card';
+                    
+                    const timeSpan = isPickupItem ? '' : `<span>⏰ ${item.time || '-'}</span>`;
+
                     itemDiv.innerHTML = `
                         <div class="schedule-header">
                             <div class="schedule-date-time">
                                 <span>📅 ${item.date || '-'}</span>
-                                <span>⏰ ${item.time || '-'}</span>
+                                ${timeSpan}
                             </div>
                             <div class="schedule-pax">${item.count || '-'}명</div>
                         </div>
