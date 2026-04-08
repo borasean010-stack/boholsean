@@ -108,7 +108,8 @@
                 : (data.pickupResort || '-');
             document.getElementById('v-resort').innerText = rText;
             
-            document.getElementById('v-balance').innerText = data.exchangeAmount && data.exchangeAmount !== '-' ? `₱ ${data.exchangeAmount}` : '전액 결제 완료';
+            const balanceText = data.exchangeAmount && data.exchangeAmount !== '전액 결제 완료' ? `₱ ${data.exchangeAmount} / 잔금(GET)` : '전액 결제 완료';
+            document.getElementById('v-balance').innerText = balanceText;
             
             const tbody = document.getElementById('v-items');
             tbody.innerHTML = '';

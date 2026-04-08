@@ -832,11 +832,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     else if (lowerLine.includes('maris') || lowerLine.includes('마리스')) itemName = '마리스 스파';
                     else if (lowerLine.includes('helios') || lowerLine.includes('헬리오스')) itemName = '헬리오스 스파';
                     else if (lowerLine.includes('land') || lowerLine.includes('랜드')) { itemName = '보라카이 랜드투어'; if(!actualTimeMatch) itemTime = "10:30"; }
-                    else if (lowerLine.includes('hopping') || lowerLine.includes('호핑')) { 
-                        if (lowerLine.includes('보라아재') || lowerLine.includes('카라바오')) { itemName = '보라아재 호핑투어'; if(!actualTimeMatch) itemTime = "08:00"; }
-                        else if (lowerLine.includes('(j)') || lowerLine.includes('점보')) { itemName = '블랙펄 호핑투어 (+점보크랩 점심)'; if(!actualTimeMatch) itemTime = "12:30"; } 
-                        else { itemName = '블랙펄 선셋 호핑투어'; if(!actualTimeMatch) itemTime = "13:30"; } 
-                    }
+                    else if (lowerLine.includes('p.hopping') || lowerLine.includes('프라이빗 호핑')) { itemName = '프라이빗 호핑투어'; }
+                    else if (lowerLine.includes('hopping') || lowerLine.includes('호핑')) { itemName = '샤인 호핑투어'; }
+                    else if (lowerLine.includes('napaling') || lowerLine.includes('나팔링')) { itemName = '나팔링투어'; }
+                    else if (lowerLine.includes('daytour(d)')) { itemName = '데이투어 D코스'; }
+                    else if (lowerLine.includes('daytour(c)')) { itemName = '데이투어 C코스'; }
                     else if (lowerLine.includes('malum') || lowerLine.includes('말룸')) { itemName = '시크릿가든 말룸파티'; if(!actualTimeMatch) itemTime = "09:40"; }
                     else if (lowerLine.includes('jetski') || lowerLine.includes('zetski') || lowerLine.includes('제트스키')) itemName = '제트스키';
                     else if (lowerLine.includes('helmet') || lowerLine.includes('헬멧')) itemName = '헬멧다이빙';
@@ -856,7 +856,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (combinedKorNames.length === 0) {
             console.log("No valid rows found to process (combinedKorNames is empty)");
-            alert("처리할 수 있는 올바른 형식의 데이터가 없습니다. (최소 16개 이상의 열이 필요하며, 이름/연락처/내용이 포함되어야 합니다.)");
+            alert("처리할 수 있는 올바른 형식의 데이터가 없습니다. (최소 15개 이상의 열이 필요하며, 이름/연락처/내용이 포함되어야 합니다.)");
             return;
         }
         
@@ -867,14 +867,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!mergedItemsMap[key]) { mergedItemsMap[key] = { ...it }; }
             else { mergedItemsMap[key].count += it.count; }
         });
-        const finalExAmount = (isExNumeric && totalExAmount > 0) ? totalExAmount.toString() : firstExVal;
+        
+        // 잔금(Balance) 조건: "get" 이라는 단어가 포함된 경우에만 표시, 아니면 전액 결제
+        let displayBalance = '전액 결제 완료';
+        if (firstExVal.toLowerCase().includes('get')) {
+             displayBalance = finalExAmount || firstExVal; // 숫자 추출된 값이 있으면 쓰고, 아니면 원본 표기
+        }
+        
         const resData = { 
             customerKorName: combinedKorNames.join(', '), 
             contact: firstContact, 
             items: Object.values(mergedItemsMap), 
             status: '예약확정', 
-            exchangeAmount: finalExAmount || '-', 
-            paxInfo: `성인 ${totalAdults}, 아동 ${totalChildren}, 유아 ${totalInfants}`, 
+            exchangeAmount: displayBalance, 
+            paxInfo: `성인 ${totalAdults}, 아동 ${totalChildren}, 유아 ${totalInfants}`.replace(/, 아동 0, 유아 0/, '').replace(/, 유아 0/, ''), 
             pickupResort: firstResort, 
             sendingResort: secondResort, 
             pickupFlight: firstPickupFlight,
