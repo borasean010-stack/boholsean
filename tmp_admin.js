@@ -358,6 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBody.innerHTML = '';
         const searchInput = document.getElementById('header-global-search');
         const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        
         const filtered = allReservations.filter(r => {
             const name = (r.customerKorName || '').toLowerCase();
             let matchesTab = false;
@@ -367,28 +368,63 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (activeTab === 'resort-confirmed') matchesTab = (r.status === '리조트확정');
             return name.includes(searchTerm) && matchesTab;
         });
-        filtered.forEach((res, index) => {
-            const tr = document.createElement('tr');
-            const status = res.status || '대기';
-            const firstItem = (res.items?.[0]?.name || '-') + (res.items?.length > 1 ? ` 외 ${res.items.length-1}건` : '');
-            let actionButtons = `<button class="btn-action-received" style="background:#ff6a00; border-color:#ff6a00;" onclick="showDetail('${res.id}', 'reservation')"><span class="material-icons">visibility</span>상세</button>`;
-            
-            if (status === '입금확인요청') {
-                actionButtons = `<button class="btn-action-received" style="background:#00c73c; border-color:#00c73c;" onclick="handleAutoConfirm('${res.id}')"><span class="material-icons">payments</span>입금확인</button>` + actionButtons;
-            } else if (status === '예약접수' || status === '입금대기') {
-                actionButtons = `<button class="btn-action-received" onclick="handleAutoConfirm('${res.id}')"><span class="material-icons">payments</span>입금확인</button>` + actionButtons;
-            } else if (status === '견적발송') {
-                actionButtons = `<button class="btn-action-outline" onclick="navigator.clipboard.writeText('${window.location.origin}/quote.html?id=${res.id}').then(()=>alert('링크복사됨'))"><span class="material-icons">link</span>견적링크</button>` + actionButtons;
-            }
 
-            if (status === '견적') actionButtons = `<button class="btn-action-received" onclick="handleResortQuoteComplete('${res.id}')"><span class="material-icons">task_alt</span>견적완료</button><button class="btn-action-received" style="background:#00c73c; border-color:#00c73c;" onclick="handleResortConfirm('${res.id}')"><span class="material-icons">check_circle</span>확정</button>` + actionButtons;
-            
-            const badgeClass = status === '입금확인요청' ? 'badge-yellow' : (status.includes('확정') ? 'badge-green' : 'badge-yellow');
-            const displayStatus = status === '입금확인요청' ? '입금완료' : status;
-            
-            tr.innerHTML = `<td><input type="checkbox"></td><td style="color:#bbb;">${filtered.length - index}</td><td>${res.reservationNumber || '-'}</td><td><div style="font-size:14px; font-weight:800;">${res.customerKorName}</div></td><td>${firstItem}</td><td>₩ ${(res.totalPrice || 0).toLocaleString()}</td><td>${res.createdAt?.toDate ? res.createdAt.toDate().toLocaleDateString() : '-'}</td><td><span class="n-badge ${badgeClass}">${displayStatus}</span></td><td><div style="display:flex; gap:5px;">${actionButtons}</div></td>`;
-            tableBody.appendChild(tr);
-        });
+        if (activeTab === 'new') {
+            // 신규 탭일 경우 섹션 나누기
+            const sections = [
+                { title: "🔥 고객 예약 신청 (확인 필요)", status: ['예약신청완료', '입금확인요청'], color: "#ff4b4b" },
+                { title: "📩 발송된 견적서 (대기 중)", status: ['견적발송'], color: "#007aff" },
+                { title: "⏳ 입금 대기 / 기타 접수", status: ['입금대기', '예약접수'], color: "#666" }
+            ];
+
+            sections.forEach(sec => {
+                const secData = filtered.filter(r => sec.status.includes(r.status));
+                
+                // 섹션 헤더 행
+                const headTr = document.createElement('tr');
+                headTr.innerHTML = `<td colspan="9" style="background:#fcfcfc; padding:15px 20px; text-align:left; font-weight:800; color:${sec.color}; border-left:5px solid ${sec.color}; font-size:14px;">${sec.title} (${secData.length}건)</td>`;
+                tableBody.appendChild(headTr);
+
+                if (secData.length === 0) {
+                    const emptyTr = document.createElement('tr');
+                    emptyTr.innerHTML = `<td colspan="9" style="padding:20px; color:#bbb; font-size:12px; text-align:center;">해당 내역이 없습니다.</td>`;
+                    tableBody.appendChild(emptyTr);
+                } else {
+                    secData.forEach((res, index) => {
+                        renderRow(res, filtered.length - index);
+                    });
+                }
+            });
+        } else {
+            // 다른 탭은 기존 방식대로 출력
+            filtered.forEach((res, index) => {
+                renderRow(res, filtered.length - index);
+            });
+        }
+    }
+
+    // 행 출력을 위한 공통 함수 분리
+    function renderRow(res, displayIndex) {
+        const tr = document.createElement('tr');
+        const status = res.status || '대기';
+        const firstItem = (res.items?.[0]?.name || '-') + (res.items?.length > 1 ? ` 외 ${res.items.length-1}건` : '');
+        let actionButtons = `<button class="btn-action-received" style="background:#ff6a00; border-color:#ff6a00;" onclick="showDetail('${res.id}', 'reservation')"><span class="material-icons">visibility</span>상세</button>`;
+        
+        if (status === '입금확인요청' || status === '예약신청완료') {
+            actionButtons = `<button class="btn-action-received" style="background:#00c73c; border-color:#00c73c;" onclick="handleAutoConfirm('${res.id}')"><span class="material-icons">payments</span>입금확인</button>` + actionButtons;
+        } else if (status === '예약접수' || status === '입금대기') {
+            actionButtons = `<button class="btn-action-received" onclick="handleAutoConfirm('${res.id}')"><span class="material-icons">payments</span>입금확인</button>` + actionButtons;
+        } else if (status === '견적발송') {
+            actionButtons = `<button class="btn-action-outline" onclick="navigator.clipboard.writeText('${window.location.origin}/quote.html?id=${res.id}').then(()=>alert('링크복사됨'))"><span class="material-icons">link</span>견적링크</button>` + actionButtons;
+        }
+
+        if (status === '견적') actionButtons = `<button class="btn-action-received" onclick="handleResortQuoteComplete('${res.id}')"><span class="material-icons">task_alt</span>견적완료</button><button class="btn-action-received" style="background:#00c73c; border-color:#00c73c;" onclick="handleResortConfirm('${res.id}')"><span class="material-icons">check_circle</span>확정</button>` + actionButtons;
+        
+        const badgeClass = (status === '입금확인요청' || status === '예약신청완료') ? 'badge-yellow' : (status.includes('확정') ? 'badge-green' : 'badge-yellow');
+        const displayStatus = (status === '입금확인요청' || status === '예약신청완료') ? '입금확인요망' : status;
+        
+        tr.innerHTML = `<td><input type="checkbox"></td><td style="color:#bbb;">${displayIndex}</td><td>${res.reservationNumber || '-'}</td><td><div style="font-size:14px; font-weight:800;">${res.customerKorName}</div></td><td>${firstItem}</td><td>₩ ${(res.totalPrice || 0).toLocaleString()}</td><td>${res.createdAt?.toDate ? res.createdAt.toDate().toLocaleDateString() : '-'}</td><td><span class="n-badge ${badgeClass}">${displayStatus}</span></td><td><div style="display:flex; gap:5px;">${actionButtons}</div></td>`;
+        tableBody.appendChild(tr);
     }
 
     window.deleteSingleReservation = async (id) => {
