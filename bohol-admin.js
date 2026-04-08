@@ -263,11 +263,11 @@ document.addEventListener('DOMContentLoaded', () => {
         filteredItems.forEach(item => {
             const cat = getCategory(item.name, item.details);
             let groupTitle = item.name;
-            if (cat === '픽업/샌딩') {
-                groupTitle = (item.flight !== '-' && item.flight) ? item.flight : '기타 항공편';
-            } else if (cat === '호핑투어' || cat === '시크릿가든 말룸파티' || cat === '랜드투어') {
+            if (cat === '픽업샌딩') {
+                groupTitle = (item.flight !== '-' && item.flight) ? item.flight : '공항 픽업/샌딩';
+            } else if (cat === '호핑투어' || cat === '육상투어' || cat === '나팔링') {
                 groupTitle = cat;
-            } else if (item.name.toLowerCase().includes('마사지') || item.name.toLowerCase().includes('스파')) {
+            } else if (cat === '마사지') {
                 groupTitle = item.name.replace(/마사지|스파|\(|\)/g, '').trim() || '마사지';
             }
             const key = `${cat}_${groupTitle}_${item.time}`;
@@ -651,27 +651,29 @@ document.addEventListener('DOMContentLoaded', () => {
             const rows = parseRobustTSV(input);
             const batch = writeBatch(db);
             let count = 0;
-            const currentYear = new Date().getFullYear();
+            const currentYear = 2026; // 데이터 기준 연도 설정
 
             for (const row of rows) {
-                if (row.length < 10) continue; // 유효하지 않은 행 스킵
+                if (row.length < 11) continue; 
 
-                // 데이터 위치 (제공된 스니펫 기준)
-                // 0:픽업일, 1:샌딩일, 2:픽업편, 3:샌딩편, 9:리조트, 10:영문명, 11~13:인원, 15:한글명, 16:비고
+                // 데이터 위치 매핑 (제공된 엑셀 스니펫 기준)
                 const pickupDateRaw = (row[0] || '').trim();
                 const sendingDateRaw = (row[1] || '').trim();
                 const pickupFlight = (row[2] || '').trim();
                 const sendingFlight = (row[3] || '').trim();
-                const resortRaw = (row[9] || '').trim();
+                const resortRaw = (row[8] || '').trim();
                 
-                const engName = (row[10] || '').trim().toUpperCase();
-                const korNameOnly = (row[15] || '').trim();
+                const engName = (row[9] || '').trim().toUpperCase();
+                const korNameOnly = (row[14] || '').trim();
+                
+                // 💎 보라카이션 스타일 네이밍: UPPER ENG (KOR)
                 const customerName = engName ? `${engName} (${korNameOnly || ''})`.replace(' ()', '') : (korNameOnly || '고객');
-                const remarks = (row[16] || '').trim();
                 
-                const p1 = parseInt(row[11]) || 0;
-                const p2 = parseInt(row[12]) || 0;
-                const p3 = parseInt(row[13]) || 0;
+                const remarks = (row[15] || row[16] || '').trim();
+                
+                const p1 = parseInt(row[10]) || 0;
+                const p2 = parseInt(row[11]) || 0;
+                const p3 = parseInt(row[12]) || 0;
                 const totalPax = p1 + p2 + p3 || 1;
 
                 const formatDate = (raw) => {
@@ -684,8 +686,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 1. 공항 픽업 등록
                 const pDate = formatDate(pickupDateRaw);
-                if (pDate && pickupFlight && pickupFlight !== '-') {
-                    let pTime = "14:00"; // TW125 포함 모든 픽업 기본 14:00
+                if (pDate && pickupFlight && pickupFlight !== '-' && pickupFlight !== '0') {
+                    let pTime = "14:00"; 
                     const docRef = doc(collection(db, "schedules"));
                     batch.set(docRef, {
                         date: pDate, time: pTime, name: "공항 픽업",
@@ -698,11 +700,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 2. 공항 샌딩 등록
                 const sDate = formatDate(sendingDateRaw);
-                if (sDate && sendingFlight && sendingFlight !== '-') {
+                if (sDate && sendingFlight && sendingFlight !== '-' && sendingFlight !== '0') {
                     const fl = sendingFlight.toUpperCase().trim();
                     let sTime = "21:00";
-                    if (fl === 'TW126') sTime = "08:30";
-                    else if (fl.startsWith('TW') || fl.startsWith('5J') || fl.startsWith('Z2') || fl.startsWith('DG') || (fl.startsWith('PR') && !['PR469', 'PR489'].includes(fl))) sTime = "전날 재안내";
+                    if (fl.includes('126')) sTime = "08:30";
                     
                     const docRef = doc(collection(db, "schedules"));
                     batch.set(docRef, {
@@ -714,7 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     count++;
                 }
 
-                // 3. 비고란 상세 스케줄 파싱
+                // 3. 비고란(Remarks) 상세 스케줄 파싱
                 if (remarks) {
                     const lines = remarks.split('\n');
                     for (const line of lines) {
@@ -723,44 +724,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         const itemDate = `${currentYear}-${dateMatch[1].padStart(2, '0')}-${dateMatch[2].padStart(2, '0')}`;
                         let itemTime = "09:00";
-                        let itemName = "기타 일정";
                         const lowerLine = line.toLowerCase();
 
-                        // 시간 추출
+                        // 시간 추출 (예: 07:30, 9:00)
                         const timeMatch = line.match(/(\d{1,2}):(\d{2})/);
                         if (timeMatch) itemTime = `${timeMatch[1].padStart(2, '0')}:${timeMatch[2]}`;
 
-                        // 상품명 및 특이 시간 설정
-                        if (lowerLine.includes('land') || lowerLine.includes('랜드')) {
-                            itemName = "보라카이 랜드투어";
-                            itemTime = "10:30"; // 랜드투어 무조건 10:30
-                        }
-                        else if (lowerLine.includes('hopping') || lowerLine.includes('호핑')) {
-                            if (lowerLine.includes('j') || lowerLine.includes('점보')) itemName = "블랙펄 호핑투어 (+점보크랩 점심)";
-                            else itemName = "블랙펄 선셋 호핑투어";
-                            if (!timeMatch) itemTime = lowerLine.includes('j') ? "12:30" : "13:30";
-                        }
-                        else if (lowerLine.includes('malum') || lowerLine.includes('말룸')) {
-                            itemName = "시크릿가든 말룸파티";
-                            if (!timeMatch) itemTime = "09:40";
-                        }
-                        else if (lowerLine.includes('luna') || lowerLine.includes('루나')) itemName = "루나스파";
-                        else if (lowerLine.includes('bora') || lowerLine.includes('보라')) itemName = "보라스파";
-                        else if (lowerLine.includes('sspa') || lowerLine.includes('에스파')) itemName = "에스파(SSPA)";
-                        else if (lowerLine.includes('kabayan') || lowerLine.includes('카바얀')) itemName = "카바얀";
-                        else if (lowerLine.includes('hilot') || lowerLine.includes('힐롯')) itemName = "힐롯마사지";
-                        else if (lowerLine.includes('firefly') || lowerLine.includes('반딧불')) itemName = "반딧불이 투어";
-                        else if (lowerLine.includes('poseidon') || lowerLine.includes('포세이돈')) itemName = "포세이돈";
-                        else if (lowerLine.includes('maris') || lowerLine.includes('마리스')) itemName = "마리스";
-                        else if (lowerLine.includes('diving') || lowerLine.includes('다이빙')) itemName = "체험다이빙";
-                        else if (lowerLine.includes('golf') || lowerLine.includes('골프')) itemName = "골프";
-                        else if (lowerLine.includes('jetski') || lowerLine.includes('zetski') || lowerLine.includes('제트스키')) itemName = "제트스키";
-                        else if (lowerLine.includes('helmet') || lowerLine.includes('헬멧')) itemName = "헬멧다이빙";
-                        else if (lowerLine.includes('para') || lowerLine.includes('파라')) itemName = "파라세일링";
-                        else if (lowerLine.includes('마사지') || lowerLine.includes('스파')) itemName = "마사지";
+                        // 상품명 추출 (날짜와 시간 제외한 나머지)
+                        let itemName = line.replace(dateMatch[0], '').trim();
+                        if (timeMatch) itemName = itemName.replace(timeMatch[0], '').trim();
+                        if (!itemName) itemName = "기타 일정";
 
-
-                        // 세부 인원 (태반4 등)
+                        // 세부 인원 파싱 (예: 태반4 등 숫자가 포함된 경우)
                         let itemPax = totalPax;
                         const mCount = line.match(/\d+(?=명|인|태반|성장|스톤|오일|포쉘|진주)/g);
                         if (mCount) itemPax = mCount.reduce((a, b) => a + parseInt(b), 0);
@@ -784,7 +759,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.hideInputArea();
                 renderSchedule();
             } else {
-                alert("등록 가능한 데이터를 찾지 못했습니다. 형식을 확인해주세요.");
+                alert("등록 가능한 데이터를 찾지 못했습니다. 형식을 확인해 주세요.");
             }
         } catch (e) {
             console.error("Bulk Register Error:", e);
@@ -912,66 +887,75 @@ document.addEventListener('DOMContentLoaded', () => {
             const totalPax = (parseInt(row[10]) || 0) + (parseInt(row[11]) || 0) + (parseInt(row[12]) || 0);
             const formatDate = (raw) => { if (!raw || !raw.includes('/')) return null; const [m, d] = raw.split('/').map(v => v.trim().padStart(2,'0')); return `${currentYear}-${m}-${d}`; };
             
-            if (row[2] && row[2].match(/[A-Z]{2}\d+/)) { allItems.push({ name: `✈️ 공항 픽업 (${row[2].toUpperCase()})`, date: formatDate(row[0]), time: "14:00", count: totalPax }); }
-            if (row[3] && row[3].match(/[A-Z]{2}\d+/)) { 
+            // 항공사 코드 (숫자 포함 가능하도록 수정: 7C, 5J 등)
+            const flightRegex = /[A-Z0-9]{2}\d+/i;
+            if (row[2] && flightRegex.test(row[2])) { allItems.push({ name: `✈️ 공항 픽업 (${row[2].toUpperCase().trim()})`, date: formatDate(row[0]), time: "14:00", count: totalPax }); }
+            if (row[3] && flightRegex.test(row[3])) { 
                 const fl = row[3].toUpperCase().trim();
                 let sTime = "21:00";
-                if (fl === 'TW126') sTime = "08:30";
+                if (fl.includes('126')) sTime = "08:30";
                 else if (fl.startsWith('TW') || fl.startsWith('5J') || fl.startsWith('Z2') || fl.startsWith('DG') || (fl.startsWith('PR') && !['PR469', 'PR489'].includes(fl))) sTime = "전날 재안내";
                 allItems.push({ name: `✈️ 공항 샌딩 (${fl})`, date: formatDate(row[1]), time: sTime, count: totalPax }); 
             }
 
             const remarkRaw = (row[15] || row[16] || '').trim();
-            remarkRaw.split('\n').forEach(line => {
-                const dm = line.trim().match(/^(\d{1,2})\/(\d{1,2})/);
-                if (dm) {
-                    const tDate = formatDate(dm[0]);
-                    let itemName = line.replace(dm[0], '').trim(); let itemTime = "09:00"; let itemPax = totalPax;
-                    const mCount = line.match(/\d+(?=명|인|태반|성장|스톤|오일|포쉘|진주)/g);
-                    if ((line.includes('spa') || line.includes('스파')) && mCount) {
-                        const sum = mCount.filter(n => parseInt(n) < 15).reduce((a, b) => parseInt(a) + parseInt(b), 0);
-                        if (sum > 0) itemPax = sum;
-                    }
-                    const timeMatch = line.match(/(\d{1,2})\/(\d{1,2})/); // Prevent re-matching dates
-                    const actualTimeMatch = line.match(/(\d{1,2}):(\d{2})/); if (actualTimeMatch) itemTime = `${actualTimeMatch[1].padStart(2,'0')}:${actualTimeMatch[2]}`;
-                    const lowerLine = line.toLowerCase();
-                    
-                    if (lowerLine.includes('meeting') || lowerLine.includes('pickup') || lowerLine.includes('픽업')) itemName = '✈️ 공항 픽업';
-                    else if (lowerLine.includes('sending') || lowerLine.includes('샌딩')) itemName = '✈️ 공항 샌딩';
-                    else if (lowerLine.includes('sspa') || lowerLine.includes('에스파')) itemName = '에스파(S-SPA)';
-                    else if (lowerLine.includes('luna') || lowerLine.includes('루나')) itemName = '루나스파';
-                    else if (lowerLine.includes('bora') || lowerLine.includes('보라')) itemName = '보라스파';
-                    else if (lowerLine.includes('kabayan') || lowerLine.includes('카바얀')) itemName = '카바얀스파';
-                    else if (lowerLine.includes('hilot') || lowerLine.includes('힐롯')) itemName = '힐롯마사지';
-                    else if (lowerLine.includes('poseidon') || lowerLine.includes('포세이돈')) itemName = '포세이돈 스파';
-                    else if (lowerLine.includes('maris') || lowerLine.includes('마리스')) itemName = '마리스 스파';
-                    else if (lowerLine.includes('helios') || lowerLine.includes('헬리오스')) itemName = '헬리오스 스파';
-                    else if (lowerLine.includes('land') || lowerLine.includes('랜드')) { itemName = '보라카이 랜드투어'; if(!actualTimeMatch) itemTime = "10:30"; }
-                    else if (lowerLine.includes('bohol show') || lowerLine.includes('보홀쇼')) { itemName = '보홀쇼'; }
-                    else if (lowerLine.includes('surin') || lowerLine.includes('수린')) { itemName = '수린스파'; }
-                    else if (lowerLine.includes('hilot') || lowerLine.includes('힐롯')) { itemName = '힐롯스파'; }
-                    else if (lowerLine.includes('firefly') || lowerLine.includes('반딧불')) { itemName = '반딧불이 투어'; }
-                    else if (lowerLine.includes('napaling + clamshell') || lowerLine.includes('대왕조개')) { itemName = '나팔링+대왕조개 투어'; }
-                    else if (lowerLine.includes('napaling') || lowerLine.includes('나팔링')) { itemName = '나팔링투어'; }
-                    else if (lowerLine.includes('daytour(d)')) { itemName = '데이투어 D코스'; }
-                    else if (lowerLine.includes('daytour(c)')) { itemName = '데이투어 C코스'; }
-                    else if (lowerLine.includes('p.hopping') || lowerLine.includes('프라이빗 호핑')) { itemName = '프라이빗 호핑투어'; }
-                    else if (lowerLine.includes('hopping') || lowerLine.includes('호핑')) { itemName = '샤인 호핑투어'; }
-                    else if (lowerLine.includes('malum') || lowerLine.includes('말룸')) { itemName = '시크릿가든 말룸파티'; if(!actualTimeMatch) itemTime = "09:40"; }
-                    else if (lowerLine.includes('jetski') || lowerLine.includes('zetski') || lowerLine.includes('제트스키')) itemName = '제트스키';
-                    else if (lowerLine.includes('helmet') || lowerLine.includes('헬멧')) itemName = '헬멧다이빙';
-                    else if (lowerLine.includes('para') || lowerLine.includes('파라')) itemName = '파라세일링';
-                    else if (lowerLine.includes('diving') || lowerLine.includes('다이빙')) itemName = '체험다이빙';
-                    else if (lowerLine.includes('golf') || lowerLine.includes('골프')) itemName = '페어웨이 골프';
-                    else if (lowerLine.includes('sub') || lowerLine.includes('잠수함')) itemName = '잠수함';
-                    else if (lowerLine.includes('yacht') || lowerLine.includes('요트')) itemName = '프라이빗 요트';
-                    else if (lowerLine.includes('sunset') || lowerLine.includes('선셋')) itemName = '선셋 세일링';
-                    
-                    if (line.includes('afh') || line.includes('AFH')) itemTime = "18:00";
-                    else if (line.includes('afm') || line.includes('AFM')) itemTime = "17:00";
-                    allItems.push({ name: itemName, date: tDate, time: itemTime, count: itemPax, details: line });
+            if (remarkRaw) {
+                if (remarkRaw === '픽업만' && !row[2]) {
+                    allItems.push({ name: `✈️ 공항 픽업`, date: formatDate(row[0]), time: "14:00", count: totalPax });
+                } else if (remarkRaw === '샌딩만' && !row[3]) {
+                    allItems.push({ name: `✈️ 공항 샌딩`, date: formatDate(row[1]), time: "21:00", count: totalPax });
                 }
-            });
+
+                remarkRaw.split('\n').forEach(line => {
+                    const dm = line.trim().match(/^(\d{1,2})\/(\d{1,2})/);
+                    if (dm) {
+                        const tDate = formatDate(dm[0]);
+                        let itemName = line.replace(dm[0], '').trim(); let itemTime = "09:00"; let itemPax = totalPax;
+                        const mCount = line.match(/\d+(?=명|인|태반|성장|스톤|오일|포쉘|진주)/g);
+                        if ((line.includes('spa') || line.includes('스파')) && mCount) {
+                            const sum = mCount.filter(n => parseInt(n) < 15).reduce((a, b) => parseInt(a) + parseInt(b), 0);
+                            if (sum > 0) itemPax = sum;
+                        }
+                        const actualTimeMatch = line.match(/(\d{1,2}):(\d{2})/); if (actualTimeMatch) itemTime = `${actualTimeMatch[1].padStart(2,'0')}:${actualTimeMatch[2]}`;
+                        const lowerLine = line.toLowerCase();
+                        
+                        if (lowerLine.includes('meeting') || lowerLine.includes('pickup') || lowerLine.includes('픽업')) itemName = '✈️ 공항 픽업';
+                        else if (lowerLine.includes('sending') || lowerLine.includes('샌딩')) itemName = '✈️ 공항 샌딩';
+                        else if (lowerLine.includes('sspa') || lowerLine.includes('에스파')) itemName = '에스파(S-SPA)';
+                        else if (lowerLine.includes('luna') || lowerLine.includes('루나')) itemName = '루나스파';
+                        else if (lowerLine.includes('bora') || lowerLine.includes('보라')) itemName = '보라스파';
+                        else if (lowerLine.includes('kabayan') || lowerLine.includes('카바얀')) itemName = '카바얀스파';
+                        else if (lowerLine.includes('hilot') || lowerLine.includes('힐롯')) itemName = '힐롯마사지';
+                        else if (lowerLine.includes('poseidon') || lowerLine.includes('포세이돈')) itemName = '포세이돈 스파';
+                        else if (lowerLine.includes('maris') || lowerLine.includes('마리스')) itemName = '마리스 스파';
+                        else if (lowerLine.includes('helios') || lowerLine.includes('헬리오스')) itemName = '헬리오스 스파';
+                        else if (lowerLine.includes('land') || lowerLine.includes('랜드')) { itemName = '보라카이 랜드투어'; if(!actualTimeMatch) itemTime = "10:30"; }
+                        else if (lowerLine.includes('bohol show') || lowerLine.includes('보홀쇼')) { itemName = '보홀쇼'; }
+                        else if (lowerLine.includes('surin') || lowerLine.includes('수린')) { itemName = '수린스파'; }
+                        else if (lowerLine.includes('hilot') || lowerLine.includes('힐롯')) { itemName = '힐롯스파'; }
+                        else if (lowerLine.includes('firefly') || lowerLine.includes('반딧불')) { itemName = '반딧불이 투어'; }
+                        else if (lowerLine.includes('napaling + clamshell') || lowerLine.includes('대왕조개')) { itemName = '나팔링+대왕조개 투어'; }
+                        else if (lowerLine.includes('napaling') || lowerLine.includes('나팔링')) { itemName = '나팔링투어'; }
+                        else if (lowerLine.includes('daytour(d)')) { itemName = '데이투어 D코스'; }
+                        else if (lowerLine.includes('daytour(c)')) { itemName = '데이투어 C코스'; }
+                        else if (lowerLine.includes('p.hopping') || lowerLine.includes('프라이빗 호핑')) { itemName = '프라이빗 호핑투어'; }
+                        else if (lowerLine.includes('hopping') || lowerLine.includes('호핑')) { itemName = '샤인 호핑투어'; }
+                        else if (lowerLine.includes('malum') || lowerLine.includes('말룸')) { itemName = '시크릿가든 말룸파티'; if(!actualTimeMatch) itemTime = "09:40"; }
+                        else if (lowerLine.includes('jetski') || lowerLine.includes('zetski') || lowerLine.includes('제트스키')) itemName = '제트스키';
+                        else if (lowerLine.includes('helmet') || lowerLine.includes('헬멧')) itemName = '헬멧다이빙';
+                        else if (lowerLine.includes('para') || lowerLine.includes('파라')) itemName = '파라세일링';
+                        else if (lowerLine.includes('diving') || lowerLine.includes('다이빙')) itemName = '체험다이빙';
+                        else if (lowerLine.includes('golf') || lowerLine.includes('골프')) itemName = '페어웨이 골프';
+                        else if (lowerLine.includes('sub') || lowerLine.includes('잠수함')) itemName = '잠수함';
+                        else if (lowerLine.includes('yacht') || lowerLine.includes('요트')) itemName = '프라이빗 요트';
+                        else if (lowerLine.includes('sunset') || lowerLine.includes('선셋')) itemName = '선셋 세일링';
+                        
+                        if (line.includes('afh') || line.includes('AFH')) itemTime = "18:00";
+                        else if (line.includes('afm') || line.includes('AFM')) itemTime = "17:00";
+                        allItems.push({ name: itemName, date: tDate, time: itemTime, count: itemPax, details: line });
+                    }
+                });
+            }
         });
 
         if (combinedKorNames.length === 0) {
