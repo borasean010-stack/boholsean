@@ -1,4 +1,4 @@
-// bohol-admin.js - Final Full Luxury Admin (FILTER FIX & UI RESTORE)
+// bohol-admin.js - Final Full Luxury Admin (DATE FIX & ROBUST PARSING)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs, addDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -83,6 +83,14 @@ function init() {
         return rows;
     };
 
+    // 🚀 오늘/내일 날짜 문자열 가져오기 (타임존 문제 방지)
+    function getDateStr(offsetDays = 0) {
+        const d = new Date();
+        d.setHours(d.getHours() + 9); // 한국 시간 보정 (서버 환경 대응)
+        if (offsetDays !== 0) d.setDate(d.getDate() + offsetDays);
+        return d.toISOString().split('T')[0];
+    }
+
     window.showInputArea = (type) => {
         window.hideInputArea();
         const el = document.getElementById(`input-area-${type}`);
@@ -146,9 +154,8 @@ function init() {
     }
 
     function renderDateBoxes() {
-        const now = new Date(); const offset = now.getTimezoneOffset() * 60000;
-        const todayStr = new Date(now.getTime() - offset + 32400000).toISOString().split('T')[0];
-        const tomorrowStr = new Date(now.getTime() - offset + 32400000 + 86400000).toISOString().split('T')[0];
+        const todayStr = getDateStr(0);
+        const tomorrowStr = getDateStr(1);
         if (document.getElementById('box-date-today')) document.getElementById('box-date-today').innerText = todayStr;
         if (document.getElementById('box-date-tomorrow')) document.getElementById('box-date-tomorrow').innerText = tomorrowStr;
     }
@@ -163,14 +170,11 @@ function init() {
         return '액티비티';
     }
 
-    // 🚀 스케줄 카테고리 필터링 함수 (추가됨!)
     window.filterSchedule = (category) => {
         currentScheduleFilter = category;
         document.querySelectorAll('.filter-btn').forEach(btn => {
             const btnText = btn.innerText.trim();
-            const isAll = category === 'all' && btnText === '전체';
-            const isMatch = btnText === category;
-            btn.classList.toggle('active', isAll || isMatch);
+            btn.classList.toggle('active', (category === 'all' && btnText === '전체') || btnText === category);
         });
         renderSchedule();
     };
@@ -185,10 +189,7 @@ function init() {
     function renderSchedule() {
         const container = document.getElementById('active-timeline');
         if (!container) return;
-        const now = new Date(); const offset = now.getTimezoneOffset() * 60000;
-        const targetDate = (currentScheduleDay === 'tomorrow') 
-            ? new Date(now.getTime() - offset + 32400000 + 86400000).toISOString().split('T')[0]
-            : new Date(now.getTime() - offset + 32400000).toISOString().split('T')[0];
+        const targetDate = (currentScheduleDay === 'tomorrow') ? getDateStr(1) : getDateStr(0);
         if (document.getElementById('schedule-title-date')) document.getElementById('schedule-title-date').innerText = targetDate;
 
         let rawItems = [];
@@ -207,12 +208,7 @@ function init() {
             }
         });
 
-        // 🚀 카테고리 필터링 로직 (추가됨!)
-        let filteredItems = rawItems;
-        if (currentScheduleFilter !== 'all') {
-            filteredItems = rawItems.filter(item => getCategory(item.name, item.details) === currentScheduleFilter);
-        }
-
+        let filteredItems = (currentScheduleFilter !== 'all') ? rawItems.filter(item => getCategory(item.name, item.details) === currentScheduleFilter) : rawItems;
         const groups = {};
         filteredItems.forEach(item => {
             const cat = getCategory(item.name, item.details);
@@ -226,7 +222,7 @@ function init() {
         });
 
         const sortedKeys = Object.keys(groups).sort((a, b) => groups[a].time.localeCompare(groups[b].time));
-        if (sortedKeys.length === 0) { container.innerHTML = `<div style="text-align:center; padding:30px; color:#999;">일정이 없습니다. (${currentScheduleFilter !== 'all' ? currentScheduleFilter : '전체'})</div>`; return; }
+        if (sortedKeys.length === 0) { container.innerHTML = `<div style="text-align:center; padding:30px; color:#999;">일정이 없습니다.</div>`; return; }
 
         container.innerHTML = sortedKeys.map(key => {
             const group = groups[key];
