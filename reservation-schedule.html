@@ -25,21 +25,23 @@
         .info-row label { color: #888; font-weight: 600; }
         .info-row span { font-weight: 700; color: #111; }
 
-        .schedule-item-wrapper { border-bottom: 1px solid #f0f0f0; padding-bottom: 20px; margin-bottom: 20px; }
-        .schedule-item-wrapper:last-child { border-bottom: none; }
+        /* 통합 아이템 스타일 */
+        .item-container { background: #fff; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee; }
         
-        .schedule-item { display: flex; align-items: center; gap: 15px; padding: 10px 0; }
-        .date-box { text-align: center; min-width: 50px; }
-        .date-box .month { display: block; font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; }
-        .date-box .day { display: block; font-size: 18px; font-weight: 800; color: #111; line-height: 1; }
-        .item-info { flex: 1; }
-        .item-info .name { display: block; font-size: 15px; font-weight: 800; color: #111; }
-        .item-info .time { display: block; font-size: 12px; color: #666; font-weight: 600; }
-        .item-pax { font-size: 13px; font-weight: 700; color: var(--primary); background: #e6f7f3; padding: 4px 10px; border-radius: 10px; }
+        .item-header { display: flex; align-items: center; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid #f0f0f0; margin-bottom: 15px; }
+        .date-box { text-align: center; min-width: 55px; background: #f8faf9; padding: 8px; border-radius: 12px; }
+        .date-box .month { display: block; font-size: 11px; font-weight: 700; color: var(--primary); }
+        .date-box .day { display: block; font-size: 20px; font-weight: 800; color: #111; line-height: 1; }
+        
+        .item-main-info { flex: 1; }
+        .item-main-info .item-name { display: block; font-size: 17px; font-weight: 800; color: #111; margin-bottom: 4px; }
+        .item-main-info .item-meta { display: flex; gap: 10px; font-size: 13px; color: #666; font-weight: 600; }
+        .item-pax-tag { font-size: 12px; font-weight: 700; color: var(--primary); background: #e6f7f3; padding: 3px 10px; border-radius: 8px; }
 
-        .guide-box { background: #f8faf9; border-radius: 15px; padding: 15px; margin-top: 10px; font-size: 13px; color: #555; white-space: pre-wrap; line-height: 1.7; }
-        .guide-box b { color: #111; display: block; margin-bottom: 5px; font-size: 14px; }
-        
+        .item-guide { font-size: 14px; color: #555; white-space: pre-wrap; line-height: 1.8; }
+        .item-guide b { color: #111; font-weight: 700; }
+        .item-guide .guide-title { display: block; font-size: 15px; font-weight: 800; color: #111; margin-bottom: 10px; padding-left: 10px; border-left: 4px solid var(--primary); }
+
         .notice-box { background: #fff8e6; border-radius: 20px; padding: 20px; border: 1px solid #ffeeba; margin-top: 20px; font-size: 13px; color: #856404; }
         .notice-box b { display: block; margin-bottom: 5px; }
 
@@ -69,12 +71,10 @@
         <div class="info-row"><label>환전 및 잔금</label><span id="v-exchange">-</span></div>
     </div>
 
-    <!-- 투어 및 스케줄 (가이드 통합) -->
-    <div class="card">
-        <div class="section-title"><span class="material-icons">event_note</span>투어 및 스케줄</div>
-        <div id="schedule-list">
-            <div id="loading" style="text-align:center; padding:20px; color:#999; font-size:13px;">데이터를 불러오는 중...</div>
-        </div>
+    <!-- 투어 및 일정 안내 (통합 리스트) -->
+    <div class="section-title" style="padding-left: 10px; margin-top: 30px;"><span class="material-icons">assignment</span>투어 및 일정 안내</div>
+    <div id="unified-list">
+        <div id="loading" style="text-align:center; padding:40px; color:#999; font-size:14px;">데이터를 불러오는 중...</div>
     </div>
 
     <div class="notice-box">
@@ -135,55 +135,55 @@
     const TOUR_TEMPLATES = {
         pamilacan: {
             title: "파밀라칸 호핑투어 안내",
-            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         oslob: {
             title: "오슬롭 고래상어 투어 안내",
-            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 고래상어 와칭 시 선크림 등 화장품 사용 금지"
+            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 고래상어 와칭 시 선크림 등 화장품 사용 금지"
         },
         fishing: {
             title: "선셋 낚시 투어 안내",
-            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 젖어도 되는 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         landD: {
             title: "보홀션 육상투어D 안내",
-            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천 (바클라욘 입장 제한)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천 (바클라욘 입장 제한)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         landC: {
             title: "보홀션 육상투어C 안내",
-            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천 (바클라욘 입장 제한)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천 (바클라욘 입장 제한)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         secret: {
             title: "시크릿 플레이스 안내",
-            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장 (예쁜 사진용 옷 추천)\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 나팔링 포인트 추가 선택 시 1인 400페소"
+            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장 (예쁜 사진용 옷 추천)\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 나팔링 포인트 추가 선택 시 1인 400페소"
         },
         shineHopping: {
             title: "보홀션 샤인 호핑투어 안내",
-            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 개인 타월\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 해파리 대비 긴팔/긴바지 래쉬가드 추천"
+            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 개인 타월\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)\n- 해파리 대비 긴팔/긴바지 래쉬가드 추천"
         },
         privateHopping: {
             title: "단독 호핑투어 안내",
-            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 개인 타월\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 개인 타월\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         napaling: {
             title: "나팔링 투어 안내",
-            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 개인 타월\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 물놀이 복장, 개인 타월\n- 쪼리 등 슬리퍼 비추천, 긴 옷 추천\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         hilot: {
             title: "힐롯스파 안내",
-            content: "미팅 장소 : 육상투어 후 또는 개별이동\n\n★ 주의 사항 및 준비물\n- 간편한 복장 (소지품 주의)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : 육상투어 후 또는 개별이동\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 간편한 복장 (소지품 주의)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         firefly: {
             title: "반딧불 투어 안내",
-            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         sunsetPack: {
             title: "선반팩 안내",
-            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 편한 복장\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         boholShow: {
             title: "보홀쇼 안내",
-            content: "미팅 장소 : [MEETING]\n\n★ 주의 사항 및 준비물\n- 간편한 복장 (소지품 주의)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
+            content: "미팅 장소 : [MEETING]\n드랍 장소 : [DROP]\n\n★ 주의 사항 및 준비물\n- 간편한 복장 (소지품 주의)\n- 매너팁 1인 100페소 (성인, 소인 동일)"
         },
         pickup: {
             title: "공항 픽업 안내",
@@ -252,51 +252,52 @@
                 const items = resData.items || [];
                 items.sort((a, b) => (a.date || "").localeCompare(b.date || "") || (a.time || "00:00").localeCompare(b.time || "00:00"));
 
-                const scheduleList = document.getElementById('schedule-list');
+                const unifiedList = document.getElementById('unified-list');
                 let html = '';
 
                 items.forEach(item => {
                     const month = item.date ? item.date.split('-')[1] : '--';
                     const day = item.date ? item.date.split('-')[2] : '--';
                     
-                    // 가이드 내용 생성
                     const key = getTemplateKey(item.name);
-                    let guideHtml = '';
+                    let guideContent = '';
+                    let guideTitle = item.name + ' 안내';
+                    
                     if (key) {
                         const template = TOUR_TEMPLATES[key];
-                        const guideContent = template.content
+                        guideTitle = template.title;
+                        guideContent = template.content
                             .replace('[NAME]', resData.customerKorName)
                             .replace('[PAX]', item.count + '명')
                             .replace('[TIME]', item.time || '전날 재인폼')
                             .replace('[MEETING]', translateResort(resData.pickupResort || '헤난 알로나 로비'))
                             .replace('[DROP]', translateResort(resData.sendingResort || resData.pickupResort || '헤난 알로나 로비'));
-                        
-                        guideHtml = `
-                            <div class="guide-box">
-                                <b>${item.name} 안내</b>${guideContent}
-                            </div>
-                        `;
                     }
 
                     html += `
-                        <div class="schedule-item-wrapper">
-                            <div class="schedule-item">
+                        <div class="item-container">
+                            <div class="item-header">
                                 <div class="date-box">
                                     <span class="month">${month}월</span>
                                     <span class="day">${day}</span>
                                 </div>
-                                <div class="item-info">
-                                    <span class="name">${item.name}</span>
-                                    <span class="time">${item.time || '전날 재인폼'}</span>
+                                <div class="item-main-info">
+                                    <span class="item-name">${item.name}</span>
+                                    <div class="item-meta">
+                                        <span><span class="material-icons" style="font-size:14px; vertical-align:middle;">access_time</span> ${item.time || '전날 재인폼'}</span>
+                                        <span class="item-pax-tag">${item.count}명</span>
+                                    </div>
                                 </div>
-                                <div class="item-pax">${item.count}명</div>
                             </div>
-                            ${guideHtml}
+                            <div class="item-guide">
+                                <span class="guide-title">${guideTitle}</span>
+                                ${guideContent || '상세 안내가 준비 중입니다.'}
+                            </div>
                         </div>
                     `;
                 });
 
-                scheduleList.innerHTML = html;
+                unifiedList.innerHTML = html;
                 document.getElementById('loading').style.display = 'none';
             }
         } catch (e) { console.error(e); }
