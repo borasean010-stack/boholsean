@@ -31,7 +31,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // 🚀 리조트 번역기 (한글 우선)
     function translateResort(name) {
         if (!name || name === '-') return '-';
-        const n = name.toLowerCase().replace(/\s/g, '').replace(/\./g, '').replace(/,/g, '');
+        let n = name.toLowerCase().replace(/\s/g, '').replace(/\./g, '').replace(/,/g, '');
+        n = n.replace(/drop/g, ''); // DROP는 무시
+        
+        // 보홀 리조트 목록 반영 (영어 -> 한글)
+        if (n.includes('halona')) return '헤난 알로나';
+        if (n.includes('htawala')) return '헤난 타왈라';
+        if (n.includes('hpmr') || n.includes('hpremier')) return '헤난 프리미어';
+        if (n.includes('begrand')) return '비그랜드';
+        if (n.includes('mithi')) return '미티';
+        if (n.includes('bathala')) return '바탈라 리조트';
+        if (n.includes('amihan')) return '아미한';
+        if (n.includes('modala')) return '모달라';
+        if (n.includes('tamarind')) return '타마린드';
+        if (n.includes('alonanorthland')) return '알로나 노스랜드';
+        if (n.includes('luxuhotel')) return '럭슈 호텔';
+        if (n.includes('danbi')) return '단비 리조트';
+        if (n.includes('cocotree')) return '코코트리';
+        if (n.includes('mgh')) return 'MGH';
+        if (n.includes('alonadetropicana')) return '알로나 데 트로피카나';
+        if (n.includes('ramede')) return '라메디 리조트';
+        if (n.includes('cliffside')) return '클리프사이드 리조트';
+        if (n.includes('jolibee') || n.includes('jollibee')) return '졸리비';
+        if (n.includes('fruitbasket')) return '과일바구니 (과일가게)';
+        if (n.includes('bluewaterpanglao')) return '블루워터 팡라오';
+        if (n.includes('bbc')) return 'BBC';
+        if (n === 'bs' || n.includes('bsresort')) return 'BS리조트';
+        if (n.includes('ohana')) return '오하나';
+        if (n.includes('tba')) return '미정 (TBA)';
+        if (n.includes('alonaaustria')) return '알로나 오스트리아';
+        if (n.includes('travelbee')) return '트래블비 호텔';
+        if (n.includes('adela')) return '아델라 리조트';
+        if (n.includes('cherrys')) return '체리스 홈';
+        if (n.includes('molly')) return '몰리 리조트';
+        if (n.includes('holabay')) return '홀라베이 리조트';
+
+        // 기존 보라카이 목록 (혹시 몰라 유지, 필요 시 삭제 가능)
         if (n.includes('hgarden') || n.includes('henanngarden')) return '헤난 가든';
         if (n.includes('asya')) return '아샤';
         if (n.includes('lagoon')) return '헤난 라군';
