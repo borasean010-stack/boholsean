@@ -329,6 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.switchAdminTab = (tab) => {
         activeTab = tab;
         document.querySelectorAll('.ss-nav-item').forEach(el => el.classList.remove('active'));
+        if (tab === 'new') document.getElementById('nav-new-quotes')?.classList.add('active');
         document.querySelectorAll('.stat-card').forEach(el => el.classList.remove('active'));
         const statCard = document.getElementById(`stat-${tab}`);
         if (statCard) statCard.classList.add('active');
@@ -347,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (timelineSec) timelineSec.style.display = 'block';
             document.getElementById('system-setup-section').style.display = 'none';
             document.getElementById('data-view-section').style.display = 'block';
-            if (bActive) { const labels = { 'new': '신규예약', 'confirmed': '예약확정', 'resorts': '리조트 견적', 'resort-confirmed': '리조트 확정' }; bActive.innerText = labels[tab] || '메인 페이지'; }
+            if (bActive) { const labels = { 'new': '신규 견적/예약', 'confirmed': '예약확정', 'resorts': '리조트 견적', 'resort-confirmed': '리조트 확정' }; bActive.innerText = labels[tab] || '메인 페이지'; }
             renderTable();
         }
     };
@@ -360,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const filtered = allReservations.filter(r => {
             const name = (r.customerKorName || '').toLowerCase();
             let matchesTab = false;
-            if (activeTab === 'new') matchesTab = ['입금대기', '예약접수', '견적발송', '입금확인요청'].includes(r.status);
+            if (activeTab === 'new') matchesTab = ['입금대기', '예약접수', '견적발송', '입금확인요청', '예약신청완료'].includes(r.status);
             else if (activeTab === 'confirmed') matchesTab = (r.status === '예약확정');
             else if (activeTab === 'resorts') matchesTab = (r.status === '견적');
             else if (activeTab === 'resort-confirmed') matchesTab = (r.status === '리조트확정');
