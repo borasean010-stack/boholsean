@@ -2,12 +2,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDkDjmGKQDF-0Vu2S_qtI6W5Hf2-j4tKcM",
-    authDomain: "boholsean-69b4a.firebaseapp.com",
-    projectId: "boholsean-69b4a",
-    storageBucket: "boholsean-69b4a.firebasestorage.app",
-    messagingSenderId: "806585874771",
-    appId: "1:806585874771:web:64a094d241730ca38109a6"
+    apiKey: "AIzaSyCqvsvuOGnQoNL3J0oGsOcN66ZOP0JlN5w",
+    authDomain: "boholsean-14014193-11202.firebaseapp.com",
+    projectId: "boholsean-14014193-11202",
+    storageBucket: "boholsean-14014193-11202.firebasestorage.app",
+    messagingSenderId: "684378696978",
+    appId: "1:684378696978:web:868e1e33581f38a188d7cb"
 };
 
 const app = initializeApp(firebaseConfig);
