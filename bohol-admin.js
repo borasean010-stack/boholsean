@@ -190,20 +190,44 @@ document.addEventListener('DOMContentLoaded', () => {
         renderSchedule();
     };
 
+    // 🚀 상품명 한글 변환기
+    function translateTourName(name) {
+        if (!name) return '기타 일정';
+        const n = name.toLowerCase();
+        if (n.includes('pamilacan') || n.includes('파밀라칸')) return '파밀라칸 호핑투어';
+        if (n.includes('oslob') || n.includes('오슬롭')) return '오슬롭 고래상어';
+        if (n.includes('hopping(s)') || n.includes('샤인')) return '샤인 호핑투어';
+        if (n.includes('p.hopping') || n.includes('프라이빗')) return '프라이빗 호핑투어';
+        if (n.includes('napaling') || n.includes('나팔링')) return '나팔링 투어';
+        if (n.includes('daytour(d)') || n.includes('육상투어d')) return '육상투어 D코스';
+        if (n.includes('daytour(c)') || n.includes('육상투어c')) return '육상투어 C코스';
+        if (n.includes('hilot') || n.includes('힐롯')) return '힐롯 스파';
+        if (n.includes('surin') || n.includes('수린')) return '수린 스파';
+        if (n.includes('stone') || n.includes('스톤')) return '더 스톤 마사지';
+        if (n.includes('firefly') || n.includes('반딧불')) return '반딧불이 투어';
+        if (n.includes('fire show') || n.includes('불쇼') || n.includes('보홀쇼')) return '보홀 불쇼';
+        if (n.includes('atv') || n.includes('bugcar') || n.includes('버그카')) return 'ATV/버그카';
+        if (n.includes('jumbo') || n.includes('점보')) return '점보크랩';
+        if (n.includes('pickup') || n.includes('픽업')) return '✈️ 공항 픽업';
+        if (n.includes('sending') || n.includes('샌딩') || n.includes('drop') || n.includes('드랍')) return '✈️ 공항 샌딩';
+        
+        return name; // 매칭되는 게 없으면 원문 유지
+    }
+
     function getCategory(name, details = '') {
         const combined = ((name || '') + ' ' + (details || '')).toLowerCase();
         
         // 1. 픽업샌딩
         if (combined.includes('픽업') || combined.includes('샌딩') || combined.includes('드랍')) return '픽업샌딩';
         
-        // 2. 호핑투어 (샤인, 프라이빗, 파밀라칸 등)
-        if (combined.includes('호핑') || combined.includes('파밀라칸')) return '호핑투어';
+        // 2. 나팔링 (나팔링, 대왕조개, napaling) - 호핑보다 우선 순위
+        if (combined.includes('나팔링') || combined.includes('대왕조개') || combined.includes('napaling')) return '나팔링';
         
-        // 3. 육상투어
+        // 3. 호핑투어 (샤인, 프라이빗, 파밀라칸 등)
+        if (combined.includes('호핑') || combined.includes('파밀라칸') || combined.includes('hopping')) return '호핑투어';
+        
+        // 4. 육상투어
         if (combined.includes('육상') || combined.includes('랜드') || combined.includes('daytour')) return '육상투어';
-        
-        // 4. 나팔링 (체험 다이빙, 나팔링, 대왕조개)
-        if (combined.includes('나팔링') || combined.includes('대왕조개')) return '나팔링';
         
         // 5. 마사지
         if (combined.includes('마사지') || combined.includes('스파') || combined.includes('spa') || combined.includes('힐롯')) return '마사지';
@@ -291,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (group.category === '픽업샌딩') { icon = "local_airport"; catClass = "cat-pickup"; }
             else if (group.category === '호핑투어') { icon = "sailing"; catClass = "cat-hopping"; }
             else if (group.category === '육상투어') { icon = "directions_car"; catClass = "cat-activity"; }
-            else if (group.category === '나팔링') { icon = "waves"; catClass = "cat-hopping"; }
+            else if (group.category === '나팔링') { icon = "waves"; catClass = "cat-napaling"; }
             else if (group.category === '마사지') { icon = "spa"; catClass = "cat-activity"; }
             else { icon = "star"; catClass = "cat-activity"; }
 
@@ -730,10 +754,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const timeMatch = line.match(/(\d{1,2}):(\d{2})/);
                         if (timeMatch) itemTime = `${timeMatch[1].padStart(2, '0')}:${timeMatch[2]}`;
 
-                        // 상품명 추출 (날짜와 시간 제외한 나머지)
+                        // 상품명 추출 및 한글 변환
                         let itemName = line.replace(dateMatch[0], '').trim();
                         if (timeMatch) itemName = itemName.replace(timeMatch[0], '').trim();
-                        if (!itemName) itemName = "기타 일정";
+                        itemName = translateTourName(itemName);
 
                         // 세부 인원 파싱 (예: 태반4 등 숫자가 포함된 경우)
                         let itemPax = totalPax;
@@ -917,38 +941,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (sum > 0) itemPax = sum;
                         }
                         const actualTimeMatch = line.match(/(\d{1,2}):(\d{2})/); if (actualTimeMatch) itemTime = `${actualTimeMatch[1].padStart(2,'0')}:${actualTimeMatch[2]}`;
-                        const lowerLine = line.toLowerCase();
                         
-                        if (lowerLine.includes('meeting') || lowerLine.includes('pickup') || lowerLine.includes('픽업')) itemName = '✈️ 공항 픽업';
-                        else if (lowerLine.includes('sending') || lowerLine.includes('샌딩')) itemName = '✈️ 공항 샌딩';
-                        else if (lowerLine.includes('sspa') || lowerLine.includes('에스파')) itemName = '에스파(S-SPA)';
-                        else if (lowerLine.includes('luna') || lowerLine.includes('루나')) itemName = '루나스파';
-                        else if (lowerLine.includes('bora') || lowerLine.includes('보라')) itemName = '보라스파';
-                        else if (lowerLine.includes('kabayan') || lowerLine.includes('카바얀')) itemName = '카바얀스파';
-                        else if (lowerLine.includes('hilot') || lowerLine.includes('힐롯')) itemName = '힐롯마사지';
-                        else if (lowerLine.includes('poseidon') || lowerLine.includes('포세이돈')) itemName = '포세이돈 스파';
-                        else if (lowerLine.includes('maris') || lowerLine.includes('마리스')) itemName = '마리스 스파';
-                        else if (lowerLine.includes('helios') || lowerLine.includes('헬리오스')) itemName = '헬리오스 스파';
-                        else if (lowerLine.includes('land') || lowerLine.includes('랜드')) { itemName = '보라카이 랜드투어'; if(!actualTimeMatch) itemTime = "10:30"; }
-                        else if (lowerLine.includes('bohol show') || lowerLine.includes('보홀쇼')) { itemName = '보홀쇼'; }
-                        else if (lowerLine.includes('surin') || lowerLine.includes('수린')) { itemName = '수린스파'; }
-                        else if (lowerLine.includes('hilot') || lowerLine.includes('힐롯')) { itemName = '힐롯스파'; }
-                        else if (lowerLine.includes('firefly') || lowerLine.includes('반딧불')) { itemName = '반딧불이 투어'; }
-                        else if (lowerLine.includes('napaling + clamshell') || lowerLine.includes('대왕조개')) { itemName = '나팔링+대왕조개 투어'; }
-                        else if (lowerLine.includes('napaling') || lowerLine.includes('나팔링')) { itemName = '나팔링투어'; }
-                        else if (lowerLine.includes('daytour(d)')) { itemName = '데이투어 D코스'; }
-                        else if (lowerLine.includes('daytour(c)')) { itemName = '데이투어 C코스'; }
-                        else if (lowerLine.includes('p.hopping') || lowerLine.includes('프라이빗 호핑')) { itemName = '프라이빗 호핑투어'; }
-                        else if (lowerLine.includes('hopping') || lowerLine.includes('호핑')) { itemName = '샤인 호핑투어'; }
-                        else if (lowerLine.includes('malum') || lowerLine.includes('말룸')) { itemName = '시크릿가든 말룸파티'; if(!actualTimeMatch) itemTime = "09:40"; }
-                        else if (lowerLine.includes('jetski') || lowerLine.includes('zetski') || lowerLine.includes('제트스키')) itemName = '제트스키';
-                        else if (lowerLine.includes('helmet') || lowerLine.includes('헬멧')) itemName = '헬멧다이빙';
-                        else if (lowerLine.includes('para') || lowerLine.includes('파라')) itemName = '파라세일링';
-                        else if (lowerLine.includes('diving') || lowerLine.includes('다이빙')) itemName = '체험다이빙';
-                        else if (lowerLine.includes('golf') || lowerLine.includes('골프')) itemName = '페어웨이 골프';
-                        else if (lowerLine.includes('sub') || lowerLine.includes('잠수함')) itemName = '잠수함';
-                        else if (lowerLine.includes('yacht') || lowerLine.includes('요트')) itemName = '프라이빗 요트';
-                        else if (lowerLine.includes('sunset') || lowerLine.includes('선셋')) itemName = '선셋 세일링';
+                        let itemName = line.replace(dm[0], '').trim();
+                        if (actualTimeMatch) itemName = itemName.replace(actualTimeMatch[0], '').trim();
+                        itemName = translateTourName(itemName);
                         
                         if (line.includes('afh') || line.includes('AFH')) itemTime = "18:00";
                         else if (line.includes('afm') || line.includes('AFM')) itemTime = "17:00";
