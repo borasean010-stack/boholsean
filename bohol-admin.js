@@ -1,4 +1,4 @@
-// bohol-admin.js - Final Full Luxury Admin (CLEAR FIX & ROBUST PARSING)
+// bohol-admin.js - Final Full Luxury Admin (MGH NAME FIX & ROBUST PARSING)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs, addDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -51,23 +51,25 @@ function init() {
     function translateResort(name) {
         if (!name || name === '-') return '-';
         let n = name.toLowerCase().replace(/\s/g, '').replace(/\./g, '').replace(/,/g, '');
+        if (n.includes('mgh')) return 'MGH'; // 🚀 MGH는 리조트 이름 그 자체로 고정!
         if (n.includes('halona')) return '헤난 알로나';
         if (n.includes('htawala')) return '헤난 타왈라';
         if (n.includes('hpmr') || n.includes('hpremier')) return '헤난 프리미어';
         if (n.includes('begrand')) return '비그랜드';
-        if (n.includes('mithi')) return '미티';
+        if (n.includes('mithi')) return '미티 리조트';
         if (n.includes('bathala')) return '바탈라 리조트';
-        if (n.includes('amihan')) return '아미한';
-        if (n.includes('modala')) return '모달라';
+        if (n.includes('amihan')) return '아미한 리조트';
+        if (n.includes('modala')) return '모달라 리조트';
         if (n.includes('tamarind')) return '타마린드';
         if (n.includes('alonanorthland')) return '알로나 노스랜드';
         if (n.includes('luxuhotel')) return '럭슈 호텔';
         if (n.includes('danbi')) return '단비 리조트';
         if (n.includes('southpalm')) return '사우스팜';
-        if (n.includes('jollibee')) return '졸리비';
+        if (n.includes('jollibee') || n.includes('jollibee')) return '졸리비';
         if (n.includes('bbc')) return 'BBC';
         if (n === 'bs' || n.includes('bsresort')) return 'BS리조트';
         if (n.includes('adela')) return '아델라 리조트';
+        if (n.includes('fruitbasket')) return '과일바구니';
         return name; 
     }
 
@@ -259,18 +261,16 @@ function init() {
         });
     }
 
-    // 🚀 모든 스케줄 삭제 (클리어 버튼 기능)
     window.handleClearSchedules = async () => {
-        if (!confirm("정말로 모든 스케줄을 삭제하시겠습니까? (복구 불가능)")) return;
+        if (!confirm("정말로 모든 스케줄을 삭제하시겠습니까?")) return;
         try {
             const q = query(collection(db, "schedules"));
             const snap = await getDocs(q);
             const batch = writeBatch(db);
             snap.docs.forEach(d => batch.delete(d.ref));
             await batch.commit();
-            alert("모든 스케줄이 삭제되었습니다.");
-            renderSchedule();
-        } catch (e) { console.error(e); alert("삭제 중 오류 발생"); }
+            alert("삭제 완료"); renderSchedule();
+        } catch (e) { alert("실패"); }
     };
 
     window.registerBulkSchedule = async () => {
@@ -284,8 +284,8 @@ function init() {
             const totalPax = (parseInt(row[10]) || 0) + (parseInt(row[11]) || 0) + (parseInt(row[12]) || 0) || 1;
             const formatDate = (raw) => { if (!raw || !raw.includes('/')) return null; const parts = raw.split('/'); return `${currentYear}-${parts[0].trim().padStart(2, '0')}-${parts[1].trim().replace(/[^0-9]/g, '').padStart(2, '0')}`; };
 
-            if (formatDate(row[0]) && row[2] && row[2] !== '-') { batch.set(doc(collection(db, "schedules")), { date: formatDate(row[0]), time: "전날 재안내", name: "공항 픽업", customerName, count: totalPax, flight: row[2].trim(), resort: translateResort(resortRaw), createdAt: new Date() }); count++; }
-            if (formatDate(row[1]) && row[3] && row[3] !== '-') { batch.set(doc(collection(db, "schedules")), { date: formatDate(row[1]), time: "전날 재안내", name: "공항 샌딩", customerName, count: totalPax, flight: row[3].trim(), resort: translateResort(resortRaw), createdAt: new Date() }); count++; }
+            if (formatDate(row[0]) && row[2] && row[2] !== '-') { batch.set(doc(collection(db, "schedules")), { date: formatDate(row[0]), time: "전날 재안내", name: "공항 픽업", customerName, count: totalPax, flight: row[2].trim().toUpperCase(), resort: translateResort(resortRaw), createdAt: new Date() }); count++; }
+            if (formatDate(row[1]) && row[3] && row[3] !== '-') { batch.set(doc(collection(db, "schedules")), { date: formatDate(row[1]), time: "전날 재안내", name: "공항 샌딩", customerName, count: totalPax, flight: row[3].trim().toUpperCase(), resort: translateResort(resortRaw), createdAt: new Date() }); count++; }
 
             const remarks = (row[15] || row[16] || '').trim();
             if (remarks) {
